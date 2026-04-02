@@ -2,8 +2,6 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  
-  <script src="./msal.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Démo — Plan d'action stratégique | Muni-Consul</title>
 
@@ -12,30 +10,15 @@
        ======================================================== -->
   <script>
     const SP_CONFIG = {
-      // ================================================================
-      // CONFIGURATION DÉMO — Muni-Consul
-      // ================================================================
-
-      // Tenant démo Muni-Consul
       tenantDomain: "municonsul485.sharepoint.com",
-
-      // Site SharePoint démo
       siteRelativeUrl: "/sites/Planstrategique-Demo",
-
-      // Listes SharePoint
       lists: {
         axes:    "Axes_Strategiques",
         actions: "Actions_Plan",
         jalons:  "Jalons"
       },
-
-      // App Azure AD — PnP-MuniConsul-Demo
       msalClientId: "d77e2842-aa80-489c-a13c-120357e6fb07",
-
-      // Tenant ID Muni-Consul
       msalAuthority: "https://login.microsoftonline.com/f59f1162-116c-4b59-aab9-aafa06e3d80a",
-
-      // Redirect URI — GitHub Pages démo
       redirectUri: "https://muni-consul.github.io/plan-strategique-demo/"
     };
   </script>
@@ -46,7 +29,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
   <!-- Google Fonts -->
-  
+  <script src="./msal.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -493,27 +476,8 @@
     .btn-del:hover { background:var(--c-danger-l); }
 
 
-    /* ======================================================
-       BANDEAU DÉMO
-       ====================================================== */
-    .demo-banner {
-        background: linear-gradient(90deg, #534AB7, #185FA5);
-        color: white;
-        text-align: center;
-        padding: 6px 16px;
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-    .demo-banner a {
-        color: rgba(255,255,255,0.85);
-        text-decoration: underline;
-        font-size: 11px;
-    }
+    .demo-banner { background: #534AB7; color: white; text-align: center; padding: 7px 16px; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+    .demo-banner a { color: rgba(255,255,255,0.85); text-decoration: underline; font-size: 11px; }
 
   </style>
 </head>
@@ -531,7 +495,7 @@
   <div style="font-size:13px;color:#888;margin-top:-12px;">Plan d'action stratégique</div>
     <div class="auth-sub" style="margin-top:6px;">Connexion requise pour accéder aux données SharePoint</div>
   </div>
-  <button class="btn btn-primary" id="btn-login" >
+  <button class="btn btn-primary" id="btn-login" onclick="signIn()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
     Se connecter avec Microsoft
   </button>
@@ -554,11 +518,10 @@
      APPLICATION PRINCIPALE
      ============================================================ -->
 <div id="app" class="app" style="display:none;">
-  <div class="demo-banner" style="width:100%;position:sticky;top:0;z-index:100;">
-    <span>🎯 Version démo — Muni-Consul</span>
-    <span style="opacity:0.6;">|</span>
-    <span style="font-weight:400;opacity:0.9;">Données de démonstration pour vos clients</span>
-    <a href="/cdn-cgi/l/email-protection#b3d7d4f3c0c7c6d8d6dfca9ec0c6d79dd0dcde">Contacter Muni-Consul</a>
+  <div class="demo-banner">
+    Version démo — Muni-Consul &nbsp;|&nbsp;
+    <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span>
+    &nbsp;<a href="mailto:jm&#46;beaupre&#64;muni-consul&#46;ca">Nous contacter</a>
   </div>
 
   <!-- SIDEBAR -->
@@ -956,7 +919,7 @@
 <!-- ============================================================
      JAVASCRIPT — LOGIQUE PRINCIPALE
      ============================================================ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* ================================================================
    1. MSAL — AUTHENTIFICATION MICROSOFT
    ================================================================ */
@@ -1570,13 +1533,14 @@ function startApp() {
     setTimeout(startApp, 300);
     return;
   }
-loadDemoData();
+  initMSAL().catch(err => {
+    console.warn('MSAL init failed, loading demo:', err);
+    loadDemoData();
+  });
 }
 
 // Démarrer après chargement complet
 window.addEventListener('load', function() {
-  // Si pas encore configuré, charger les données démo
-  // ClientId configuré — connexion SharePoint démo
   setTimeout(startApp, 200);
 });
 
@@ -2268,27 +2232,8 @@ function exportPDF() {
     .btn-del:hover { background:var(--c-danger-l); }
 
 
-    /* ======================================================
-       BANDEAU DÉMO
-       ====================================================== */
-    .demo-banner {
-        background: linear-gradient(90deg, #534AB7, #185FA5);
-        color: white;
-        text-align: center;
-        padding: 6px 16px;
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-    .demo-banner a {
-        color: rgba(255,255,255,0.85);
-        text-decoration: underline;
-        font-size: 11px;
-    }
+    .demo-banner { background: #534AB7; color: white; text-align: center; padding: 7px 16px; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+    .demo-banner a { color: rgba(255,255,255,0.85); text-decoration: underline; font-size: 11px; }
 
   </style>`;
 
@@ -2328,42 +2273,6 @@ function exportPDF() {
       <tbody>${rows}</tbody>
     </table>
     <div class="footer">© ${new Date().getFullYear()} Muni-Consul™ — Solutions municipales intelligentes — Tous droits réservés</div>
-  
-<script>
-// Attacher le bouton directement — exécuté en dernier
-(function attachLoginButton() {
-  var btn = document.getElementById('btn-login');
-  if (!btn) { setTimeout(attachLoginButton, 100); return; }
-  btn.onclick = async function() {
-    try {
-      btn.disabled = true;
-      btn.textContent = "Connexion en cours...";
-      if (!window.msalInstance) {
-        window.msalInstance = new msal.PublicClientApplication({
-          auth: {
-            clientId: SP_CONFIG.msalClientId,
-            authority: SP_CONFIG.msalAuthority,
-            redirectUri: SP_CONFIG.redirectUri,
-            navigateToLoginRequestUrl: true
-          },
-          cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true },
-          system: { allowNativeBroker: false }
-        });
-        await window.msalInstance.initialize();
-      }
-      await window.msalInstance.loginRedirect({
-        scopes: ["Sites.Read.All", "User.Read"],
-        redirectUri: SP_CONFIG.redirectUri
-      });
-    } catch(err) {
-      showAuthError("Erreur : " + err.message);
-      btn.disabled = false;
-      btn.textContent = "Se connecter avec Microsoft";
-    }
-  };
-})();
-</script>
-
   </body></html>`;
 
   const win = window.open('', '_blank');
@@ -2408,14 +2317,6 @@ function addHistorique(actionId, message) {
 document.getElementById('form-modal-bg').addEventListener('click', function(e) {
   if (e.target === this) closeFormModal();
 });
-
-document.getElementById('settings-modal-bg').addEventListener('click', function(e) {
-  if (e.target === this) closeSettingsModal();
-});
-
-// Charger les settings au démarrage
-loadSettings();
-initDefaultSettings();
 
 </script>
 
