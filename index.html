@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>
+var signIn = function() {
+  var btn = document.getElementById('btn-login');
+  if (btn) { btn.disabled = true; btn.textContent = 'Connexion...'; }
+  var t = 0;
+  var check = setInterval(function() {
+    t++;
+    if (window.__msalReady) {
+      clearInterval(check);
+      window.__doSignIn();
+    } else if (t > 50) {
+      clearInterval(check);
+      if (btn) { btn.disabled = false; btn.textContent = 'Se connecter avec Microsoft'; }
+      alert('Erreur : MSAL non chargé. Rechargez la page.');
+    }
+  }, 100);
+};
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Démo — Plan d'action stratégique | Muni-Consul</title>
@@ -12,11 +30,7 @@
     const SP_CONFIG = {
       tenantDomain: "municonsul485.sharepoint.com",
       siteRelativeUrl: "/sites/Planstrategique-Demo",
-      lists: {
-        axes:    "Axes_Strategiques",
-        actions: "Actions_Plan",
-        jalons:  "Jalons"
-      },
+      lists: { axes: "Axes_Strategiques", actions: "Actions_Plan", jalons: "Jalons" },
       msalClientId: "d77e2842-aa80-489c-a13c-120357e6fb07",
       msalAuthority: "https://login.microsoftonline.com/f59f1162-116c-4b59-aab9-aafa06e3d80a",
       redirectUri: "https://muni-consul.github.io/plan-strategique-demo/"
@@ -75,18 +89,17 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; margin: 0; }
+    body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
 
     /* ======================================================
        LAYOUT
        ====================================================== */
-    .app { display: flex; flex-direction: row; min-height: 100vh; }
+    .app { display: flex; min-height: 100vh; }
 
     /* Sidebar */
     .sidebar {
       width: 220px;
       flex-shrink: 0;
-      order: -1;
       background: var(--c-surface);
       border-right: 1px solid var(--c-border);
       display: flex;
@@ -139,7 +152,7 @@
     .user-role { font-size: 11px; color: var(--c-text-3); }
 
     /* Main content */
-    .main { flex: 1; overflow-x: hidden; order: 0; }
+    .main { flex: 1; overflow-x: hidden; }
 
     .topbar {
       background: var(--c-surface);
@@ -476,10 +489,6 @@
     .btn-del { color:var(--c-danger); }
     .btn-del:hover { background:var(--c-danger-l); }
 
-
-    .demo-banner { background: #534AB7; color: white; text-align: center; padding: 7px 16px; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
-    .demo-banner a { color: rgba(255,255,255,0.85); text-decoration: underline; font-size: 11px; }
-
   </style>
 </head>
 <body>
@@ -496,7 +505,7 @@
   <div style="font-size:13px;color:#888;margin-top:-12px;">Plan d'action stratégique</div>
     <div class="auth-sub" style="margin-top:6px;">Connexion requise pour accéder aux données SharePoint</div>
   </div>
-  <button class="btn btn-primary" id="btn-login" onclick="signIn()">
+  <button class="btn btn-primary" id="btn-login" onclick="signIn()" onclick="signIn()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
     Se connecter avec Microsoft
   </button>
@@ -519,11 +528,7 @@
      APPLICATION PRINCIPALE
      ============================================================ -->
 <div id="app" class="app" style="display:none;">
-  <div class="demo-banner">
-    Version démo — Muni-Consul &nbsp;|&nbsp;
-    <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span>
-    &nbsp;<a href="/cdn-cgi/l/email-protection#c5afa8e3e6f1f3fea7a0a4b0b5b7a0e3e6f3f1fea8b0abace8a6aaabb6b0a9e3e6f1f3fea6a4">Nous contacter</a>
-  </div>
+  <div style="background:#534AB7;color:white;text-align:center;padding:7px 16px;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;box-sizing:border-box;">Version démo — Muni-Consul &nbsp;|&nbsp; <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span></div>
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
@@ -920,7 +925,7 @@
 <!-- ============================================================
      JAVASCRIPT — LOGIQUE PRINCIPALE
      ============================================================ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* ================================================================
    1. MSAL — AUTHENTIFICATION MICROSOFT
    ================================================================ */
@@ -950,6 +955,7 @@ async function initMSAL() {
       }
     });
     await msalInstance.initialize();
+    window.__msalReady = true;
 
     // Gérer le redirect après login
     const resp = await msalInstance.handleRedirectPromise();
@@ -1106,10 +1112,10 @@ function loadDemoData() {
   /* ---- DONNÉES DE DÉMONSTRATION ----
      Remplacées automatiquement par les données SharePoint en production */
   APP.axes = [
-    { id:'A1', nom:'Transformation numérique',  color:'#534AB7', light:'#EEEDFE', pct:74 },
-    { id:'A2', nom:'Expérience client',          color:'#0F6E56', light:'#E1F5EE', pct:68 },
-    { id:'A3', nom:'Développement RH',           color:'#185FA5', light:'#E6F1FB', pct:55 },
-    { id:'A4', nom:'Excellence opérationnelle',  color:'#BA7517', light:'#FAEEDA', pct:60 },
+    { id:'A1', nom:'Gouvernance et administration', color:'#534AB7', light:'#EEEDFE', pct:78 },
+    { id:'A2', nom:'Services aux citoyens',          color:'#0F6E56', light:'#E1F5EE', pct:65 },
+    { id:'A3', nom:'Développement durable',           color:'#185FA5', light:'#E6F1FB', pct:52 },
+    { id:'A4', nom:'Infrastructure et travaux',  color:'#BA7517', light:'#FAEEDA', pct:61 },
     { id:'A5', nom:'Innovation & R&D',           color:'#993C1D', light:'#FAECE7', pct:42 },
   ];
   APP.actions = [
@@ -2232,10 +2238,6 @@ function exportPDF() {
     .btn-del { color:var(--c-danger); }
     .btn-del:hover { background:var(--c-danger-l); }
 
-
-    .demo-banner { background: #534AB7; color: white; text-align: center; padding: 7px 16px; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
-    .demo-banner a { color: rgba(255,255,255,0.85); text-decoration: underline; font-size: 11px; }
-
   </style>`;
 
   const total  = APP.actions.length;
@@ -2314,4 +2316,12 @@ function addHistorique(actionId, message) {
   localStorage.setItem(key, JSON.stringify(histo));
 }
 
-// Fermer en cliquant
+// Fermer en cliquant sur le fond
+document.getElementById('form-modal-bg').addEventListener('click', function(e) {
+  if (e.target === this) closeFormModal();
+});
+
+</script>
+
+</body>
+</html>
