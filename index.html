@@ -1570,10 +1570,7 @@ function startApp() {
     setTimeout(startApp, 300);
     return;
   }
-  initMSAL().catch(err => {
-    console.warn('MSAL init failed, loading demo:', err);
-    loadDemoData();
-  });
+loadDemoData();
 }
 
 // Démarrer après chargement complet
@@ -2331,7 +2328,43 @@ function exportPDF() {
       <tbody>${rows}</tbody>
     </table>
     <div class="footer">© ${new Date().getFullYear()} Muni-Consul™ — Solutions municipales intelligentes — Tous droits réservés</div>
-  </body></html>`;
+  
+<script>
+// Attacher le bouton directement — exécuté en dernier
+(function attachLoginButton() {
+  var btn = document.getElementById('btn-login');
+  if (!btn) { setTimeout(attachLoginButton, 100); return; }
+  btn.onclick = async function() {
+    try {
+      btn.disabled = true;
+      btn.textContent = "Connexion en cours...";
+      if (!window.msalInstance) {
+        window.msalInstance = new msal.PublicClientApplication({
+          auth: {
+            clientId: SP_CONFIG.msalClientId,
+            authority: SP_CONFIG.msalAuthority,
+            redirectUri: SP_CONFIG.redirectUri,
+            navigateToLoginRequestUrl: true
+          },
+          cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true },
+          system: { allowNativeBroker: false }
+        });
+        await window.msalInstance.initialize();
+      }
+      await window.msalInstance.loginRedirect({
+        scopes: ["Sites.Read.All", "User.Read"],
+        redirectUri: SP_CONFIG.redirectUri
+      });
+    } catch(err) {
+      showAuthError("Erreur : " + err.message);
+      btn.disabled = false;
+      btn.textContent = "Se connecter avec Microsoft";
+    }
+  };
+})();
+</script>
+
+</body></html>`;
 
   const win = window.open('', '_blank');
   win.document.write(html);
