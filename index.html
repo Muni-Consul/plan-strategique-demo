@@ -2,20 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-    <script>
-    // Fonction globale — sera redéfinie après chargement de msal.js
-    function signIn() {
-      document.getElementById('btn-login').textContent = "Chargement...";
-      document.getElementById('btn-login').disabled = true;
-      // Attendre que msal soit prêt
-      var wait = setInterval(function() {
-        if (window._msalReady) {
-          clearInterval(wait);
-          window._signInHandler();
-        }
-      }, 100);
-    }
-  </script>
+  
   <script src="./msal.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Démo — Plan d'action stratégique | Muni-Consul</title>
@@ -544,7 +531,7 @@
   <div style="font-size:13px;color:#888;margin-top:-12px;">Plan d'action stratégique</div>
     <div class="auth-sub" style="margin-top:6px;">Connexion requise pour accéder aux données SharePoint</div>
   </div>
-  <button class="btn btn-primary" id="btn-login" onclick="signIn()" >
+  <button class="btn btn-primary" id="btn-login" >
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
     Se connecter avec Microsoft
   </button>
