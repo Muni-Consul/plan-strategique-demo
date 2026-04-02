@@ -527,8 +527,8 @@ var signIn = function() {
 <!-- ============================================================
      APPLICATION PRINCIPALE
      ============================================================ -->
+<div style="background:#534AB7;color:white;text-align:center;padding:7px 16px;font-size:12px;font-weight:500;display:none;align-items:center;justify-content:center;gap:12px;width:100%;box-sizing:border-box;" id="demo-banner">Version démo — Muni-Consul &nbsp;|&nbsp; <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span></div>
 <div id="app" class="app" style="display:none;">
-  <div style="background:#534AB7;color:white;text-align:center;padding:7px 16px;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;box-sizing:border-box;">Version démo — Muni-Consul &nbsp;|&nbsp; <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span></div>
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
@@ -1484,6 +1484,7 @@ function showApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+  const db = document.getElementById('demo-banner'); if(db) db.style.display = 'flex';
 
   // Infos utilisateur
   if (currentAccount) {
