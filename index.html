@@ -75,17 +75,18 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+    body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; margin: 0; }
 
     /* ======================================================
        LAYOUT
        ====================================================== */
-    .app { display: flex; min-height: 100vh; }
+    .app { display: flex; flex-direction: row; min-height: 100vh; }
 
     /* Sidebar */
     .sidebar {
       width: 220px;
       flex-shrink: 0;
+      order: -1;
       background: var(--c-surface);
       border-right: 1px solid var(--c-border);
       display: flex;
@@ -138,7 +139,7 @@
     .user-role { font-size: 11px; color: var(--c-text-3); }
 
     /* Main content */
-    .main { flex: 1; overflow-x: hidden; }
+    .main { flex: 1; overflow-x: hidden; order: 0; }
 
     .topbar {
       background: var(--c-surface);
@@ -521,7 +522,7 @@
   <div class="demo-banner">
     Version démo — Muni-Consul &nbsp;|&nbsp;
     <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span>
-    &nbsp;<a href="mailto:jm&#46;beaupre&#64;muni-consul&#46;ca">Nous contacter</a>
+    &nbsp;<a href="/cdn-cgi/l/email-protection#c5afa8e3e6f1f3fea7a0a4b0b5b7a0e3e6f3f1fea8b0abace8a6aaabb6b0a9e3e6f1f3fea6a4">Nous contacter</a>
   </div>
 
   <!-- SIDEBAR -->
@@ -919,7 +920,7 @@
 <!-- ============================================================
      JAVASCRIPT — LOGIQUE PRINCIPALE
      ============================================================ -->
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ================================================================
    1. MSAL — AUTHENTIFICATION MICROSOFT
    ================================================================ */
@@ -2313,12 +2314,4 @@ function addHistorique(actionId, message) {
   localStorage.setItem(key, JSON.stringify(histo));
 }
 
-// Fermer en cliquant sur le fond
-document.getElementById('form-modal-bg').addEventListener('click', function(e) {
-  if (e.target === this) closeFormModal();
-});
-
-</script>
-
-</body>
-</html>
+// Fermer en cliquant
