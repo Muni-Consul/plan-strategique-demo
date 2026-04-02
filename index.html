@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8" />
     <script>
-    // Fonction globale accessible dès le chargement du HTML
+    // Fonction globale — sera redéfinie après chargement de msal.js
     function signIn() {
-      if (window._signInHandler) {
-        window._signInHandler();
-      } else {
-        document.getElementById('btn-login').textContent = "Chargement...";
-        setTimeout(signIn, 300);
-      }
+      document.getElementById('btn-login').textContent = "Chargement...";
+      document.getElementById('btn-login').disabled = true;
+      // Attendre que msal soit prêt
+      var wait = setInterval(function() {
+        if (window._msalReady) {
+          clearInterval(wait);
+          window._signInHandler();
+        }
+      }, 100);
     }
   </script>
   <script src="./msal.js"></script>
