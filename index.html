@@ -2364,7 +2364,7 @@ function exportPDF() {
 })();
 </script>
 
-</body></html>`;
+  </body></html>`;
 
   const win = window.open('', '_blank');
   win.document.write(html);
@@ -2405,4 +2405,19 @@ function addHistorique(actionId, message) {
 }
 
 // Fermer en cliquant sur le fond
-documen
+document.getElementById('form-modal-bg').addEventListener('click', function(e) {
+  if (e.target === this) closeFormModal();
+});
+
+document.getElementById('settings-modal-bg').addEventListener('click', function(e) {
+  if (e.target === this) closeSettingsModal();
+});
+
+// Charger les settings au démarrage
+loadSettings();
+initDefaultSettings();
+
+</script>
+
+</body>
+</html>
