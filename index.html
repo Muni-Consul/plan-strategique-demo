@@ -829,72 +829,81 @@ var signIn = function() {
     <div id="form-error" class="form-error"></div>
     <div id="form-success" class="form-success"></div>
 
-    <div class="form-grid">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <!-- Ligne 1 : Nom -->
       <div class="form-group full">
         <label class="form-label">Nom de l'action *</label>
-        <input type="text" id="f-titre" class="form-input" placeholder="Ex: Déploiement intranet SharePoint" />
+        <input type="text" id="f-titre" class="form-input" placeholder="Ex: Révision du règlement de zonage" style="width:100%;" />
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Axe stratégique *</label>
-        <select id="f-axe" class="form-select">
-          <option value="">-- Choisir --</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Responsable</label>
-        <select id="f-responsable" class="form-select">
-          <option value="">-- Choisir --</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Priorité *</label>
-        <select id="f-priorite" class="form-select">
-          <option value="">-- Choisir --</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Statut *</label>
-        <select id="f-statut" class="form-select">
-          <option value="">-- Choisir --</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Date de début</label>
-        <input type="date" id="f-date-debut" class="form-input" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Date d'échéance *</label>
-        <input type="date" id="f-echeance" class="form-input" />
-      </div>
-
-      <div class="form-group full">
-        <label class="form-label">Avancement : <span id="f-avancement-val">0%</span></label>
-        <div class="form-range-wrap">
-          <input type="range" id="f-avancement" min="0" max="100" step="5" value="0"
-            oninput="document.getElementById('f-avancement-val').textContent = this.value + '%'" />
+      <!-- Ligne 2 : Axe | Responsable -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Axe stratégique *</label>
+          <select id="f-axe" class="form-select" style="width:100%;"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsable</label>
+          <select id="f-responsable" class="form-select" style="width:100%;"></select>
         </div>
       </div>
 
-      <div class="form-group full">
+      <!-- Ligne 3 : Priorité | Statut -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Priorité *</label>
+          <select id="f-priorite" class="form-select" style="width:100%;"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Statut *</label>
+          <select id="f-statut" class="form-select" style="width:100%;"></select>
+        </div>
+      </div>
+
+      <!-- Ligne 4 : Date début | Date échéance -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Date de début</label>
+          <input type="date" id="f-date-debut" class="form-input" style="width:100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date d'échéance *</label>
+          <input type="date" id="f-echeance" class="form-input" style="width:100%;" />
+        </div>
+      </div>
+
+      <!-- Ligne 5 : Avancement -->
+      <div class="form-group">
+        <label class="form-label">Avancement : <span id="f-avancement-val" style="color:var(--c-purple);font-weight:600;">0%</span></label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+          <input type="range" id="f-avancement" min="0" max="100" step="5" value="0" style="flex:1;"
+            oninput="document.getElementById('f-avancement-val').textContent=this.value+'%';document.getElementById('f-avancement-display').textContent=this.value+'%';document.getElementById('f-avancement-bar').style.width=this.value+'%';" />
+          <span style="font-size:13px;font-family:var(--font-mono);color:var(--c-text);min-width:38px;text-align:right;" id="f-avancement-display">0%</span>
+        </div>
+        <div style="background:var(--c-surface-2);border-radius:99px;height:6px;margin-top:8px;overflow:hidden;">
+          <div id="f-avancement-bar" style="height:100%;border-radius:99px;background:var(--c-purple);width:0%;transition:width 0.2s;"></div>
+        </div>
+      </div>
+
+      <!-- Ligne 6 : Description -->
+      <div class="form-group">
         <label class="form-label">Description</label>
-        <textarea id="f-description" class="form-textarea" placeholder="Notes, contexte, détails..."></textarea>
+        <textarea id="f-description" class="form-textarea" placeholder="Notes, contexte, détails de l'action..." style="width:100%;min-height:90px;"></textarea>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Budget prévu ($)</label>
-        <input type="number" id="f-budget" class="form-input" placeholder="0.00" min="0" step="100" />
+      <!-- Ligne 7 : Budget | Commentaire -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Budget prévu ($)</label>
+          <input type="number" id="f-budget" class="form-input" placeholder="0.00" min="0" step="100" style="width:100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commentaire de suivi</label>
+          <input type="text" id="f-commentaire" class="form-input" placeholder="Note rapide..." style="width:100%;" />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Commentaire de suivi</label>
-        <input type="text" id="f-commentaire" class="form-input" placeholder="Note rapide..." />
-      </div>
     </div>
 
     <div class="form-actions">
@@ -1057,16 +1066,30 @@ function mapAxe(fields) {
 }
 
 function mapAction(fields) {
+  // Extraire le code axe (ex: "A1 - Gouvernance" -> "A1")
+  const axeRaw = fields.Axe_Strategique || fields.Axe || fields.AxeId || "";
+  const axeCode = axeRaw.match(/^(A\d+)/)?.[1] || axeRaw;
+
+  // Parser les dates correctement
+  const parseDate = (d) => {
+    if (!d) return "";
+    try { return new Date(d).toISOString().split('T')[0]; }
+    catch { return ""; }
+  };
+
   return {
-    id:       fields.ID              || fields.id,
-    titre:    fields.Title           || fields.Titre,
-    axe:      fields.Axe             || fields.AxeId,
-    resp:     fields.Responsable     || fields.ResponsableNom,
-    prio:     (fields.Priorite       || fields.Priority || "moyenne").toLowerCase(),
-    echeance: fields.Echeance        || fields.DateEcheance,
-    pct:      parseInt(fields.Avancement || 0),
-    statut:   (fields.Statut         || "à faire").toLowerCase(),
-    desc:     fields.Description     || fields.Notes || "",
+    id:          fields.ID              || fields.id,
+    titre:       fields.Title           || fields.Titre || "",
+    axe:         axeCode,
+    resp:        fields.Responsable     || fields.ResponsableNom || "",
+    prio:        (fields.Priorite       || fields.Priority || "moyenne").toLowerCase(),
+    echeance:    parseDate(fields.Date_Echeance || fields.Echeance || fields.DateEcheance),
+    dateDebut:   parseDate(fields.Date_Debut    || fields.DateDebut),
+    pct:         parseInt(fields.Avancement || 0),
+    statut:      (fields.Statut         || "à faire").toLowerCase(),
+    desc:        fields.Description     || fields.Notes || "",
+    budget:      fields.Budget_Prevu    || "",
+    commentaire: fields.Commentaire_Suivi || fields.Commentaire || "",
   };
 }
 
@@ -1623,6 +1646,7 @@ function openFormModal(actionId) {
       document.getElementById('f-statut').value      = a.statut || 'à faire';
       document.getElementById('f-echeance').value    = a.echeance || '';
       document.getElementById('f-avancement').value  = a.pct || 0;
+      document.getElementById('f-avancement-bar').style.width = (a.pct || 0) + '%';
       document.getElementById('f-avancement-val').textContent = (a.pct || 0) + '%';
       document.getElementById('f-description').value = a.desc || '';
       document.getElementById('f-budget').value      = a.budget || '';
