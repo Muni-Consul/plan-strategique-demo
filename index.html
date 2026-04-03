@@ -1776,23 +1776,8 @@ async function saveAction() {
         Commentaire_Suivi: comment
       };
 
-      // Ajouter le responsable si sélectionné
-      if (resp) {
-        try {
-          // Chercher l'utilisateur par nom dans Microsoft 365
-          const userResp = await graphFetch(
-            `/users?$filter=displayName eq '${encodeURIComponent(resp)}'&$select=id,displayName`
-          );
-          if (userResp.value && userResp.value.length > 0) {
-            const userId = userResp.value[0].id;
-            // Pour SharePoint via Graph, le champ Personne s'envoie via une lookup séparée
-            spFields['Responsable@odata.bind'] = `https://graph.microsoft.com/v1.0/users/${userId}`;
-          }
-        } catch(e) {
-          console.log('Responsable non trouvé dans Azure AD:', e);
-          // Fallback: stocker le nom en texte dans Description si pas trouvé
-        }
-      }
+      // Sauvegarder le responsable comme texte simple
+      if (resp) spFields['Responsable_Nom'] = resp;
 
       if (dateDebut) spFields['Date_Debut'] = new Date(dateDebut).toISOString();
       if (budget)    spFields['Budget_Prevu'] = parseFloat(budget);
