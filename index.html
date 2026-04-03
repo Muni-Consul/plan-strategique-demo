@@ -1087,7 +1087,9 @@ function mapAction(fields) {
     id:          fields.ID              || fields.id,
     titre:       fields.Title           || fields.Titre || "",
     axe:         axeCode,
-    resp:        fields.Responsable     || fields.ResponsableNom || "",
+    resp:        (typeof fields.Responsable === 'object' && fields.Responsable !== null)
+                   ? (fields.Responsable.LookupValue || fields.Responsable.DisplayName || fields.Responsable.Title || "")
+                   : (fields.Responsable || fields.ResponsableNom || ""),
     prio:        (fields.Priorite       || fields.Priority || "moyenne").toLowerCase(),
     echeance:    parseDate(fields.Date_Echeance || fields.Echeance || fields.DateEcheance),
     dateDebut:   parseDate(fields.Date_Debut    || fields.DateDebut),
