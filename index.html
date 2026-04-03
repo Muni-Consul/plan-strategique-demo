@@ -1096,6 +1096,7 @@ function mapAction(fields) {
                  ((typeof fields.Responsable === 'object' && fields.Responsable !== null)
                    ? (fields.Responsable.LookupValue || fields.Responsable.DisplayName || "")
                    : (fields.Responsable || "")),
+    courriel:    fields.Responsable_Courriel || "",
     prio:        (fields.Priorite       || fields.Priority || "moyenne").toLowerCase(),
     echeance:    parseDate(fields.Date_Echeance || fields.Echeance || fields.DateEcheance),
     dateDebut:   parseDate(fields.Date_Debut    || fields.DateDebut),
@@ -1780,8 +1781,15 @@ async function saveAction() {
         Commentaire_Suivi: comment
       };
 
-      // Sauvegarder le responsable comme texte simple
-      if (resp) spFields['Responsable_Nom'] = resp;
+      // Sauvegarder le responsable et son courriel
+      if (resp) {
+        spFields['Responsable_Nom'] = resp;
+        // Chercher le courriel du responsable dans les paramètres
+        const respObj = (APP.responsables || []).find(r => r.nom === resp);
+        if (respObj && respObj.courriel) {
+          spFields['Responsable_Courriel'] = respObj.courriel;
+        }
+      }
 
       if (dateDebut) spFields['Date_Debut'] = new Date(dateDebut).toISOString();
       if (budget)    spFields['Budget_Prevu'] = parseFloat(budget);
