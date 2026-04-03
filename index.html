@@ -754,13 +754,17 @@ var signIn = function() {
       <div class="item-list" id="settings-resp-list"></div>
       <div class="settings-section">Ajouter un responsable</div>
       <div class="add-item-form">
-        <div class="add-item-field" style="flex:1;min-width:160px;">
+        <div class="add-item-field" style="flex:1;min-width:140px;">
           <label>Nom complet</label>
           <input type="text" id="new-resp-nom" placeholder="Ex: Marie Tremblay" />
         </div>
-        <div class="add-item-field" style="flex:1;min-width:160px;">
+        <div class="add-item-field" style="flex:1;min-width:140px;">
           <label>Titre / Poste</label>
           <input type="text" id="new-resp-titre" placeholder="Ex: Directrice générale" />
+        </div>
+        <div class="add-item-field" style="flex:1;min-width:160px;">
+          <label>Courriel</label>
+          <input type="email" id="new-resp-courriel" placeholder="Ex: marie@municipalite.ca" />
         </div>
         <button class="btn btn-add" onclick="addResponsable()" style="height:32px;align-self:flex-end;">+ Ajouter</button>
       </div>
@@ -1412,7 +1416,7 @@ function openModal(id) {
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="field-row"><span class="field-label">Axe</span><span class="field-value" style="color:${axe.color};font-weight:500;">${axe.nom}</span></div>
-    <div class="field-row"><span class="field-label">Responsable</span><span class="field-value">${a.resp}</span></div>
+    <div class="field-row"><span class="field-label">Responsable</span><span class="field-value">${a.resp}${(() => { const r = (APP.responsables||[]).find(x=>x.nom===a.resp); return r && r.courriel ? '<br><a href="mailto:'+r.courriel+'" style="font-size:12px;color:var(--c-blue);">'+r.courriel+'</a>' : ''; })()}</span></div>
     <div class="field-row"><span class="field-label">Priorité</span><span class="field-value"><span class="prio-badge ${PRIO_MAP[a.prio]||'pr-m'}" style="display:inline-block;margin-right:5px;"></span>${a.prio}</span></div>
     <div class="field-row"><span class="field-label">Échéance</span><span class="field-value">${fmtDate(a.echeance)}</span></div>
     <div class="field-row"><span class="field-label">Statut</span><span class="field-value"><span class="pill ${sm.pill}">${a.statut}</span></span></div>
@@ -1621,7 +1625,7 @@ function openFormModal(actionId) {
     (APP.responsables || []).forEach(r => {
       const opt = document.createElement('option');
       opt.value = r.nom;
-      opt.textContent = r.nom + (r.titre ? ' — ' + r.titre : '');
+      opt.textContent = r.nom + (r.titre ? ' — ' + r.titre : '') + (r.courriel ? ' (' + r.courriel + ')' : '');
       respSelect.appendChild(opt);
     });
   }
@@ -1977,20 +1981,24 @@ function renderSettingsResp() {
     return `
     <div class="item-row">
       <div class="resp-avatar">${initials}</div>
-      <span class="item-row-name">${r.nom}</span>
-      <span class="item-row-sub">${r.titre || ''}</span>
+      <div style="flex:1;">
+        <span class="item-row-name" style="display:block;">${r.nom}</span>
+        <span class="item-row-sub" style="display:block;">${r.titre || ''}${r.courriel ? ' · ' + r.courriel : ''}</span>
+      </div>
       <button class="item-btn-del" onclick="removeResp(${i})" title="Supprimer">×</button>
     </div>`;
   }).join('');
 }
 
 function addResponsable() {
-  const nom   = document.getElementById('new-resp-nom').value.trim();
-  const titre = document.getElementById('new-resp-titre').value.trim();
+  const nom      = document.getElementById('new-resp-nom').value.trim();
+  const titre    = document.getElementById('new-resp-titre').value.trim();
+  const courriel = document.getElementById('new-resp-courriel').value.trim();
   if (!nom) { alert('Le nom est obligatoire.'); return; }
-  APP.responsables.push({ id: 'r' + Date.now(), nom, titre });
+  APP.responsables.push({ id: 'r' + Date.now(), nom, titre, courriel });
   document.getElementById('new-resp-nom').value = '';
   document.getElementById('new-resp-titre').value = '';
+  document.getElementById('new-resp-courriel').value = '';
   renderSettingsResp();
 }
 
