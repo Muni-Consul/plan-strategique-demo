@@ -851,7 +851,7 @@ var signIn = function() {
         </div>
         <div class="form-group">
           <label class="form-label">Responsable</label>
-          <select id="f-responsable" class="form-select" style="width:100%;"></select>
+          <input type="text" id="f-responsable" class="form-input" placeholder="Ex: Marie Tremblay" style="width:100%;" />
         </div>
       </div>
 
@@ -1052,7 +1052,7 @@ async function getSiteId() {
 
 async function getListItems(listName) {
   const data = await graphFetch(
-    `/sites/${spSiteId}/lists/${listName}/items?expand=fields&$top=500`
+    `/sites/${spSiteId}/lists/${listName}/items?expand=fields($select=*)&$top=500`
   );
   return data.value.map(item => item.fields);
 }
@@ -1087,10 +1087,11 @@ function mapAction(fields) {
     id:          fields.ID              || fields.id,
     titre:       fields.Title           || fields.Titre || "",
     axe:         axeCode,
-    resp:        fields.Responsable_Texte ||
+    resp:        fields.Responsable_Nom ||
+                 fields.Responsable_Texte ||
                  ((typeof fields.Responsable === 'object' && fields.Responsable !== null)
-                   ? (fields.Responsable.LookupValue || fields.Responsable.DisplayName || fields.Responsable.Title || "")
-                   : (fields.Responsable || fields.ResponsableNom || "")),
+                   ? (fields.Responsable.LookupValue || fields.Responsable.DisplayName || "")
+                   : (fields.Responsable || "")),
     prio:        (fields.Priorite       || fields.Priority || "moyenne").toLowerCase(),
     echeance:    parseDate(fields.Date_Echeance || fields.Echeance || fields.DateEcheance),
     dateDebut:   parseDate(fields.Date_Debut    || fields.DateDebut),
@@ -1612,15 +1613,7 @@ function openFormModal(actionId) {
     axeSelect.appendChild(opt);
   });
 
-  // Responsable dropdown
-  const respSelect = document.getElementById('f-responsable');
-  respSelect.innerHTML = '<option value="">-- Choisir --</option>';
-  (APP.responsables || []).forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r.nom;
-    opt.textContent = r.nom + (r.titre ? ' — ' + r.titre : '');
-    respSelect.appendChild(opt);
-  });
+  // Responsable — champ texte libre
 
   // Priorité dropdown
   const prioSelect = document.getElementById('f-priorite');
