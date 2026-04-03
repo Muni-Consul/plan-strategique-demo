@@ -806,12 +806,18 @@ var signIn = function() {
       </div>
     </div>
 
-    <div style="display:flex;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--c-border);gap:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--c-border);gap:8px;">
       <button class="btn" onclick="resetSettings()">Réinitialiser</button>
-      <button class="btn btn-add" onclick="saveSettings()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Sauvegarder
-      </button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-add" onclick="saveSettings(false)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Sauvegarder
+        </button>
+        <button class="btn" style="background:var(--c-purple);color:#fff;border-color:var(--c-purple);" onclick="saveSettings(true)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Terminer
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -2037,16 +2043,30 @@ function removePrio(i) {
 }
 
 /* --- SAUVEGARDE --- */
-function saveSettings() {
+function saveSettings(closeAfter) {
   persistSettings();
-  // Rafraîchir les selects du formulaire d'action
   renderApercu();
   renderActions();
   renderAxes();
-  closeSettingsModal();
-  // Flash confirmation
-  const btn = document.querySelector('.settings-modal .btn-add');
-  if (btn) { btn.textContent = '✓ Sauvegardé !'; setTimeout(() => { btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Sauvegarder'; }, 2000); }
+
+  if (closeAfter) {
+    // Bouton Terminer — sauvegarder et fermer
+    closeSettingsModal();
+  } else {
+    // Bouton Sauvegarder — rester dans les paramètres avec confirmation
+    const btn = document.querySelector('.settings-modal .btn-add');
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Sauvegardé !';
+      btn.style.background = '#3B6D11';
+      btn.style.borderColor = '#3B6D11';
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.style.background = '';
+        btn.style.borderColor = '';
+      }, 2000);
+    }
+  }
 }
 
 function resetSettings() {
