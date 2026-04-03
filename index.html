@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script>
-var signIn = function() {
-  var btn = document.getElementById('btn-login');
-  if (btn) { btn.disabled = true; btn.textContent = 'Connexion...'; }
-  var t = 0;
-  var check = setInterval(function() {
-    t++;
-    if (window.__msalReady) {
-      clearInterval(check);
-      window.__doSignIn();
-    } else if (t > 50) {
-      clearInterval(check);
-      if (btn) { btn.disabled = false; btn.textContent = 'Se connecter avec Microsoft'; }
-      alert('Erreur : MSAL non chargé. Rechargez la page.');
-    }
-  }, 100);
-};
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Démo — Plan d'action stratégique | Muni-Consul</title>
+  <title>Plan d'action stratégique — Muni-Consul</title>
 
   <!-- ========================================================
        CONFIGURATION SHAREPOINT — À MODIFIER
        ======================================================== -->
   <script>
     const SP_CONFIG = {
-      tenantDomain: "municonsul485.sharepoint.com",
-      siteRelativeUrl: "/sites/Planstrategique-Demo",
-      lists: { axes: "Axes_Strategiques", actions: "Actions_Plan", jalons: "Jalons" },
-      msalClientId: "d77e2842-aa80-489c-a13c-120357e6fb07",
-      msalAuthority: "https://login.microsoftonline.com/f59f1162-116c-4b59-aab9-aafa06e3d80a",
-      redirectUri: "https://muni-consul.github.io/plan-strategique-demo/"
+      // Municipalité de Stukely-Sud
+      tenantDomain: "munstukelysud.sharepoint.com",
+
+      // Site SharePoint
+      siteRelativeUrl: "/sites/Doc_Public",
+
+      // Listes SharePoint
+      lists: {
+        axes:    "Axes_Strategiques",
+        actions: "Actions_Plan",
+        jalons:  "Jalons"
+      },
+
+      // App Azure AD — PnP-PlanStrategique
+      msalClientId: "f21b9923-650b-413c-8ebf-1ec8bcd02658",
+
+      // Tenant Municipalité de Stukely-Sud
+      msalAuthority: "https://login.microsoftonline.com/6979f837-1f2c-4a8e-8c24-c33110007f08",
+
+      // Redirect URI
+      redirectUri: window.location.origin + window.location.pathname
     };
   </script>
 
@@ -505,7 +502,7 @@ var signIn = function() {
   <div style="font-size:13px;color:#888;margin-top:-12px;">Plan d'action stratégique</div>
     <div class="auth-sub" style="margin-top:6px;">Connexion requise pour accéder aux données SharePoint</div>
   </div>
-  <button class="btn btn-primary" id="btn-login" onclick="signIn()" onclick="signIn()">
+  <button class="btn btn-primary" id="btn-login" onclick="signIn()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
     Se connecter avec Microsoft
   </button>
@@ -527,14 +524,13 @@ var signIn = function() {
 <!-- ============================================================
      APPLICATION PRINCIPALE
      ============================================================ -->
-<div style="background:#534AB7;color:white;text-align:center;padding:7px 16px;font-size:12px;font-weight:500;display:none;align-items:center;justify-content:center;gap:12px;width:100%;box-sizing:border-box;" id="demo-banner">Version démo — Muni-Consul &nbsp;|&nbsp; <span style="font-weight:400;opacity:0.9;">Solutions municipales intelligentes</span></div>
 <div id="app" class="app" style="display:none;">
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h2>Plan Stratégique</h2>
-      <p id="nav-horizon">Démo interactive</p>
+      <p id="nav-horizon">2024 – 2027</p>
     </div>
 
     <div class="nav-section">Navigation</div>
@@ -962,7 +958,7 @@ async function initMSAL() {
       auth: {
         clientId:    SP_CONFIG.msalClientId,
         authority:   SP_CONFIG.msalAuthority,
-        redirectUri: SP_CONFIG.redirectUri,
+        redirectUri: 'https://dgstukely.github.io/Tableau-de-bord/',
         navigateToLoginRequestUrl: true
       },
       cache: {
@@ -974,7 +970,6 @@ async function initMSAL() {
       }
     });
     await msalInstance.initialize();
-    window.__msalReady = true;
 
     // Gérer le redirect après login
     const resp = await msalInstance.handleRedirectPromise();
@@ -1149,10 +1144,10 @@ function loadDemoData() {
   /* ---- DONNÉES DE DÉMONSTRATION ----
      Remplacées automatiquement par les données SharePoint en production */
   APP.axes = [
-    { id:'A1', nom:'Gouvernance et administration', color:'#534AB7', light:'#EEEDFE', pct:78 },
-    { id:'A2', nom:'Services aux citoyens',          color:'#0F6E56', light:'#E1F5EE', pct:65 },
-    { id:'A3', nom:'Développement durable',           color:'#185FA5', light:'#E6F1FB', pct:52 },
-    { id:'A4', nom:'Infrastructure et travaux',  color:'#BA7517', light:'#FAEEDA', pct:61 },
+    { id:'A1', nom:'Transformation numérique',  color:'#534AB7', light:'#EEEDFE', pct:74 },
+    { id:'A2', nom:'Expérience client',          color:'#0F6E56', light:'#E1F5EE', pct:68 },
+    { id:'A3', nom:'Développement RH',           color:'#185FA5', light:'#E6F1FB', pct:55 },
+    { id:'A4', nom:'Excellence opérationnelle',  color:'#BA7517', light:'#FAEEDA', pct:60 },
     { id:'A5', nom:'Innovation & R&D',           color:'#993C1D', light:'#FAECE7', pct:42 },
   ];
   APP.actions = [
@@ -1521,7 +1516,6 @@ function showApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
-  const db = document.getElementById('demo-banner'); if(db) db.style.display = 'flex';
 
   // Infos utilisateur
   if (currentAccount) {
@@ -1781,7 +1775,9 @@ async function saveAction() {
       };
 
       // Sauvegarder le responsable comme texte simple
-      if (resp) spFields['Responsable_Nom'] = resp;
+      if (resp) {
+        spFields['Responsable_Nom'] = resp;
+      }
 
       if (dateDebut) spFields['Date_Debut'] = new Date(dateDebut).toISOString();
       if (budget)    spFields['Budget_Prevu'] = parseFloat(budget);
@@ -1979,13 +1975,30 @@ function renderSettingsResp() {
   el.innerHTML = APP.responsables.map((r, i) => {
     const initials = r.nom.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
     return `
-    <div class="item-row">
+    <div class="item-row" id="resp-row-${i}">
       <div class="resp-avatar">${initials}</div>
       <div style="flex:1;">
         <span class="item-row-name" style="display:block;">${r.nom}</span>
-        <span class="item-row-sub" style="display:block;">${r.titre || ''}${r.courriel ? ' · ' + r.courriel : ''}</span>
+        <span class="item-row-sub" style="display:block;">${r.titre || ''}${r.courriel ? ' · <a href=\"mailto:'+r.courriel+'\" style=\"color:var(--c-blue);\">'+r.courriel+'</a>' : '<span style=\"color:var(--c-text-3);font-style:italic;\">Aucun courriel</span>'}</span>
       </div>
+      <button class="item-btn-edit" onclick="editResp(${i})" title="Modifier" style="color:var(--c-purple);margin-right:4px;">✏️</button>
       <button class="item-btn-del" onclick="removeResp(${i})" title="Supprimer">×</button>
+    </div>
+    <div id="resp-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;" class="add-item-form">
+      <div class="add-item-field" style="flex:1;min-width:120px;">
+        <label>Nom</label>
+        <input type="text" id="edit-resp-nom-${i}" value="${r.nom}" />
+      </div>
+      <div class="add-item-field" style="flex:1;min-width:120px;">
+        <label>Titre</label>
+        <input type="text" id="edit-resp-titre-${i}" value="${r.titre || ''}" />
+      </div>
+      <div class="add-item-field" style="flex:1;min-width:160px;">
+        <label>Courriel</label>
+        <input type="email" id="edit-resp-courriel-${i}" value="${r.courriel || ''}" placeholder="courriel@municipalite.ca" />
+      </div>
+      <button class="btn btn-add" onclick="saveResp(${i})" style="height:32px;align-self:flex-end;">✓ Sauvegarder</button>
+      <button class="btn" onclick="cancelEditResp(${i})" style="height:32px;align-self:flex-end;">Annuler</button>
     </div>`;
   }).join('');
 }
@@ -2004,6 +2017,28 @@ function addResponsable() {
 
 function removeResp(i) {
   APP.responsables.splice(i, 1);
+  renderSettingsResp();
+}
+
+function editResp(i) {
+  // Masquer tous les formulaires d'édition
+  document.querySelectorAll('[id^="resp-edit-"]').forEach(el => el.style.display = 'none');
+  // Afficher celui-ci
+  const editDiv = document.getElementById('resp-edit-' + i);
+  if (editDiv) editDiv.style.display = 'flex';
+}
+
+function cancelEditResp(i) {
+  const editDiv = document.getElementById('resp-edit-' + i);
+  if (editDiv) editDiv.style.display = 'none';
+}
+
+function saveResp(i) {
+  const nom      = document.getElementById('edit-resp-nom-' + i)?.value.trim();
+  const titre    = document.getElementById('edit-resp-titre-' + i)?.value.trim();
+  const courriel = document.getElementById('edit-resp-courriel-' + i)?.value.trim();
+  if (!nom) { alert('Le nom est obligatoire.'); return; }
+  APP.responsables[i] = { ...APP.responsables[i], nom, titre, courriel };
   renderSettingsResp();
 }
 
