@@ -1613,7 +1613,18 @@ function openFormModal(actionId) {
     axeSelect.appendChild(opt);
   });
 
-  // Responsable — champ texte libre
+  // Responsable dropdown
+  loadSettings();
+  const respSelect = document.getElementById('f-responsable');
+  if (respSelect && respSelect.tagName === 'SELECT') {
+    respSelect.innerHTML = '<option value="">-- Choisir --</option>';
+    (APP.responsables || []).forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.nom;
+      opt.textContent = r.nom + (r.titre ? ' — ' + r.titre : '');
+      respSelect.appendChild(opt);
+    });
+  }
 
   // Priorité dropdown
   const prioSelect = document.getElementById('f-priorite');
