@@ -2001,6 +2001,7 @@ function addAxe() {
 function removeAxe(i) {
   if (!confirm('Supprimer cet axe ? Les actions associées ne seront pas supprimées.')) return;
   APP.axes.splice(i, 1);
+  persistSettings();
   renderSettingsAxes();
 }
 
@@ -2021,9 +2022,9 @@ function saveAxe(i) {
   const color   = document.getElementById('edit-axe-couleur-' + i)?.value;
   const pct     = parseInt(document.getElementById('edit-axe-pct-' + i)?.value || 0);
   if (!id || !nom) { alert('Le code et le nom sont obligatoires.'); return; }
-  // Générer couleur light depuis la couleur principale
   const light = color + '33';
   APP.axes[i] = { ...APP.axes[i], id, nom, color, light, pct };
+  persistSettings(); // Sauvegarder immédiatement
   renderSettingsAxes();
 }
 
@@ -2072,11 +2073,13 @@ function addResponsable() {
   document.getElementById('new-resp-nom').value = '';
   document.getElementById('new-resp-titre').value = '';
   document.getElementById('new-resp-courriel').value = '';
+  persistSettings();
   renderSettingsResp();
 }
 
 function removeResp(i) {
   APP.responsables.splice(i, 1);
+  persistSettings();
   renderSettingsResp();
 }
 
@@ -2099,6 +2102,7 @@ function saveResp(i) {
   const courriel = document.getElementById('edit-resp-courriel-' + i)?.value.trim();
   if (!nom) { alert('Le nom est obligatoire.'); return; }
   APP.responsables[i] = { ...APP.responsables[i], nom, titre, courriel };
+  persistSettings(); // Sauvegarder immédiatement
   renderSettingsResp();
 }
 
@@ -2128,6 +2132,7 @@ function addStatut() {
 function removeStatut(i) {
   if (APP.statuts.length <= 1) { alert('Il faut au moins un statut.'); return; }
   APP.statuts.splice(i, 1);
+  persistSettings();
   renderSettingsStatuts();
 }
 
