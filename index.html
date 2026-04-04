@@ -1131,7 +1131,20 @@ async function loadSharePointData() {
     setLoadingStep("Chargement des jalons…");
     const rawJalons  = await getListItems(SP_CONFIG.lists.jalons);
 
-    APP.axes    = rawAxes.map(mapAxe);
+    // Charger les axes SharePoint
+    const spAxes = rawAxes.map(mapAxe);
+    
+    // Charger les paramètres sauvegardés (axes perso, responsables, etc.)
+    loadSettings();
+    
+    // Fusionner : garder les axes du localStorage, compléter avec ceux de SharePoint
+    const savedAxeIds = (APP.axes || []).map(a => a.id);
+    const newSpAxes = spAxes.filter(a => !savedAxeIds.includes(a.id));
+    APP.axes = [...(APP.axes || []), ...newSpAxes];
+    
+    // Si aucun axe dans localStorage, utiliser ceux de SharePoint
+    if (!APP.axes || APP.axes.length === 0) APP.axes = spAxes;
+
     APP.actions = rawActions.map(mapAction);
     APP.jalons  = rawJalons.map(mapJalon);
     isLiveData  = true;
