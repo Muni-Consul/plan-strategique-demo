@@ -1993,6 +1993,7 @@ function addAxe() {
   // Generate light color from hex
   const light = color + '22';
   APP.axes.push({ id, nom, color, light, pct: 0 });
+  persistSettings();
   document.getElementById('new-axe-id').value = '';
   document.getElementById('new-axe-nom').value = '';
   renderSettingsAxes();
@@ -2110,13 +2111,49 @@ function saveResp(i) {
 function renderSettingsStatuts() {
   const el = document.getElementById('settings-statuts-list');
   el.innerHTML = APP.statuts.map((s, i) => `
-    <div class="item-row">
-      <span class="pill-preview" style="background:${s.bg};color:${s.fg};">${s.label}</span>
-      <span class="item-row-name" style="flex:0;"></span>
-      <button class="item-btn-del" onclick="removeStatut(${i})" title="Supprimer" style="color:#A32D2D;">
+    <div class="item-row" id="statut-row-${i}">
+      <span style="background:${s.bg};color:${s.fg};padding:2px 10px;border-radius:99px;font-size:11px;font-weight:500;">${s.label}</span>
+      <span style="flex:1;"></span>
+      <button onclick="editStatut(${i})" title="Modifier" style="border:none;background:none;cursor:pointer;color:var(--c-purple);padding:4px 6px;">✏️</button>
+      <button onclick="removeStatut(${i})" title="Supprimer" style="border:none;background:none;cursor:pointer;color:#A32D2D;padding:4px 6px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
       </button>
+    </div>
+    <div id="statut-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="add-item-field" style="flex:1;min-width:120px;">
+        <label>Libellé</label>
+        <input type="text" id="edit-statut-label-${i}" value="${s.label}" />
+      </div>
+      <div class="add-item-field">
+        <label>Fond</label>
+        <input type="color" id="edit-statut-bg-${i}" value="${s.bg}" style="width:46px;height:32px;padding:2px;cursor:pointer;" />
+      </div>
+      <div class="add-item-field">
+        <label>Texte</label>
+        <input type="color" id="edit-statut-fg-${i}" value="${s.fg}" style="width:46px;height:32px;padding:2px;cursor:pointer;" />
+      </div>
+      <button class="btn btn-add" onclick="saveStatut(${i})" style="height:32px;align-self:flex-end;">✓ OK</button>
+      <button class="btn" onclick="cancelEditStatut(${i})" style="height:32px;align-self:flex-end;">Annuler</button>
     </div>`).join('');
+}
+
+function editStatut(i) {
+  document.querySelectorAll('[id^="statut-edit-"]').forEach(el => el.style.display = 'none');
+  const el = document.getElementById('statut-edit-' + i);
+  if (el) el.style.display = 'flex';
+}
+function cancelEditStatut(i) {
+  const el = document.getElementById('statut-edit-' + i);
+  if (el) el.style.display = 'none';
+}
+function saveStatut(i) {
+  const label = document.getElementById('edit-statut-label-' + i)?.value.trim();
+  const bg    = document.getElementById('edit-statut-bg-' + i)?.value;
+  const fg    = document.getElementById('edit-statut-fg-' + i)?.value;
+  if (!label) { alert('Le libellé est obligatoire.'); return; }
+  APP.statuts[i] = { ...APP.statuts[i], label, id: label.toLowerCase(), bg, fg };
+  persistSettings();
+  renderSettingsStatuts();
 }
 
 function addStatut() {
@@ -2126,6 +2163,7 @@ function addStatut() {
   if (!nom) { alert('Le nom est obligatoire.'); return; }
   APP.statuts.push({ id: nom.toLowerCase(), label: nom, bg, fg });
   document.getElementById('new-statut-nom').value = '';
+  persistSettings();
   renderSettingsStatuts();
 }
 
@@ -2140,11 +2178,45 @@ function removeStatut(i) {
 function renderSettingsPriorities() {
   const el = document.getElementById('settings-priorites-list');
   el.innerHTML = APP.priorites.map((p, i) => `
-    <div class="item-row">
-      <span class="color-swatch" style="background:${p.couleur}"></span>
+    <div class="item-row" id="prio-row-${i}">
+      <span style="background:${p.couleur};width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
       <span class="item-row-name">${p.label}</span>
-      <button class="item-btn-del" onclick="removePrio(${i})" title="Supprimer">×</button>
+      <span style="flex:1;"></span>
+      <button onclick="editPrio(${i})" title="Modifier" style="border:none;background:none;cursor:pointer;color:var(--c-purple);padding:4px 6px;">✏️</button>
+      <button onclick="removePrio(${i})" title="Supprimer" style="border:none;background:none;cursor:pointer;color:#A32D2D;padding:4px 6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>
+    <div id="prio-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="add-item-field" style="flex:1;min-width:120px;">
+        <label>Libellé</label>
+        <input type="text" id="edit-prio-label-${i}" value="${p.label}" />
+      </div>
+      <div class="add-item-field">
+        <label>Couleur</label>
+        <input type="color" id="edit-prio-couleur-${i}" value="${p.couleur}" style="width:46px;height:32px;padding:2px;cursor:pointer;" />
+      </div>
+      <button class="btn btn-add" onclick="savePrio(${i})" style="height:32px;align-self:flex-end;">✓ OK</button>
+      <button class="btn" onclick="cancelEditPrio(${i})" style="height:32px;align-self:flex-end;">Annuler</button>
     </div>`).join('');
+}
+
+function editPrio(i) {
+  document.querySelectorAll('[id^="prio-edit-"]').forEach(el => el.style.display = 'none');
+  const el = document.getElementById('prio-edit-' + i);
+  if (el) el.style.display = 'flex';
+}
+function cancelEditPrio(i) {
+  const el = document.getElementById('prio-edit-' + i);
+  if (el) el.style.display = 'none';
+}
+function savePrio(i) {
+  const label   = document.getElementById('edit-prio-label-' + i)?.value.trim();
+  const couleur = document.getElementById('edit-prio-couleur-' + i)?.value;
+  if (!label) { alert('Le libellé est obligatoire.'); return; }
+  APP.priorites[i] = { ...APP.priorites[i], label, id: label.toLowerCase(), couleur };
+  persistSettings();
+  renderSettingsPriorities();
 }
 
 function addPriorite() {
@@ -2153,6 +2225,7 @@ function addPriorite() {
   if (!nom) { alert('Le nom est obligatoire.'); return; }
   APP.priorites.push({ id: nom.toLowerCase(), label: nom, couleur });
   document.getElementById('new-prio-nom').value = '';
+  persistSettings();
   renderSettingsPriorities();
 }
 
