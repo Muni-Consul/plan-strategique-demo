@@ -1149,6 +1149,12 @@ async function loadSharePointData() {
 function loadDemoData() {
   /* ---- DONNÉES DE DÉMONSTRATION ----
      Remplacées automatiquement par les données SharePoint en production */
+
+  // Charger d'abord les paramètres sauvegardés
+  loadSettings();
+
+  // Définir les axes par défaut seulement si aucun n'est sauvegardé
+  if (!APP.axes || APP.axes.length === 0) {
   APP.axes = [
     { id:'A1', nom:'Gouvernance et administration', color:'#534AB7', light:'#EEEDFE', pct:78 },
     { id:'A2', nom:'Services aux citoyens',          color:'#0F6E56', light:'#E1F5EE', pct:65 },
@@ -1156,6 +1162,8 @@ function loadDemoData() {
     { id:'A4', nom:'Infrastructure et travaux',  color:'#BA7517', light:'#FAEEDA', pct:61 },
     { id:'A5', nom:'Innovation & R&D',           color:'#993C1D', light:'#FAECE7', pct:42 },
   ];
+  } // fin if axes vides
+
   APP.actions = [
     { id:'1', titre:'Déploiement intranet SharePoint',    axe:'A1', resp:'M. Tremblay', prio:'haute',   echeance:'2026-03-31', pct:90,  statut:'en cours',   desc:'Migration complète vers SharePoint Online. Formation terminée.' },
     { id:'2', titre:'Automatisation des processus RH',   axe:'A1', resp:'S. Gagné',    prio:'haute',   echeance:'2026-06-30', pct:45,  statut:'en cours',   desc:'Power Automate pour les flux d\'approbation RH.' },
