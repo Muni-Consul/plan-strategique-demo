@@ -1233,6 +1233,19 @@ const PRIO_MAP = { haute:'pr-h', moyenne:'pr-m', basse:'pr-l' };
 /* ================================================================
    6. RENDU — APERÇU
    ================================================================ */
+function calcAvancementAxes() {
+  if (!APP.autoCalcAxes) return; // Calcul auto désactivé
+  // Calculer automatiquement l'avancement de chaque axe
+  // basé sur la moyenne des actions associées
+  APP.axes.forEach(axe => {
+    const actionsAxe = APP.actions.filter(a => a.axe === axe.id);
+    if (actionsAxe.length > 0) {
+      const total = actionsAxe.reduce((sum, a) => sum + (parseInt(a.pct) || 0), 0);
+      axe.pct = Math.round(total / actionsAxe.length);
+    }
+  });
+}
+
 function renderApercu() {
   // KPIs
   const total    = APP.actions.length;
@@ -1569,6 +1582,7 @@ function showApp() {
     `Mise à jour le ${new Date().toLocaleDateString('fr-CA', {year:'numeric',month:'long',day:'numeric'})}` +
     (isLiveData ? ' · SharePoint Live' : ' · Mode démo');
 
+  calcAvancementAxes();
   renderApercu();
   renderActions();
   renderAxes();
@@ -1908,6 +1922,7 @@ function loadSettings() {
       if (s.responsables) APP.responsables = s.responsables;
       if (s.statuts)      APP.statuts      = s.statuts;
       if (s.priorites)    APP.priorites    = s.priorites;
+      if (s.autoCalcAxes !== undefined) APP.autoCalcAxes = s.autoCalcAxes;
     }
   } catch(e) { console.log('Settings load error', e); }
 }
@@ -1951,6 +1966,9 @@ function initDefaultSettings() {
 }
 
 function openSettingsModal() {
+  // Mettre à jour l'état de la case à cocher
+  const cb = document.getElementById('auto-calc-axes');
+  if (cb) cb.checked = APP.autoCalcAxes || false;
   initDefaultSettings();
   renderSettingsAxes();
   renderSettingsResp();
@@ -2018,6 +2036,17 @@ function addAxe() {
   document.getElementById('new-axe-id').value = '';
   document.getElementById('new-axe-nom').value = '';
   renderSettingsAxes();
+}
+
+function toggleAutoCalc(enabled) {
+  APP.autoCalcAxes = enabled;
+  persistSettings();
+  if (enabled) {
+    calcAvancementAxes();
+    renderSettingsAxes();
+    renderApercu();
+    renderAxes();
+  }
 }
 
 function removeAxe(i) {
@@ -2259,6 +2288,7 @@ function removePrio(i) {
 /* --- SAUVEGARDE --- */
 function saveSettings(closeAfter) {
   persistSettings();
+  calcAvancementAxes();
   renderApercu();
   renderActions();
   renderAxes();
