@@ -728,6 +728,13 @@ var signIn = function() {
 
     <!-- AXES -->
     <div id="settings-axes" class="settings-pane on">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 12px;background:var(--c-surface-2);border-radius:8px;border:1px solid var(--c-border);">
+        <input type="checkbox" id="auto-calc-axes" onchange="toggleAutoCalc(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--c-purple);" />
+        <label for="auto-calc-axes" style="cursor:pointer;font-size:13px;line-height:1.4;">
+          <strong>Calcul automatique</strong><br>
+          <span style="color:var(--c-text-2);font-size:12px;">L'avancement des axes est calculé selon la moyenne de leurs actions</span>
+        </label>
+      </div>
       <div class="settings-section">Axes stratégiques existants</div>
       <div class="item-list" id="settings-axes-list"></div>
       <div class="settings-section">Ajouter un axe</div>
