@@ -1161,7 +1161,7 @@ async function loadSharePointData() {
   } catch (err) {
     console.error("SharePoint load error:", err);
     // Fallback démo si les listes n'existent pas encore
-    alert("⚠️ Impossible de charger les données SharePoint :\n" + err.message + "\n\nAffichage des données de démonstration.");
+    console.warn("SharePoint non accessible, mode démonstration:", err.message);
     loadDemoData();
   }
 }
