@@ -32,7 +32,7 @@ var signIn = function() {
       siteRelativeUrl: "/sites/Planstrategique-Demo",
       lists: { axes: "Axes_Strategiques", actions: "Actions_Plan", jalons: "Jalons" },
       msalClientId: "d77e2842-aa80-489c-a13c-120357e6fb07",
-      msalAuthority: "https://login.microsoftonline.com/f59f1162-116c-4b59-aab9-aafa06e3d80a",
+      msalAuthority: "https://login.microsoftonline.com/f59f1162-5289-4ea1-8bc6-3b0018c6c3f0",
       redirectUri: "https://muni-consul.github.io/plan-strategique-demo/"
     };
   </script>
@@ -1026,13 +1026,15 @@ async function acquireToken() {
   try {
     const result = await msalInstance.acquireTokenSilent({
       scopes: SCOPES,
-      account: currentAccount
+      account: currentAccount,
+      authority: SP_CONFIG.msalAuthority
     });
     graphToken = result.accessToken;
   } catch {
     await msalInstance.acquireTokenRedirect({
       scopes: SCOPES,
       account: currentAccount,
+      authority: SP_CONFIG.msalAuthority,
       redirectUri: window.location.href.split('?')[0].split('#')[0]
     });
   }
