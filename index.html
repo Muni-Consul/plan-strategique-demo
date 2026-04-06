@@ -1026,15 +1026,13 @@ async function acquireToken() {
   try {
     const result = await msalInstance.acquireTokenSilent({
       scopes: SCOPES,
-      account: currentAccount,
-      authority: SP_CONFIG.msalAuthority
+      account: currentAccount
     });
     graphToken = result.accessToken;
   } catch {
     await msalInstance.acquireTokenRedirect({
       scopes: SCOPES,
       account: currentAccount,
-      authority: SP_CONFIG.msalAuthority,
       redirectUri: window.location.href.split('?')[0].split('#')[0]
     });
   }
