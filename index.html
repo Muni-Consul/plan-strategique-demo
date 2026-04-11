@@ -625,6 +625,13 @@ var signIn = function() {
       </div>
     </div>
 
+    <!-- BANNIÈRE D'ALERTES — affichée par checkAlertes() -->
+    <div id="alert-banner" class="alert-banner" role="alert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alert-banner-text" class="alert-banner-text"></span>
+      <button class="alert-banner-close" onclick="document.getElementById('alert-banner').classList.remove('show')" aria-label="Fermer l'alerte">×</button>
+    </div>
+
     <div class="content">
 
       <!-- ======================== APERÇU ======================== -->
@@ -712,11 +719,11 @@ var signIn = function() {
 <!-- ============================================================
      PANNEAU PARAMÈTRES
      ============================================================ -->
-<div class="settings-modal-bg" id="settings-modal-bg">
+<div class="settings-modal-bg" id="settings-modal-bg" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
   <div class="settings-modal">
     <div class="form-title">
-      <span>Paramètres du tableau de bord</span>
-      <button class="form-close" onclick="closeSettingsModal()">×</button>
+      <span id="settings-modal-title">Paramètres du tableau de bord</span>
+      <button class="form-close" onclick="closeSettingsModal()" aria-label="Fermer">×</button>
     </div>
 
     <div class="settings-tabs">
@@ -836,11 +843,11 @@ var signIn = function() {
 <!-- ============================================================
      FORMULAIRE DE SAISIE / MODIFICATION D'ACTION
      ============================================================ -->
-<div class="form-modal-bg" id="form-modal-bg">
+<div class="form-modal-bg" id="form-modal-bg" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
   <div class="form-modal">
     <div class="form-title">
       <span id="form-modal-title">Nouvelle action</span>
-      <button class="form-close" onclick="closeFormModal()">×</button>
+      <button class="form-close" onclick="closeFormModal()" aria-label="Fermer">×</button>
     </div>
 
     <div id="form-error" class="form-error"></div>
@@ -850,18 +857,18 @@ var signIn = function() {
 
       <!-- Ligne 1 : Nom -->
       <div class="form-group full">
-        <label class="form-label">Nom de l'action *</label>
+        <label class="form-label" for="f-titre">Nom de l'action *</label>
         <input type="text" id="f-titre" class="form-input" placeholder="Ex: Révision du règlement de zonage" style="width:100%;" />
       </div>
 
       <!-- Ligne 2 : Axe | Responsable -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="form-group">
-          <label class="form-label">Axe stratégique *</label>
+          <label class="form-label" for="f-axe">Axe stratégique *</label>
           <select id="f-axe" class="form-select" style="width:100%;"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Responsable</label>
+          <label class="form-label" for="f-responsable">Responsable</label>
           <select id="f-responsable" class="form-select" style="width:100%;"><option value="">-- Choisir --</option></select>
         </div>
       </div>
@@ -869,11 +876,11 @@ var signIn = function() {
       <!-- Ligne 3 : Priorité | Statut -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="form-group">
-          <label class="form-label">Priorité *</label>
+          <label class="form-label" for="f-priorite">Priorité *</label>
           <select id="f-priorite" class="form-select" style="width:100%;"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Statut *</label>
+          <label class="form-label" for="f-statut">Statut *</label>
           <select id="f-statut" class="form-select" style="width:100%;"></select>
         </div>
       </div>
@@ -881,18 +888,18 @@ var signIn = function() {
       <!-- Ligne 4 : Date début | Date échéance -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="form-group">
-          <label class="form-label">Date de début</label>
+          <label class="form-label" for="f-date-debut">Date de début</label>
           <input type="date" id="f-date-debut" class="form-input" style="width:100%;" />
         </div>
         <div class="form-group">
-          <label class="form-label">Date d'échéance *</label>
+          <label class="form-label" for="f-echeance">Date d'échéance *</label>
           <input type="date" id="f-echeance" class="form-input" style="width:100%;" />
         </div>
       </div>
 
       <!-- Ligne 5 : Avancement -->
       <div class="form-group">
-        <label class="form-label">Avancement : <span id="f-avancement-val" style="color:var(--c-purple);font-weight:600;">0%</span></label>
+        <label class="form-label" for="f-avancement">Avancement : <span id="f-avancement-val" style="color:var(--c-purple);font-weight:600;">0%</span></label>
         <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
           <input type="range" id="f-avancement" min="0" max="100" step="5" value="0" style="flex:1;"
             oninput="document.getElementById('f-avancement-val').textContent=this.value+'%';document.getElementById('f-avancement-display').textContent=this.value+'%';document.getElementById('f-avancement-bar').style.width=this.value+'%';" />
@@ -905,18 +912,18 @@ var signIn = function() {
 
       <!-- Ligne 6 : Description -->
       <div class="form-group">
-        <label class="form-label">Description</label>
+        <label class="form-label" for="f-description">Description</label>
         <textarea id="f-description" class="form-textarea" placeholder="Notes, contexte, détails de l'action..." style="width:100%;min-height:90px;"></textarea>
       </div>
 
       <!-- Ligne 7 : Budget | Commentaire -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="form-group">
-          <label class="form-label">Budget prévu ($)</label>
+          <label class="form-label" for="f-budget">Budget prévu ($)</label>
           <input type="number" id="f-budget" class="form-input" placeholder="0.00" min="0" step="100" style="width:100%;" />
         </div>
         <div class="form-group">
-          <label class="form-label">Commentaire de suivi</label>
+          <label class="form-label" for="f-commentaire">Commentaire de suivi</label>
           <input type="text" id="f-commentaire" class="form-input" placeholder="Note rapide..." style="width:100%;" />
         </div>
       </div>
@@ -944,7 +951,7 @@ var signIn = function() {
 </div><!-- /app -->
 
 <!-- MODAL DÉTAIL ACTION -->
-<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+<div class="modal-bg" id="modal-bg" role="dialog" aria-modal="true" aria-labelledby="modal-action-title" onclick="if(event.target===this)closeModal()">
   <div class="modal-box" id="modal-box"></div>
 </div>
 
@@ -952,6 +959,25 @@ var signIn = function() {
      JAVASCRIPT — LOGIQUE PRINCIPALE
      ============================================================ -->
 <script>
+/* ================================================================
+   0. UTILITAIRES SÉCURITÉ
+   ================================================================ */
+/** Échappe les caractères HTML dangereux dans une valeur avant insertion dans innerHTML */
+function h(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+/** Valide un email avant usage dans href="mailto:" ; retourne null si invalide */
+function safeEmail(email) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) return null;
+  return String(email).replace(/[<>"'&]/g, '');
+}
+
 /* ================================================================
    1. MSAL — AUTHENTIFICATION MICROSOFT
    ================================================================ */
@@ -1148,9 +1174,8 @@ async function loadSharePointData() {
     const savedAxeIds = (APP.axes || []).map(a => a.id);
     const newSpAxes = spAxes.filter(a => !savedAxeIds.includes(a.id));
     APP.axes = [...(APP.axes || []), ...newSpAxes];
-    
-    // Si aucun axe dans localStorage, utiliser ceux de SharePoint
-    if (!APP.axes || APP.axes.length === 0) APP.axes = spAxes;
+
+    invalidateAxeMap();
 
     APP.actions = rawActions.map(mapAction);
     APP.jalons  = rawJalons.map(mapJalon);
@@ -1183,6 +1208,7 @@ function loadDemoData() {
     { id:'A5', nom:'Innovation & R&D',           color:'#993C1D', light:'#FAECE7', pct:42 },
   ];
   } // fin if axes vides
+  invalidateAxeMap();
 
   APP.actions = [
     { id:'1', titre:'Déploiement intranet SharePoint',    axe:'A1', resp:'M. Tremblay', prio:'haute',   echeance:'2026-03-31', pct:90,  statut:'en cours',   desc:'Migration complète vers SharePoint Online. Formation terminée.' },
@@ -1225,8 +1251,36 @@ function loadDemoData() {
 const APP = {
   axes: [], actions: [], jalons: [],
   activeFilter: 'tous',
-  donutChart: null, lineChart: null
+  donutChart: null, lineChart: null,
+  _axeMap: null   // cache invalidé quand APP.axes change
 };
+
+/** Convertit "YYYY-MM-DD" en Date locale (minuit) ; retourne null si invalide */
+function parseLocalDate(d) {
+  if (!d) return null;
+  const dt = new Date(d + 'T00:00:00');
+  return isNaN(dt.getTime()) ? null : dt;
+}
+
+/** Génère la version claire d'une couleur hex (opacité ~13%) */
+function hexLight(color) { return color + '22'; }
+
+/** Retourne un objet {id → axe} mis en cache. Appeler invalidateAxeMap() après toute modification de APP.axes. */
+function getAxeMap() {
+  if (!APP._axeMap) {
+    APP._axeMap = {};
+    (APP.axes || []).forEach(a => { APP._axeMap[a.id] = a; });
+  }
+  return APP._axeMap;
+}
+function invalidateAxeMap() { APP._axeMap = null; }
+
+/** persistSettings déboncé — évite les écritures localStorage répétées lors d'éditions en rafale */
+let _persistTimer = null;
+function debouncedPersist() {
+  clearTimeout(_persistTimer);
+  _persistTimer = setTimeout(persistSettings, 300);
+}
 
 const STATUS_MAP = {
   'terminée':   { pill:'p-done', dot:'#639922',  label:'Terminée' },
@@ -1278,14 +1332,14 @@ function renderApercu() {
   // Barres axes
   document.getElementById('axes-bars').innerHTML = APP.axes.map(a => `
     <div class="axe-row">
-      <span class="axe-dot" style="background:${a.color}"></span>
-      <span class="axe-name">${a.nom}</span>
+      <span class="axe-dot" style="background:${h(a.color)}"></span>
+      <span class="axe-name">${h(a.nom)}</span>
       <div class="axe-bar">
         <div class="progress-wrap">
-          <div class="progress-fill" style="width:${a.pct}%;background:${a.color}"></div>
+          <div class="progress-fill" style="width:${h(a.pct)}%;background:${h(a.color)}"></div>
         </div>
       </div>
-      <span class="axe-pct">${a.pct}%</span>
+      <span class="axe-pct">${h(a.pct)}%</span>
     </div>
   `).join('');
 
@@ -1296,25 +1350,30 @@ function renderApercu() {
   const vals = labs.map(l => counts[l]);
   const cols = labs.map(l => STATUS_MAP[l]?.dot || '#999');
 
-  if (APP.donutChart) APP.donutChart.destroy();
-  APP.donutChart = new Chart(document.getElementById('chart-donut'), {
-    type: 'doughnut',
-    data: { labels: labs, datasets: [{ data: vals, backgroundColor: cols, borderWidth: 0, hoverOffset: 4 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label} : ${c.parsed}` } } } }
-  });
+  if (APP.donutChart) {
+    APP.donutChart.data.labels = labs;
+    APP.donutChart.data.datasets[0].data = vals;
+    APP.donutChart.data.datasets[0].backgroundColor = cols;
+    APP.donutChart.update('none'); // 'none' désactive l'animation pour les mises à jour
+  } else {
+    APP.donutChart = new Chart(document.getElementById('chart-donut'), {
+      type: 'doughnut',
+      data: { labels: labs, datasets: [{ data: vals, backgroundColor: cols, borderWidth: 0, hoverOffset: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label} : ${c.parsed}` } } } }
+    });
+  }
 
   document.getElementById('donut-leg').innerHTML = labs.map((l,i) =>
     `<span style="display:flex;align-items:center;gap:4px;">
-       <span style="width:9px;height:9px;border-radius:2px;background:${cols[i]}"></span>${l} (${vals[i]})
+       <span style="width:9px;height:9px;border-radius:2px;background:${h(cols[i])}"></span>${h(l)} (${vals[i]})
      </span>`
   ).join('');
 
   // Courbe trimestrielle
   const qLabels = ['T1 2024','T2','T3','T4','T1 2025','T2','T3','T4','T1 2026'];
   const qData   = [12,18,24,31,38,45,51,57,62];
-  if (APP.lineChart) APP.lineChart.destroy();
-  APP.lineChart = new Chart(document.getElementById('chart-line'), {
+  if (!APP.lineChart) APP.lineChart = new Chart(document.getElementById('chart-line'), {
     type: 'line',
     data: { labels: qLabels, datasets: [{
       label: '%', data: qData,
@@ -1341,35 +1400,34 @@ function renderActions(filter) {
   // Filtres
   const statuts = ['tous', ...new Set(APP.actions.map(a => a.statut))];
   document.getElementById('filter-bar').innerHTML = statuts.map(s =>
-    `<button class="filter-chip ${s===f?'on':''}" onclick="renderActions('${s}')">${s==='tous'?'Tous':s}</button>`
+    `<button class="filter-chip ${s===f?'on':''}" onclick="renderActions('${h(s)}')">${s==='tous'?'Tous':h(s)}</button>`
   ).join('');
 
   const list = f === 'tous' ? APP.actions : APP.actions.filter(a => a.statut === f);
-  const axeMap = {};
-  APP.axes.forEach(a => { axeMap[a.id] = a; });
+  const axeMap = getAxeMap();
 
   document.getElementById('actions-tbody').innerHTML = list.map(a => {
     const axe = axeMap[a.axe] || { color:'#888', light:'#eee', nom:a.axe };
     const sm  = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
     return `
       <tr>
-        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.titre}</td>
-        <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${axe.light};color:${axe.color};font-weight:500;">${a.axe}</span></td>
-        <td style="white-space:nowrap;">${a.resp}</td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h(a.titre)}</td>
+        <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${h(axe.light)};color:${h(axe.color)};font-weight:500;">${h(a.axe)}</span></td>
+        <td style="white-space:nowrap;">${h(a.resp)}</td>
         <td><span class="prio-badge ${PRIO_MAP[a.prio]||'pr-m'}"></span></td>
         <td style="white-space:nowrap;font-size:12px;">${fmtDate(a.echeance)} ${a.statut !== 'terminée' ? formatDelai(a.echeance) : ''}</td>
         <td>
           <div class="mini-bar-wrap">
-            <div class="mini-bar"><div class="mini-fill" style="width:${a.pct}%;background:${sm.dot}"></div></div>
-            <span class="mini-pct">${a.pct}%</span>
+            <div class="mini-bar"><div class="mini-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div></div>
+            <span class="mini-pct">${h(a.pct)}%</span>
           </div>
         </td>
-        <td><span class="pill ${sm.pill}">${a.statut}</span></td>
+        <td><span class="pill ${sm.pill}">${h(a.statut)}</span></td>
         <td style="white-space:nowrap;">
-          <button onclick="openFormModal('${a.id}')" title="Modifier" style="border:none;background:none;cursor:pointer;padding:5px 6px;border-radius:6px;color:#185FA5;" onmouseover="this.style.background='#E6F1FB'" onmouseout="this.style.background='none'">
+          <button onclick="openFormModal('${h(a.id)}')" title="Modifier" style="border:none;background:none;cursor:pointer;padding:5px 6px;border-radius:6px;color:#185FA5;" onmouseover="this.style.background='#E6F1FB'" onmouseout="this.style.background='none'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <button onclick="confirmDelete('${a.id}', event)" title="Supprimer" style="border:none;background:none;cursor:pointer;padding:5px 6px;border-radius:6px;color:#A32D2D;" onmouseover="this.style.background='#FCEBEB'" onmouseout="this.style.background='none'">
+          <button onclick="confirmDelete('${h(a.id)}', event)" title="Supprimer" style="border:none;background:none;cursor:pointer;padding:5px 6px;border-radius:6px;color:#A32D2D;" onmouseover="this.style.background='#FCEBEB'" onmouseout="this.style.background='none'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           </button>
         </td>
@@ -1381,8 +1439,7 @@ function renderActions(filter) {
    8. RENDU — AXES
    ================================================================ */
 function renderAxes() {
-  const axeMap = {};
-  APP.axes.forEach(a => { axeMap[a.id] = a; });
+  const axeMap = getAxeMap();
 
   document.getElementById('axes-cards').innerHTML = APP.axes.map(axe => {
     const actions = APP.actions.filter(a => a.axe === axe.id);
@@ -1391,9 +1448,9 @@ function renderAxes() {
     return `
       <div class="axe-card">
         <div class="axe-card-header">
-          <span class="axe-card-dot" style="background:${axe.color}"></span>
-          <span class="axe-card-name">${axe.nom}</span>
-          <span class="axe-card-pct" style="color:${axe.color}">${axe.pct}%</span>
+          <span class="axe-card-dot" style="background:${h(axe.color)}"></span>
+          <span class="axe-card-name">${h(axe.nom)}</span>
+          <span class="axe-card-pct" style="color:${h(axe.color)}">${h(axe.pct)}%</span>
         </div>
         <div class="progress-wrap" style="height:8px;">
           <div class="progress-fill" style="width:${axe.pct}%;background:${axe.color}"></div>
@@ -1404,7 +1461,7 @@ function renderAxes() {
           ${late>0?`<span style="color:var(--c-danger);">${late} en retard</span>`:''}
         </div>
         <div class="tag-list">
-          ${actions.slice(0,5).map(ac=>`<span class="tag">${ac.titre.slice(0,28)}${ac.titre.length>28?'…':''}</span>`).join('')}
+          ${actions.slice(0,5).map(ac=>`<span class="tag">${h(ac.titre.slice(0,28))}${ac.titre.length>28?'…':''}</span>`).join('')}
           ${actions.length>5?`<span class="tag">+${actions.length-5} autres</span>`:''}
         </div>
       </div>`;
@@ -1415,8 +1472,7 @@ function renderAxes() {
    9. RENDU — TIMELINE
    ================================================================ */
 function renderTimeline() {
-  const axeMap = {};
-  APP.axes.forEach(a => { axeMap[a.id] = a; });
+  const axeMap = getAxeMap();
 
   const sorted = [...APP.jalons].sort((a,b) => new Date(a.date) - new Date(b.date));
   document.getElementById('timeline-list').innerHTML = sorted.map((item, i) => {
@@ -1430,11 +1486,11 @@ function renderTimeline() {
           ${!isLast ? '<div class="tl-line"></div>' : ''}
         </div>
         <div class="tl-body">
-          <div class="tl-title">${item.titre}</div>
+          <div class="tl-title">${h(item.titre)}</div>
           <div class="tl-meta">
             <span>${fmtDate(item.date)}</span>
-            ${axe ? `<span style="color:${axe.color}">${axe.nom}</span>` : ''}
-            <span class="pill ${sm.pill}">${item.statut}</span>
+            ${axe ? `<span style="color:${h(axe.color)}">${h(axe.nom)}</span>` : ''}
+            <span class="pill ${sm.pill}">${h(item.statut)}</span>
           </div>
         </div>
       </div>`;
@@ -1447,38 +1503,65 @@ function renderTimeline() {
 function openModal(id) {
   const a = APP.actions.find(x => String(x.id) === String(id));
   if (!a) return;
-  const axeMap = {};
-  APP.axes.forEach(x => { axeMap[x.id] = x; });
+  const axeMap = getAxeMap();
   const axe = axeMap[a.axe] || { color:'#888', nom:a.axe };
   const sm  = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
 
+  const _modalEmail = (() => { const r = (APP.responsables||[]).find(x=>x.nom===a.resp); const e = safeEmail(r && r.courriel); return e ? `<br><a href="mailto:${e}" style="font-size:12px;color:var(--c-blue);">${h(e)}</a>` : ''; })();
   document.getElementById('modal-box').innerHTML = `
     <div class="modal-head">
-      <div style="font-size:15px;font-weight:600;color:var(--c-text);line-height:1.4;">${a.titre}</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
+      <div id="modal-action-title" style="font-size:15px;font-weight:600;color:var(--c-text);line-height:1.4;">${h(a.titre)}</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Fermer">×</button>
     </div>
-    <div class="field-row"><span class="field-label">Axe</span><span class="field-value" style="color:${axe.color};font-weight:500;">${axe.nom}</span></div>
-    <div class="field-row"><span class="field-label">Responsable</span><span class="field-value">${a.resp}${(() => { const r = (APP.responsables||[]).find(x=>x.nom===a.resp); return r && r.courriel ? '<br><a href="mailto:'+r.courriel+'" style="font-size:12px;color:var(--c-blue);">'+r.courriel+'</a>' : ''; })()}</span></div>
-    <div class="field-row"><span class="field-label">Priorité</span><span class="field-value"><span class="prio-badge ${PRIO_MAP[a.prio]||'pr-m'}" style="display:inline-block;margin-right:5px;"></span>${a.prio}</span></div>
+    <div class="field-row"><span class="field-label">Axe</span><span class="field-value" style="color:${h(axe.color)};font-weight:500;">${h(axe.nom)}</span></div>
+    <div class="field-row"><span class="field-label">Responsable</span><span class="field-value">${h(a.resp)}${_modalEmail}</span></div>
+    <div class="field-row"><span class="field-label">Priorité</span><span class="field-value"><span class="prio-badge ${PRIO_MAP[a.prio]||'pr-m'}" style="display:inline-block;margin-right:5px;"></span>${h(a.prio)}</span></div>
     <div class="field-row"><span class="field-label">Échéance</span><span class="field-value">${fmtDate(a.echeance)}</span></div>
-    <div class="field-row"><span class="field-label">Statut</span><span class="field-value"><span class="pill ${sm.pill}">${a.statut}</span></span></div>
-    <div class="field-row"><span class="field-label">Avancement</span><span class="field-value">${a.pct}%</span></div>
+    <div class="field-row"><span class="field-label">Statut</span><span class="field-value"><span class="pill ${sm.pill}">${h(a.statut)}</span></span></div>
+    <div class="field-row"><span class="field-label">Avancement</span><span class="field-value">${h(a.pct)}%</span></div>
     <div style="margin-bottom:12px;">
       <div class="progress-wrap" style="height:8px;">
-        <div class="progress-fill" style="width:${a.pct}%;background:${sm.dot}"></div>
+        <div class="progress-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div>
       </div>
     </div>
-    ${a.desc ? `<div class="field-row"><span class="field-label">Description</span></div><div class="modal-desc">${a.desc}</div>` : ''}
+    ${a.desc ? `<div class="field-row"><span class="field-label">Description</span></div><div class="modal-desc">${h(a.desc)}</div>` : ''}
     ${isLiveData ? `<a href="https://${SP_CONFIG.tenantDomain}${SP_CONFIG.siteRelativeUrl}/Lists/${SP_CONFIG.lists.actions}/DispForm.aspx?ID=${a.id}" target="_blank" class="btn" style="margin-top:14px;text-decoration:none;">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       Ouvrir dans SharePoint
     </a>` : ''}
   `;
-  document.getElementById('modal-bg').classList.add('open');
+  _openModal(document.getElementById('modal-bg'));
 }
 
+/* ----------------------------------------------------------------
+   ACCESSIBILITÉ — gestion du focus et touche Échap
+   ---------------------------------------------------------------- */
+let _lastFocusedEl = null;
+
+function _openModal(modalEl) {
+  _lastFocusedEl = document.activeElement;
+  modalEl.classList.add('open');
+  // Mettre le focus sur le premier bouton Fermer dans la modale
+  const firstFocusable = modalEl.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (firstFocusable) requestAnimationFrame(() => firstFocusable.focus());
+}
+
+function _closeModal(modalEl) {
+  modalEl.classList.remove('open');
+  // Remettre le focus sur l'élément qui avait déclenché l'ouverture
+  if (_lastFocusedEl) { _lastFocusedEl.focus(); _lastFocusedEl = null; }
+}
+
+// Fermer la modale active avec Échap
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('settings-modal-bg').classList.contains('open')) { closeSettingsModal(); return; }
+  if (document.getElementById('form-modal-bg').classList.contains('open'))     { closeFormModal();     return; }
+  if (document.getElementById('modal-bg').classList.contains('open'))          { closeModal();         return; }
+});
+
 function closeModal() {
-  document.getElementById('modal-bg').classList.remove('open');
+  _closeModal(document.getElementById('modal-bg'));
 }
 
 /* ================================================================
@@ -1498,7 +1581,8 @@ function switchPane(id, btn) {
 function formatDelai(dateStr) {
   if (!dateStr) return '';
   const today = new Date(); today.setHours(0,0,0,0);
-  const due = new Date(dateStr + 'T00:00:00'); due.setHours(0,0,0,0);
+  const due = parseLocalDate(dateStr);
+  if (!due) return '';
   const diff = Math.round((due - today) / 86400000);
   if (diff === 0) return '<span style="color:#A32D2D;font-size:11px;font-weight:500;">Aujourd\'hui</span>';
   if (diff < 0)  return `<span style="color:#A32D2D;font-size:11px;font-weight:500;">Retard ${Math.abs(diff)}j</span>`;
@@ -1508,15 +1592,22 @@ function formatDelai(dateStr) {
 
 function fmtDate(d) {
   if (!d) return '—';
-  const dt = new Date(d + 'T00:00:00');
-  if (isNaN(dt)) return d;
+  const dt = parseLocalDate(d);
+  if (!dt) return d;
   return dt.toLocaleDateString('fr-CA', { year:'numeric', month:'short', day:'numeric' });
 }
 
 function exportCSV() {
+  /** Échappe une valeur pour CSV : guillemets internes doublés, préfixe formule retiré */
+  const csvCell = v => {
+    const s = v == null ? '' : String(v);
+    const safe = /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
+    return '"' + safe.replace(/"/g, '""') + '"';
+  };
   const headers = ['ID','Titre','Axe','Responsable','Priorité','Échéance','Avancement (%)','Statut','Description'];
   const rows = APP.actions.map(a => [
-    a.id, `"${a.titre}"`, a.axe, `"${a.resp}"`, a.prio, a.echeance, a.pct, a.statut, `"${a.desc}"`
+    csvCell(a.id), csvCell(a.titre), csvCell(a.axe), csvCell(a.resp),
+    csvCell(a.prio), csvCell(a.echeance), csvCell(a.pct), csvCell(a.statut), csvCell(a.desc)
   ]);
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' });
@@ -1600,7 +1691,7 @@ function showApp() {
 }
 
 function showAuthError(msg) {
-  document.getElementById('auth-error').innerHTML = `<div class="error-card">${msg}</div>`;
+  document.getElementById('auth-error').innerHTML = `<div class="error-card">${h(msg)}</div>`;
 }
 
 /* ================================================================
@@ -1638,7 +1729,7 @@ window.addEventListener('load', function() {
 let formEditId = null;
 
 function openFormModal(actionId) {
-  formEditId = actionId;
+  formEditId = actionId != null ? String(actionId) : null;
   const bg = document.getElementById('form-modal-bg');
   const title = document.getElementById('form-modal-title');
   const btnDelete = document.getElementById('form-btn-delete');
@@ -1698,20 +1789,23 @@ function openFormModal(actionId) {
     title.textContent = 'Modifier l\'action';
     btnDelete.style.display = 'inline-flex';
     const a = APP.actions.find(x => String(x.id) === String(actionId));
-    if (a) {
-      document.getElementById('f-titre').value       = a.titre || '';
-      document.getElementById('f-axe').value         = a.axe || '';
-      document.getElementById('f-responsable').value = a.resp || '';
-      document.getElementById('f-priorite').value    = a.prio || 'moyenne';
-      document.getElementById('f-statut').value      = a.statut || 'à faire';
-      document.getElementById('f-echeance').value    = a.echeance || '';
-      document.getElementById('f-avancement').value  = a.pct || 0;
-      document.getElementById('f-avancement-bar').style.width = (a.pct || 0) + '%';
-      document.getElementById('f-avancement-val').textContent = (a.pct || 0) + '%';
-      document.getElementById('f-description').value = a.desc || '';
-      document.getElementById('f-budget').value      = a.budget || '';
-      document.getElementById('f-commentaire').value = a.commentaire || '';
+    if (!a) {
+      // Action introuvable (supprimée entre-temps) — ne pas ouvrir le formulaire
+      formEditId = null;
+      return;
     }
+    document.getElementById('f-titre').value       = a.titre || '';
+    document.getElementById('f-axe').value         = a.axe || '';
+    document.getElementById('f-responsable').value = a.resp || '';
+    document.getElementById('f-priorite').value    = a.prio || 'moyenne';
+    document.getElementById('f-statut').value      = a.statut || 'à faire';
+    document.getElementById('f-echeance').value    = a.echeance || '';
+    document.getElementById('f-avancement').value  = a.pct || 0;
+    document.getElementById('f-avancement-bar').style.width = (a.pct || 0) + '%';
+    document.getElementById('f-avancement-val').textContent = (a.pct || 0) + '%';
+    document.getElementById('f-description').value = a.desc || '';
+    document.getElementById('f-budget').value      = a.budget || '';
+    document.getElementById('f-commentaire').value = a.commentaire || '';
   } else {
     // Mode création
     title.textContent = 'Nouvelle action';
@@ -1734,8 +1828,9 @@ function openFormModal(actionId) {
     document.getElementById('f-echeance').value = d.toISOString().split('T')[0];
   }
 
+  _lastFocusedEl = document.activeElement;
   bg.classList.add('open');
-  document.getElementById('f-titre').focus();
+  requestAnimationFrame(() => document.getElementById('f-titre').focus());
 }
 
 
@@ -1744,12 +1839,12 @@ function confirmDelete(id, event) {
   const a = APP.actions.find(x => String(x.id) === String(id));
   if (!a) return;
   if (!confirm('Supprimer « ' + a.titre + ' » ?\nCette action est irréversible.')) return;
-  formEditId = id;
-  deleteAction();
+  formEditId = id != null ? String(id) : null;
+  deleteAction(true); // confirmation déjà obtenue ci-dessus
 }
 
 function closeFormModal() {
-  document.getElementById('form-modal-bg').classList.remove('open');
+  _closeModal(document.getElementById('form-modal-bg'));
   formEditId = null;
 }
 
@@ -1807,8 +1902,7 @@ async function saveAction() {
   try {
     if (isLiveData && graphToken) {
       // Sauvegarder dans SharePoint via Graph API
-      const axeMap = {};
-      APP.axes.forEach(a => { axeMap[a.id] = a; });
+      const axeMap = getAxeMap();
       const axeObj = axeMap[axe];
       const axeLabel = axeObj ? axe + ' – ' + axeObj.nom : axe;
 
@@ -1836,17 +1930,16 @@ async function saveAction() {
       if (dateDebut) spFields['Date_Debut'] = new Date(dateDebut).toISOString();
       if (budget)    spFields['Budget_Prevu'] = parseFloat(budget);
 
-      if (formEditId && !String(formEditId).startsWith('local-')) {
+      if (formEditId && !formEditId.startsWith('local-')) {
         // Mise à jour
         await graphFetch(
           `/sites/${spSiteId}/lists/${SP_CONFIG.lists.actions}/items/${formEditId}/fields`,
           'PATCH', spFields
         );
         // Mettre à jour dans APP.actions
-        const idx = APP.actions.findIndex(x => String(x.id) === String(formEditId));
+        const idx = APP.actions.findIndex(x => String(x.id) === formEditId);
         if (idx !== -1) APP.actions[idx] = { ...APP.actions[idx], ...newAction };
         showFormSuccess('Action mise à jour avec succès dans SharePoint !');
-        addHistorique(formEditId, 'Mise à jour : ' + statut + ' — ' + pct + '%');
       } else {
         // Création
         const result = await graphFetch(
@@ -1856,12 +1949,11 @@ async function saveAction() {
         newAction.id = result.id;
         APP.actions.push(newAction);
         showFormSuccess('Action créée avec succès dans SharePoint !');
-        addHistorique(newAction.id, 'Action créée : ' + statut);
       }
     } else {
       // Mode démo — mise à jour locale uniquement
       if (formEditId) {
-        const idx = APP.actions.findIndex(x => String(x.id) === String(formEditId));
+        const idx = APP.actions.findIndex(x => String(x.id) === formEditId);
         if (idx !== -1) APP.actions[idx] = { ...APP.actions[idx], ...newAction };
         showFormSuccess('Action mise à jour (mode démo — non sauvegardé dans SharePoint)');
       } else {
@@ -1886,21 +1978,21 @@ async function saveAction() {
   }
 }
 
-async function deleteAction() {
+async function deleteAction(skipConfirm = false) {
   if (!formEditId) return;
-  if (!confirm('Supprimer cette action ? Cette opération est irréversible.')) return;
+  if (!skipConfirm && !confirm('Supprimer cette action ? Cette opération est irréversible.')) return;
 
   document.getElementById('form-saving').classList.add('show');
   document.querySelectorAll('.form-btn-save, .form-btn-cancel, .form-btn-delete').forEach(b => b.disabled = true);
 
   try {
-    if (isLiveData && graphToken && !String(formEditId).startsWith('local-')) {
+    if (isLiveData && graphToken && !formEditId.startsWith('local-')) {
       await graphFetch(
         `/sites/${spSiteId}/lists/${SP_CONFIG.lists.actions}/items/${formEditId}`,
         'DELETE'
       );
     }
-    APP.actions = APP.actions.filter(x => String(x.id) !== String(formEditId));
+    APP.actions = APP.actions.filter(x => String(x.id) !== formEditId);
     renderApercu();
     renderActions();
     renderAxes();
@@ -1925,7 +2017,7 @@ function loadSettings() {
     const saved = localStorage.getItem(SETTINGS_KEY);
     if (saved) {
       const s = JSON.parse(saved);
-      if (s.axes)         APP.axes        = s.axes;
+      if (s.axes)         { APP.axes = s.axes; invalidateAxeMap(); }
       if (s.responsables) APP.responsables = s.responsables;
       if (s.statuts)      APP.statuts      = s.statuts;
       if (s.priorites)    APP.priorites    = s.priorites;
@@ -1940,7 +2032,8 @@ function persistSettings() {
       axes:         APP.axes,
       responsables: APP.responsables,
       statuts:      APP.statuts,
-      priorites:    APP.priorites
+      priorites:    APP.priorites,
+      autoCalcAxes: APP.autoCalcAxes
     }));
   } catch(e) {}
 }
@@ -1981,11 +2074,11 @@ function openSettingsModal() {
   renderSettingsResp();
   renderSettingsStatuts();
   renderSettingsPriorities();
-  document.getElementById('settings-modal-bg').classList.add('open');
+  _openModal(document.getElementById('settings-modal-bg'));
 }
 
 function closeSettingsModal() {
-  document.getElementById('settings-modal-bg').classList.remove('open');
+  _closeModal(document.getElementById('settings-modal-bg'));
 }
 
 function switchSettingsTab(id, btn) {
@@ -2001,8 +2094,8 @@ function renderSettingsAxes() {
   el.innerHTML = APP.axes.map((a, i) => `
     <div class="item-row" id="axe-row-${i}">
       <span class="item-row-color" style="background:${a.color};width:14px;height:14px;border-radius:50%;flex-shrink:0;display:inline-block;"></span>
-      <span class="item-row-name"><strong style="font-weight:500;">${a.id}</strong> — ${a.nom}</span>
-      <span class="item-row-sub">${a.pct || 0}% complété</span>
+      <span class="item-row-name"><strong style="font-weight:500;">${h(a.id)}</strong> — ${h(a.nom)}</span>
+      <span class="item-row-sub">${h(a.pct || 0)}% complété</span>
       <button class="item-btn-edit" onclick="editAxe(${i})" title="Modifier" style="color:var(--c-purple);margin-right:4px;">✏️</button>
       <button class="item-btn-del" onclick="removeAxe(${i})" title="Supprimer" style="color:#A32D2D;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
@@ -2011,11 +2104,11 @@ function renderSettingsAxes() {
     <div id="axe-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;" class="add-item-form">
       <div class="add-item-field" style="flex:0 0 60px;">
         <label>Code</label>
-        <input type="text" id="edit-axe-id-${i}" value="${a.id}" maxlength="5" style="width:60px;" />
+        <input type="text" id="edit-axe-id-${i}" value="${h(a.id)}" maxlength="5" style="width:60px;" />
       </div>
       <div class="add-item-field" style="flex:1;min-width:160px;">
         <label>Nom de l'axe</label>
-        <input type="text" id="edit-axe-nom-${i}" value="${a.nom}" />
+        <input type="text" id="edit-axe-nom-${i}" value="${h(a.nom)}" />
       </div>
       <div class="add-item-field">
         <label>Couleur</label>
@@ -2036,9 +2129,9 @@ function addAxe() {
   const color  = document.getElementById('new-axe-couleur').value;
   if (!id || !nom) { alert('Code et nom obligatoires.'); return; }
   if (APP.axes.find(a => a.id === id)) { alert('Ce code existe déjà.'); return; }
-  // Generate light color from hex
-  const light = color + '22';
+  const light = hexLight(color);
   APP.axes.push({ id, nom, color, light, pct: 0 });
+  invalidateAxeMap();
   persistSettings();
   document.getElementById('new-axe-id').value = '';
   document.getElementById('new-axe-nom').value = '';
@@ -2059,6 +2152,7 @@ function toggleAutoCalc(enabled) {
 function removeAxe(i) {
   if (!confirm('Supprimer cet axe ? Les actions associées ne seront pas supprimées.')) return;
   APP.axes.splice(i, 1);
+  invalidateAxeMap();
   persistSettings();
   renderSettingsAxes();
 }
@@ -2080,9 +2174,10 @@ function saveAxe(i) {
   const color   = document.getElementById('edit-axe-couleur-' + i)?.value;
   const pct     = parseInt(document.getElementById('edit-axe-pct-' + i)?.value || 0);
   if (!id || !nom) { alert('Le code et le nom sont obligatoires.'); return; }
-  const light = color + '33';
+  const light = hexLight(color);
   APP.axes[i] = { ...APP.axes[i], id, nom, color, light, pct };
-  persistSettings(); // Sauvegarder immédiatement
+  invalidateAxeMap();
+  persistSettings();
   renderSettingsAxes();
 }
 
@@ -2090,13 +2185,14 @@ function saveAxe(i) {
 function renderSettingsResp() {
   const el = document.getElementById('settings-resp-list');
   el.innerHTML = APP.responsables.map((r, i) => {
-    const initials = r.nom.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const initials = h(r.nom.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase());
+    const _respEmail = safeEmail(r.courriel);
     return `
     <div class="item-row" id="resp-row-${i}">
       <div class="resp-avatar">${initials}</div>
       <div style="flex:1;">
-        <span class="item-row-name" style="display:block;">${r.nom}</span>
-        <span class="item-row-sub" style="display:block;">${r.titre || ''}${r.courriel ? ' · <a href=\"mailto:'+r.courriel+'\" style=\"color:var(--c-blue);\">'+r.courriel+'</a>' : '<span style=\"color:var(--c-text-3);font-style:italic;\">Aucun courriel</span>'}</span>
+        <span class="item-row-name" style="display:block;">${h(r.nom)}</span>
+        <span class="item-row-sub" style="display:block;">${h(r.titre || '')}${_respEmail ? ' · <a href="mailto:'+_respEmail+'" style="color:var(--c-blue);">'+h(_respEmail)+'</a>' : '<span style="color:var(--c-text-3);font-style:italic;">Aucun courriel</span>'}</span>
       </div>
       <button class="item-btn-edit" onclick="editResp(${i})" title="Modifier" style="color:var(--c-purple);margin-right:4px;">✏️</button>
       <button class="item-btn-del" onclick="removeResp(${i})" title="Supprimer" style="color:#A32D2D;">
@@ -2106,15 +2202,15 @@ function renderSettingsResp() {
     <div id="resp-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;" class="add-item-form">
       <div class="add-item-field" style="flex:1;min-width:120px;">
         <label>Nom</label>
-        <input type="text" id="edit-resp-nom-${i}" value="${r.nom}" />
+        <input type="text" id="edit-resp-nom-${i}" value="${h(r.nom)}" />
       </div>
       <div class="add-item-field" style="flex:1;min-width:120px;">
         <label>Titre</label>
-        <input type="text" id="edit-resp-titre-${i}" value="${r.titre || ''}" />
+        <input type="text" id="edit-resp-titre-${i}" value="${h(r.titre || '')}" />
       </div>
       <div class="add-item-field" style="flex:1;min-width:160px;">
         <label>Courriel</label>
-        <input type="email" id="edit-resp-courriel-${i}" value="${r.courriel || ''}" placeholder="courriel@municipalite.ca" />
+        <input type="email" id="edit-resp-courriel-${i}" value="${h(r.courriel || '')}" placeholder="courriel@municipalite.ca" />
       </div>
       <button class="btn btn-add" onclick="saveResp(${i})" style="height:32px;align-self:flex-end;">✓ Sauvegarder</button>
       <button class="btn" onclick="cancelEditResp(${i})" style="height:32px;align-self:flex-end;">Annuler</button>
@@ -2169,7 +2265,7 @@ function renderSettingsStatuts() {
   const el = document.getElementById('settings-statuts-list');
   el.innerHTML = APP.statuts.map((s, i) => `
     <div class="item-row" id="statut-row-${i}">
-      <span style="background:${s.bg};color:${s.fg};padding:2px 10px;border-radius:99px;font-size:11px;font-weight:500;">${s.label}</span>
+      <span style="background:${h(s.bg)};color:${h(s.fg)};padding:2px 10px;border-radius:99px;font-size:11px;font-weight:500;">${h(s.label)}</span>
       <span style="flex:1;"></span>
       <button onclick="editStatut(${i})" title="Modifier" style="border:none;background:none;cursor:pointer;color:var(--c-purple);padding:4px 6px;">✏️</button>
       <button onclick="removeStatut(${i})" title="Supprimer" style="border:none;background:none;cursor:pointer;color:#A32D2D;padding:4px 6px;">
@@ -2179,7 +2275,7 @@ function renderSettingsStatuts() {
     <div id="statut-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;">
       <div class="add-item-field" style="flex:1;min-width:120px;">
         <label>Libellé</label>
-        <input type="text" id="edit-statut-label-${i}" value="${s.label}" />
+        <input type="text" id="edit-statut-label-${i}" value="${h(s.label)}" />
       </div>
       <div class="add-item-field">
         <label>Fond</label>
@@ -2237,7 +2333,7 @@ function renderSettingsPriorities() {
   el.innerHTML = APP.priorites.map((p, i) => `
     <div class="item-row" id="prio-row-${i}">
       <span style="background:${p.couleur};width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
-      <span class="item-row-name">${p.label}</span>
+      <span class="item-row-name">${h(p.label)}</span>
       <span style="flex:1;"></span>
       <button onclick="editPrio(${i})" title="Modifier" style="border:none;background:none;cursor:pointer;color:var(--c-purple);padding:4px 6px;">✏️</button>
       <button onclick="removePrio(${i})" title="Supprimer" style="border:none;background:none;cursor:pointer;color:#A32D2D;padding:4px 6px;">
@@ -2247,7 +2343,7 @@ function renderSettingsPriorities() {
     <div id="prio-edit-${i}" style="display:none;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;margin-top:4px;gap:8px;flex-wrap:wrap;align-items:flex-end;">
       <div class="add-item-field" style="flex:1;min-width:120px;">
         <label>Libellé</label>
-        <input type="text" id="edit-prio-label-${i}" value="${p.label}" />
+        <input type="text" id="edit-prio-label-${i}" value="${h(p.label)}" />
       </div>
       <div class="add-item-field">
         <label>Couleur</label>
@@ -2355,12 +2451,13 @@ function checkAlertes() {
 
   const late = APP.actions.filter(a => {
     if (!a.echeance || a.statut === 'terminée') return false;
-    const due = new Date(a.echeance + 'T00:00:00');
-    return due < today;
+    const due = parseLocalDate(a.echeance);
+    return due && due < today;
   });
   const soon = APP.actions.filter(a => {
     if (!a.echeance || a.statut === 'terminée') return false;
-    const due = new Date(a.echeance + 'T00:00:00');
+    const due = parseLocalDate(a.echeance);
+    if (!due) return false;
     const diff = Math.round((due - today) / 86400000);
     return diff >= 0 && diff <= 7;
   });
@@ -2401,8 +2498,7 @@ function renderMaVue() {
   }
   const resp = select.value;
   const filtered = resp ? APP.actions.filter(a => a.resp === resp) : [];
-  const axeMap = {};
-  APP.axes.forEach(a => { axeMap[a.id] = a; });
+  const axeMap = getAxeMap();
 
   // KPIs
   const kpisEl = document.getElementById('mavue-kpis');
@@ -2410,7 +2506,7 @@ function renderMaVue() {
     const done = filtered.filter(a => a.statut === 'terminée').length;
     const late = filtered.filter(a => {
       if (!a.echeance || a.statut === 'terminée') return false;
-      return new Date(a.echeance + 'T00:00:00') < new Date();
+      const _d = parseLocalDate(a.echeance); return _d && _d < new Date();
     }).length;
     const avgPct = Math.round(filtered.reduce((s,a) => s+a.pct, 0) / filtered.length);
     kpisEl.innerHTML = [
@@ -2430,12 +2526,12 @@ function renderMaVue() {
   document.getElementById('mavue-tbody').innerHTML = filtered.map(a => {
     const axe = axeMap[a.axe] || { color:'#888', light:'#eee' };
     const sm = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
-    return `<tr onclick="openFormModal('${a.id}')" style="cursor:pointer;">
-      <td style="font-weight:500;">${a.titre}</td>
-      <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${axe.light};color:${axe.color};font-weight:500;">${a.axe}</span></td>
+    return `<tr onclick="openFormModal('${h(a.id)}')" style="cursor:pointer;">
+      <td style="font-weight:500;">${h(a.titre)}</td>
+      <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${h(axe.light)};color:${h(axe.color)};font-weight:500;">${h(a.axe)}</span></td>
       <td style="white-space:nowrap;font-size:12px;">${fmtDate(a.echeance)} ${a.statut!=='terminée'?formatDelai(a.echeance):''}</td>
-      <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${a.pct}%;background:${sm.dot}"></div></div><span class="mini-pct">${a.pct}%</span></div></td>
-      <td><span class="pill ${sm.pill}">${a.statut}</span></td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div></div><span class="mini-pct">${h(a.pct)}%</span></div></td>
+      <td><span class="pill ${sm.pill}">${h(a.statut)}</span></td>
     </tr>`;
   }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--c-text-3);padding:2rem;">Sélectionnez un responsable</td></tr>';
 }
@@ -2455,14 +2551,15 @@ function renderGantt() {
   const endYear   = new Date(year, 11, 31);
   const totalDays = Math.round((endYear - startYear) / 86400000) + 1;
 
-  const actions = APP.actions.filter(a => {
+  const allGanttActions = APP.actions.filter(a => {
     if (!a.echeance) return false;
-    const d = new Date(a.echeance + 'T00:00:00');
-    return d.getFullYear() === year || (a.dateDebut && new Date(a.dateDebut + 'T00:00:00').getFullYear() === year);
-  }).slice(0, 20);
+    const d = parseLocalDate(a.echeance);
+    return (d && d.getFullYear() === year) || (a.dateDebut && parseLocalDate(a.dateDebut)?.getFullYear() === year);
+  });
+  const ganttTruncated = allGanttActions.length > 20;
+  const actions = allGanttActions.slice(0, 20);
 
-  const axeMap = {};
-  APP.axes.forEach(a => { axeMap[a.id] = a; });
+  const axeMap = getAxeMap();
 
   let html = `<div style="font-size:11px;">`;
 
@@ -2480,19 +2577,20 @@ function renderGantt() {
   // Lignes actions
   actions.forEach(a => {
     const axe = axeMap[a.axe] || { color:'#888' };
-    const echeance = new Date(a.echeance + 'T00:00:00');
-    const debut = a.dateDebut ? new Date(a.dateDebut + 'T00:00:00') : new Date(year, 0, 1);
+    const echeance = parseLocalDate(a.echeance) || new Date(year, 11, 31);
+    const debut = parseLocalDate(a.dateDebut) || new Date(year, 0, 1);
     const startPct = Math.max(0, Math.round((debut - startYear) / 86400000) / totalDays * 100);
     const endPct   = Math.min(100, Math.round((echeance - startYear) / 86400000) / totalDays * 100);
-    const width = Math.max(0.5, endPct - startPct);
+    if (endPct <= startPct) return; // dates incohérentes — ignorer cette barre
+    const width = endPct - startPct;
     const sm = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
 
     html += `<div style="display:flex;align-items:center;margin-bottom:5px;height:28px;">
-      <div style="width:180px;flex-shrink:0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;color:var(--c-text);" title="${a.titre}">${a.titre}</div>
+      <div style="width:180px;flex-shrink:0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;color:var(--c-text);" title="${h(a.titre)}">${h(a.titre)}</div>
       <div style="flex:1;position:relative;height:100%;border-left:0.5px solid var(--c-border);">
         <div style="position:absolute;left:${todayPct}%;top:0;bottom:0;width:1px;background:rgba(227,75,74,0.4);z-index:1;"></div>
-        <div style="position:absolute;left:${startPct}%;width:${width}%;top:4px;height:20px;background:${axe.color};opacity:0.75;border-radius:4px;display:flex;align-items:center;padding:0 6px;overflow:hidden;" title="${a.titre} — ${fmtDate(a.echeance)}">
-          <span style="font-size:10px;color:white;white-space:nowrap;font-weight:500;">${a.pct}%</span>
+        <div style="position:absolute;left:${startPct}%;width:${width}%;top:4px;height:20px;background:${h(axe.color)};opacity:0.75;border-radius:4px;display:flex;align-items:center;padding:0 6px;overflow:hidden;" title="${h(a.titre)} — ${fmtDate(a.echeance)}">
+          <span style="font-size:10px;color:white;white-space:nowrap;font-weight:500;">${h(a.pct)}%</span>
         </div>
       </div>
     </div>`;
@@ -2500,6 +2598,11 @@ function renderGantt() {
 
   if (actions.length === 0) {
     html += `<div style="text-align:center;color:var(--c-text-3);padding:2rem;font-size:13px;">Aucune action avec échéance en ${year}</div>`;
+  }
+  if (ganttTruncated) {
+    html += `<div style="margin-top:8px;padding:6px 12px;background:var(--c-surface-2);border-radius:var(--radius-sm);font-size:11px;color:var(--c-text-3);text-align:center;">
+      ${allGanttActions.length - 20} action${allGanttActions.length - 20 > 1 ? 's' : ''} supplémentaire${allGanttActions.length - 20 > 1 ? 's' : ''} non affichée${allGanttActions.length - 20 > 1 ? 's' : ''} — affinez le filtre pour les voir
+    </div>`;
   }
 
   html += `</div>`;
@@ -2540,7 +2643,7 @@ function exportPDF() {
   const done   = APP.actions.filter(a => a.statut === 'terminée').length;
   const late   = APP.actions.filter(a => {
     if (!a.echeance || a.statut === 'terminée') return false;
-    return new Date(a.echeance + 'T00:00:00') < new Date();
+    const _d = parseLocalDate(a.echeance); return _d && _d < new Date();
   }).length;
   const global = APP.axes.length ? Math.round(APP.axes.reduce((s,a) => s+a.pct,0)/APP.axes.length) : 0;
 
@@ -2548,13 +2651,13 @@ function exportPDF() {
     const sm = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
     const bg = sm.dot + '22';
     return `<tr>
-      <td>${a.titre}</td>
-      <td>${a.axe}</td>
-      <td>${a.resp || '—'}</td>
-      <td>${a.prio || '—'}</td>
+      <td>${h(a.titre)}</td>
+      <td>${h(a.axe)}</td>
+      <td>${h(a.resp || '—')}</td>
+      <td>${h(a.prio || '—')}</td>
       <td>${fmtDate(a.echeance)}</td>
-      <td>${a.pct}%</td>
-      <td><span class="pill" style="background:${bg};color:${sm.dot};">${a.statut}</span></td>
+      <td>${h(a.pct)}%</td>
+      <td><span class="pill" style="background:${h(bg)};color:${h(sm.dot)};">${h(a.statut)}</span></td>
     </tr>`;
   }).join('');
 
@@ -2575,6 +2678,7 @@ function exportPDF() {
   </body></html>`;
 
   const win = window.open('', '_blank');
+  if (!win) { alert('Les fenêtres pop-up sont bloquées. Autorisez-les pour ce site afin d\'exporter en PDF.'); return; }
   win.document.write(html);
   win.document.close();
   setTimeout(() => win.print(), 500);
@@ -2599,18 +2703,6 @@ function togglePresentationMode() {
 /* ================================================================
    HISTORIQUE PAR ACTION — ajout dans modal
    ================================================================ */
-function getHistorique(actionId) {
-  const key = 'histo_' + actionId;
-  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
-}
-
-function addHistorique(actionId, message) {
-  const key = 'histo_' + actionId;
-  const histo = getHistorique(actionId);
-  histo.unshift({ date: new Date().toISOString(), msg: message, user: document.getElementById('user-name')?.textContent || 'Utilisateur' });
-  if (histo.length > 20) histo.pop();
-  localStorage.setItem(key, JSON.stringify(histo));
-}
 
 // Fermer en cliquant sur le fond
 document.getElementById('form-modal-bg').addEventListener('click', function(e) {
