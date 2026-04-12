@@ -1,0 +1,29 @@
+appId: com.municonsul.tableau-de-bord
+productName: Tableau de bord stratégique
+copyright: © 2026 Muni-Consul
+
+# Fichiers inclus dans le paquet
+files:
+  - main.js
+  - preload.js
+  - index.html
+  - msal.js
+
+directories:
+  output: dist
+
+win:
+  target:
+    - target: nsis      # installeur Windows classique
+      arch: x64
+  # Décommentez si vous avez une icône .ico dans assets/
+  # icon: assets/icon.ico
+
+nsis:
+  oneClick: false                        # l'utilisateur choisit le dossier d'install
+  allowToChangeInstallationDirectory: true
+  installerLanguages:
+    - fr_FR
+  language: 1036                         # français
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

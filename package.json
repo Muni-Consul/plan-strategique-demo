@@ -1,0 +1,14 @@
+{
+  "name": "tableau-de-bord-strategique",
+  "version": "1.0.0",
+  "description": "Tableau de bord – Plan d'action stratégique municipal",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^29.4.6",
+    "electron-builder": "^24.13.3"
+  }
+}
