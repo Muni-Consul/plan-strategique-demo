@@ -33,7 +33,7 @@ var signIn = function() {
       lists: { axes: "Axes_Strategiques", actions: "Actions_Plan", jalons: "Jalons" },
       msalClientId: "d77e2842-aa80-489c-a13c-120357e6fb07",
       msalAuthority: "https://login.microsoftonline.com/municonsul485.onmicrosoft.com",
-      redirectUri: "https://muni-consul.github.io/plan-strategique-demo/"
+      redirectUri: "https://login.microsoftonline.com/common/oauth2/nativeclient"
     };
   </script>
 
@@ -87,6 +87,62 @@ var signIn = function() {
       --font:          'DM Sans', system-ui, sans-serif;
       --font-mono:     'DM Mono', monospace;
     }
+
+    /* ── Thème Gris (défaut) ── */
+    body.theme-grey {
+      --c-bg:        #F7F6F3;
+      --c-surface:   #FFFFFF;
+      --c-surface-2: #F0EEE9;
+      --c-border:    rgba(0,0,0,0.08);
+      --c-border-med:rgba(0,0,0,0.14);
+      --c-text:      #1A1917;
+      --c-text-2:    #6B6860;
+      --c-text-3:    #9E9C96;
+    }
+
+    /* ── Thème Blanc ── */
+    body.theme-white {
+      --c-bg:        #FFFFFF;
+      --c-surface:   #FFFFFF;
+      --c-surface-2: #F5F5F5;
+      --c-border:    rgba(0,0,0,0.10);
+      --c-border-med:rgba(0,0,0,0.18);
+      --c-text:      #111111;
+      --c-text-2:    #555555;
+      --c-text-3:    #888888;
+    }
+
+    /* ── Thème Sombre ── */
+    body.theme-dark {
+      --c-bg:        #111214;
+      --c-surface:   #1C1E22;
+      --c-surface-2: #26292F;
+      --c-border:    rgba(255,255,255,0.08);
+      --c-border-med:rgba(255,255,255,0.14);
+      --c-text:      #E8E8E6;
+      --c-text-2:    #A8A6A0;
+      --c-text-3:    #6A6864;
+      --c-purple-l:  #2A2757;
+      --c-teal-l:    #0D3528;
+      --c-blue-l:    #0E2E4D;
+      --c-amber-l:   #3D2A06;
+      --c-coral-l:   #3D1508;
+      --c-ok-l:      #1A2E0A;
+      --c-warn-l:    #3A2005;
+      --c-danger-l:  #3A0E0E;
+    }
+
+    /* Sélecteur de thème */
+    .theme-picker { display: flex; gap: 10px; margin: 8px 0 4px; }
+    .theme-btn {
+      flex: 1; padding: 10px 6px; border-radius: 10px; border: 2px solid var(--c-border);
+      cursor: pointer; font-size: 12px; font-weight: 500; text-align: center;
+      background: var(--c-surface-2); color: var(--c-text-2); transition: border-color .15s, color .15s;
+    }
+    .theme-btn:hover { border-color: var(--c-purple); color: var(--c-text); }
+    .theme-btn.active { border-color: var(--c-purple); color: var(--c-purple); background: var(--c-purple-l); }
+    .theme-swatch { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 6px; border: 2px solid var(--c-border-med); }
+    .theme-btn.active .theme-swatch { border-color: var(--c-purple); }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
@@ -731,6 +787,7 @@ var signIn = function() {
       <button class="settings-tab" onclick="switchSettingsTab('responsables', this)">Responsables</button>
       <button class="settings-tab" onclick="switchSettingsTab('statuts', this)">Statuts</button>
       <button class="settings-tab" onclick="switchSettingsTab('priorites', this)">Priorités</button>
+      <button class="settings-tab" onclick="switchSettingsTab('apparence', this)">Apparence</button>
     </div>
 
     <!-- AXES -->
@@ -821,6 +878,25 @@ var signIn = function() {
           <input type="color" id="new-prio-couleur" value="#E24B4A" style="width:50px;height:32px;padding:2px;cursor:pointer;" />
         </div>
         <button class="btn btn-add" onclick="addPriorite()" style="height:32px;align-self:flex-end;">+ Ajouter</button>
+      </div>
+    </div>
+
+    <!-- APPARENCE -->
+    <div id="settings-apparence" class="settings-pane">
+      <div class="settings-section">Thème d'affichage</div>
+      <div class="theme-picker">
+        <button class="theme-btn" id="theme-btn-grey" onclick="setTheme('grey')">
+          <div class="theme-swatch" style="background:#F7F6F3;"></div>
+          Gris
+        </button>
+        <button class="theme-btn" id="theme-btn-white" onclick="setTheme('white')">
+          <div class="theme-swatch" style="background:#FFFFFF;"></div>
+          Blanc
+        </button>
+        <button class="theme-btn" id="theme-btn-dark" onclick="setTheme('dark')">
+          <div class="theme-swatch" style="background:#1C1E22;"></div>
+          Sombre
+        </button>
       </div>
     </div>
 
@@ -988,8 +1064,11 @@ let spSiteId = null;
 let isLiveData = false;
 
 const SCOPES = ["Sites.Read.All", "User.Read"];
+const IS_ELECTRON = window.__isElectronApp === true;
+const IS_LOCALHOST = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
 
 async function initMSAL() {
+  if (IS_LOCALHOST) { loadDemoData(); return; }
   try {
     msalInstance = new msal.PublicClientApplication({
       auth: {
@@ -1009,16 +1088,25 @@ async function initMSAL() {
     await msalInstance.initialize();
     window.__msalReady = true;
 
-    // Gérer le redirect après login
-    const resp = await msalInstance.handleRedirectPromise();
-    if (resp) {
-      currentAccount = resp.account;
-      graphToken = resp.accessToken;
-    } else {
+    if (IS_ELECTRON) {
+      // Electron : mode popup, pas de redirect
       const accounts = msalInstance.getAllAccounts();
       if (accounts.length > 0) {
         currentAccount = accounts[0];
         await acquireToken();
+      }
+    } else {
+      // Navigateur : mode redirect
+      const resp = await msalInstance.handleRedirectPromise();
+      if (resp) {
+        currentAccount = resp.account;
+        graphToken = resp.accessToken;
+      } else {
+        const accounts = msalInstance.getAllAccounts();
+        if (accounts.length > 0) {
+          currentAccount = accounts[0];
+          await acquireToken();
+        }
       }
     }
 
@@ -1038,13 +1126,22 @@ async function signIn() {
   try {
     document.getElementById('btn-login').disabled = true;
     document.getElementById('btn-login').textContent = "Connexion en cours...";
-    await msalInstance.loginRedirect({
-      scopes: SCOPES,
-      redirectUri: window.location.href.split('?')[0].split('#')[0]
-    });
+    if (IS_ELECTRON) {
+      const result = await msalInstance.loginPopup({ scopes: SCOPES });
+      currentAccount = result.account;
+      graphToken = result.accessToken;
+      showLoadingScreen();
+      await loadSharePointData();
+    } else {
+      await msalInstance.loginRedirect({
+        scopes: SCOPES,
+        redirectUri: window.location.href.split('?')[0].split('#')[0]
+      });
+    }
   } catch (err) {
     showAuthError("Erreur : " + err.message);
     document.getElementById('btn-login').disabled = false;
+    document.getElementById('btn-login').textContent = "Se connecter avec Microsoft";
   }
 }
 
@@ -1056,11 +1153,19 @@ async function acquireToken() {
     });
     graphToken = result.accessToken;
   } catch {
-    await msalInstance.acquireTokenRedirect({
-      scopes: SCOPES,
-      account: currentAccount,
-      redirectUri: window.location.href.split('?')[0].split('#')[0]
-    });
+    if (IS_ELECTRON) {
+      const result = await msalInstance.acquireTokenPopup({
+        scopes: SCOPES,
+        account: currentAccount
+      });
+      graphToken = result.accessToken;
+    } else {
+      await msalInstance.acquireTokenRedirect({
+        scopes: SCOPES,
+        account: currentAccount,
+        redirectUri: window.location.href.split('?')[0].split('#')[0]
+      });
+    }
   }
 }
 
@@ -2022,6 +2127,7 @@ function loadSettings() {
       if (s.statuts)      APP.statuts      = s.statuts;
       if (s.priorites)    APP.priorites    = s.priorites;
       if (s.autoCalcAxes !== undefined) APP.autoCalcAxes = s.autoCalcAxes;
+      if (s.theme)        applyTheme(s.theme);
     }
   } catch(e) { console.log('Settings load error', e); }
 }
@@ -2033,9 +2139,25 @@ function persistSettings() {
       responsables: APP.responsables,
       statuts:      APP.statuts,
       priorites:    APP.priorites,
-      autoCalcAxes: APP.autoCalcAxes
+      autoCalcAxes: APP.autoCalcAxes,
+      theme:        APP.theme || 'grey'
     }));
   } catch(e) {}
+}
+
+function applyTheme(name) {
+  document.body.classList.remove('theme-grey', 'theme-white', 'theme-dark');
+  document.body.classList.add('theme-' + name);
+  APP.theme = name;
+  ['grey','white','dark'].forEach(t => {
+    const btn = document.getElementById('theme-btn-' + t);
+    if (btn) btn.classList.toggle('active', t === name);
+  });
+}
+
+function setTheme(name) {
+  applyTheme(name);
+  debouncedPersist();
 }
 
 // Données par défaut si non configurées
@@ -2436,6 +2558,7 @@ document.getElementById('settings-modal-bg').addEventListener('click', function(
 
 // Charger les settings au démarrage
 loadSettings();
+if (!APP.theme) applyTheme('grey');
 initDefaultSettings();
 
 
