@@ -88,16 +88,24 @@ var signIn = function() {
       --font-mono:     'DM Mono', monospace;
     }
 
-    /* ── Thème Gris (défaut) ── */
+    /* ── Thème Gris foncé (défaut) ── */
     body.theme-grey {
-      --c-bg:        #F7F6F3;
-      --c-surface:   #FFFFFF;
-      --c-surface-2: #F0EEE9;
-      --c-border:    rgba(0,0,0,0.08);
-      --c-border-med:rgba(0,0,0,0.14);
-      --c-text:      #1A1917;
-      --c-text-2:    #6B6860;
-      --c-text-3:    #9E9C96;
+      --c-bg:        #2C2C2E;
+      --c-surface:   #3A3A3C;
+      --c-surface-2: #48484A;
+      --c-border:    rgba(255,255,255,0.10);
+      --c-border-med:rgba(255,255,255,0.18);
+      --c-text:      #F2F2F7;
+      --c-text-2:    #AEAEB2;
+      --c-text-3:    #6C6C70;
+      --c-purple-l:  #2A2757;
+      --c-teal-l:    #0D3528;
+      --c-blue-l:    #0E2E4D;
+      --c-amber-l:   #3D2A06;
+      --c-coral-l:   #3D1508;
+      --c-ok-l:      #1A2E0A;
+      --c-warn-l:    #3A2005;
+      --c-danger-l:  #3A0E0E;
     }
 
     /* ── Thème Blanc ── */
@@ -886,8 +894,8 @@ var signIn = function() {
       <div class="settings-section">Thème d'affichage</div>
       <div class="theme-picker">
         <button class="theme-btn" id="theme-btn-grey" onclick="setTheme('grey')">
-          <div class="theme-swatch" style="background:#F7F6F3;"></div>
-          Gris
+          <div class="theme-swatch" style="background:#3A3A3C;"></div>
+          Gris foncé
         </button>
         <button class="theme-btn" id="theme-btn-white" onclick="setTheme('white')">
           <div class="theme-swatch" style="background:#FFFFFF;"></div>
