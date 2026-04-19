@@ -372,4 +372,3 @@ document.getElementById('form-modal-bg').addEventListener('click', function(e) {
   if (e.target === this) closeFormModal();
 });
 
-</script>
