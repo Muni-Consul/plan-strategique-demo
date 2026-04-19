@@ -70,7 +70,7 @@
           <button onclick="openFormModal(null)" style="padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;">+ Nouvelle action</button>
           <button onclick="exportCSV()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Exporter CSV</button>
           <button onclick="exportPDF()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Exporter PDF</button>
-          <button onclick="togglePresentationMode()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Présentation</button>
+          <button id="btn-presentation" onclick="togglePresentationMode()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Présentation</button>
           <button onclick="openSettingsModal()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">⚙️ Paramètres</button>
           <button onclick="openSharePoint()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Ouvrir SharePoint</button>
         </div>
@@ -79,12 +79,46 @@
       <div id="alert-banner" style="display:none;"></div>
 
       <div class="content">
-        <div class="pane active" id="pane-apercu"></div>
-        <div class="pane" id="pane-actions"></div>
-        <div class="pane" id="pane-axes"></div>
-        <div class="pane" id="pane-mavue"></div>
-        <div class="pane" id="pane-gantt"></div>
-        <div class="pane" id="pane-timeline"></div>
+        <div class="pane active" id="pane-apercu">
+          <div id="kpi-grid" class="kpi-grid"></div>
+          <div id="axes-bars" class="axes-bars"></div>
+          <div class="charts-row">
+            <div class="chart-card">
+              <canvas id="chart-donut"></canvas>
+              <div id="donut-leg" class="donut-legend"></div>
+            </div>
+            <div class="chart-card">
+              <canvas id="chart-line"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="pane" id="pane-actions">
+          <div id="filter-bar" class="filter-bar"></div>
+          <table class="actions-table">
+            <tbody id="actions-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pane" id="pane-axes">
+          <div id="axes-cards" class="axes-cards"></div>
+        </div>
+        <div class="pane" id="pane-mavue">
+          <div class="mavue-header">
+            <select id="mavue-resp-select" class="form-select"></select>
+          </div>
+          <div id="mavue-kpis" class="kpi-grid"></div>
+          <table class="actions-table">
+            <tbody id="mavue-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pane" id="pane-gantt">
+          <div class="gantt-header">
+            <span id="gantt-year-label" class="gantt-year-label"></span>
+          </div>
+          <div id="gantt-container" class="gantt-container"></div>
+        </div>
+        <div class="pane" id="pane-timeline">
+          <div id="timeline-list" class="timeline-list"></div>
+        </div>
       </div>
     </div>
   </div>
