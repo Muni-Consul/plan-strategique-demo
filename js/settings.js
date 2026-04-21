@@ -92,10 +92,10 @@ function closeSettingsModal() {
 }
 
 function switchSettingsTab(id, btn) {
-  document.querySelectorAll('.settings-pane').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('settings-' + id).classList.add('on');
-  btn.classList.add('on');
+  document.querySelectorAll('.settings-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('settings-pane-' + id).classList.add('active');
+  btn.classList.add('active');
 }
 
 /* --- AXES --- */
@@ -193,7 +193,7 @@ function saveAxe(i) {
 
 /* --- RESPONSABLES --- */
 function renderSettingsResp() {
-  const el = document.getElementById('settings-resp-list');
+  const el = document.getElementById('settings-resps-list');
   el.innerHTML = APP.responsables.map((r, i) => {
     const initials = h(r.nom.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase());
     const _respEmail = safeEmail(r.courriel);
@@ -339,7 +339,7 @@ function removeStatut(i) {
 
 /* --- PRIORITÉS --- */
 function renderSettingsPriorities() {
-  const el = document.getElementById('settings-priorites-list');
+  const el = document.getElementById('settings-prios-list');
   el.innerHTML = APP.priorites.map((p, i) => `
     <div class="item-row" id="prio-row-${i}">
       <span style="background:${p.couleur};width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
