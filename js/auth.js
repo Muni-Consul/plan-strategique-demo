@@ -7,7 +7,6 @@ var signIn = function() {
   var t = 0;
   var check = setInterval(function() {
     t++;
-<<<<<<< HEAD
     if (window.__msalReady && window.__doSignIn) {
       clearInterval(check);
       window.__doSignIn();
