@@ -7,6 +7,7 @@ var signIn = function() {
   var t = 0;
   var check = setInterval(function() {
     t++;
+<<<<<<< HEAD
     if (window.__msalReady && window.__doSignIn) {
       clearInterval(check);
       window.__doSignIn();
@@ -53,7 +54,6 @@ async function doMsalSignIn() {
     document.getElementById('btn-login').textContent = "Se connecter avec Microsoft";
   }
 }
-
 async function initMSAL() {
   if (IS_LOCALHOST) { loadDemoData(); return; }
   try {
