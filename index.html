@@ -128,7 +128,7 @@
   </div>
 
   <!-- Modale paramètres -->
-  <div id="settings-modal-bg" class="modal-bg" style="display:none;" onclick="if(event.target===this)closeSettingsModal()">
+  <div id="settings-modal-bg" class="modal-bg" onclick="if(event.target===this)closeSettingsModal()">
     <div class="settings-modal">
       <div class="modal-header">
         <span style="font-weight:600;">⚙️ Paramètres</span>
@@ -151,7 +151,7 @@
         </div>
         <div class="settings-pane" id="settings-pane-resps">
           <div id="settings-resps-list"></div>
-          <button onclick="addResp()" style="margin-top:.75rem;padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;">+ Ajouter un responsable</button>
+          <button onclick="addResponsable()" style="margin-top:.75rem;padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;">+ Ajouter un responsable</button>
         </div>
         <div class="settings-pane" id="settings-pane-statuts">
           <div id="settings-statuts-list"></div>
@@ -175,7 +175,7 @@
   </div>
 
   <!-- Modale formulaire -->
-  <div id="form-modal-bg" class="modal-bg" style="display:none;" onclick="if(event.target===this)closeFormModal()">
+  <div id="form-modal-bg" class="modal-bg" onclick="if(event.target===this)closeFormModal()">
     <div class="form-modal">
       <div class="modal-header">
         <span id="form-modal-title" style="font-weight:600;">Nouvelle action</span>
