@@ -190,6 +190,13 @@
         <span id="form-modal-title">Nouvelle action</span>
         <button class="form-close" onclick="closeFormModal()">×</button>
       </div>
+      <!-- Onglets Détails / Historique -->
+      <div id="form-tabs" style="display:flex;gap:0;border-bottom:1px solid var(--c-border);margin-bottom:1rem;">
+        <button class="form-tab active" onclick="switchFormTab('details',this)" style="padding:6px 16px;border:none;background:none;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--c-purple);border-bottom:2px solid var(--c-purple);font-weight:500;">Détails</button>
+        <button class="form-tab" id="tab-historique-btn" onclick="switchFormTab('historique',this)" style="padding:6px 16px;border:none;background:none;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--c-text-2);border-bottom:2px solid transparent;">Historique</button>
+      </div>
+      <!-- Panneau Détails -->
+      <div id="form-pane-details">
       <div id="form-error"   class="form-error"></div>
       <div id="form-success" class="form-success"></div>
       <div id="form-saving"  class="form-saving">
@@ -246,6 +253,13 @@
           <input id="f-commentaire" class="form-input" type="text" placeholder="Commentaire…">
         </div>
       </div>
+      </div><!-- fin form-pane-details -->
+
+      <!-- Panneau Historique -->
+      <div id="form-pane-historique" style="display:none;min-height:200px;max-height:420px;overflow-y:auto;">
+        <div id="historique-liste" style="padding:.25rem 0;"></div>
+      </div>
+
       <div class="form-actions">
         <button id="form-btn-delete" class="btn form-btn-delete" onclick="deleteAction()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>

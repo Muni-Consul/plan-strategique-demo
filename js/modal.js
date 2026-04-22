@@ -69,7 +69,8 @@ function closeModal() {
 /* ================================================================
    FORMULAIRE — SAISIE ET MODIFICATION
    ================================================================ */
-let formEditId = null;
+let formEditId     = null;
+let _originalAction = null; // valeurs avant modification
 
 function openFormModal(actionId) {
   formEditId = actionId != null ? String(actionId) : null;
@@ -133,10 +134,14 @@ function openFormModal(actionId) {
     btnDelete.style.display = 'inline-flex';
     const a = APP.actions.find(x => String(x.id) === String(actionId));
     if (!a) {
-      // Action introuvable (supprimée entre-temps) — ne pas ouvrir le formulaire
       formEditId = null;
       return;
     }
+    // Sauvegarder les valeurs originales pour la comparaison
+    _originalAction = { ...a };
+    const tabHist = document.getElementById('tab-historique-btn');
+    if (tabHist) tabHist.style.display = '';
+
     document.getElementById('f-titre').value       = a.titre || '';
     document.getElementById('f-axe').value         = a.axe || '';
     document.getElementById('f-responsable').value = a.resp || '';
@@ -148,10 +153,16 @@ function openFormModal(actionId) {
     document.getElementById('f-description').value = a.desc || '';
     document.getElementById('f-budget').value      = a.budget || '';
     document.getElementById('f-commentaire').value = a.commentaire || '';
+
+    // Charger l'historique dans l'onglet
+    loadHistorique(String(actionId));
   } else {
     // Mode création
     title.textContent = 'Nouvelle action';
     btnDelete.style.display = 'none';
+    _originalAction = null;
+    const tabHistNew = document.getElementById('tab-historique-btn');
+    if (tabHistNew) tabHistNew.style.display = 'none';
     document.getElementById('f-titre').value       = '';
     document.getElementById('f-axe').value         = '';
     document.getElementById('f-responsable').value = '';
@@ -187,7 +198,27 @@ function confirmDelete(id, event) {
 
 function closeFormModal() {
   _closeModal(document.getElementById('form-modal-bg'));
-  formEditId = null;
+  formEditId      = null;
+  _originalAction = null;
+  switchFormTab('details', document.querySelector('.form-tab'));
+}
+
+function switchFormTab(tab, btn) {
+  document.getElementById('form-pane-details').style.display    = tab === 'details'    ? '' : 'none';
+  document.getElementById('form-pane-historique').style.display = tab === 'historique' ? '' : 'none';
+  document.querySelectorAll('.form-tab').forEach(b => {
+    b.style.color       = 'var(--c-text-2)';
+    b.style.borderBottom = '2px solid transparent';
+    b.style.fontWeight  = '400';
+  });
+  if (btn) {
+    btn.style.color       = 'var(--c-purple)';
+    btn.style.borderBottom = '2px solid var(--c-purple)';
+    btn.style.fontWeight  = '500';
+  }
+  // Masquer les boutons Enregistrer/Supprimer dans l'onglet Historique
+  const actions = document.querySelector('.form-actions');
+  if (actions) actions.style.display = tab === 'historique' ? 'none' : 'flex';
 }
 
 function showFormError(msg) {
@@ -278,9 +309,10 @@ async function saveAction() {
           `/sites/${spSiteId}/lists/${SP_CONFIG.lists.actions}/items/${formEditId}/fields`,
           'PATCH', spFields
         );
-        // Mettre à jour dans APP.actions
         const idx = APP.actions.findIndex(x => String(x.id) === formEditId);
         if (idx !== -1) APP.actions[idx] = { ...APP.actions[idx], ...newAction };
+        // Enregistrer l'historique
+        await writeHistorique(formEditId, titre, 'Modification', newAction);
         showFormSuccess('Action mise à jour avec succès dans SharePoint !');
       } else {
         // Création
@@ -290,6 +322,8 @@ async function saveAction() {
         );
         newAction.id = result.id;
         APP.actions.push(newAction);
+        // Enregistrer l'historique
+        await writeHistorique(result.id, titre, 'Création', newAction);
         showFormSuccess('Action créée avec succès dans SharePoint !');
       }
     } else {
@@ -321,6 +355,110 @@ async function saveAction() {
   }
 }
 
+/* ================================================================
+   HISTORIQUE DES MODIFICATIONS
+   ================================================================ */
+
+// Libellés lisibles pour chaque champ
+const CHAMP_LABELS = {
+  titre:       'Titre',
+  axe:         'Axe stratégique',
+  resp:        'Responsable',
+  prio:        'Priorité',
+  statut:      'Statut',
+  echeance:    'Date d\'échéance',
+  dateDebut:   'Date de début',
+  pct:         'Avancement (%)',
+  desc:        'Réalisation / Notes',
+  budget:      'Budget prévu ($)',
+  commentaire: 'Commentaire de suivi',
+};
+
+/** Écrire une entrée dans Historique_Actions sur SharePoint */
+async function writeHistorique(actionId, actionTitre, type, newValues) {
+  if (!isLiveData || !graphToken || !spSiteId) return;
+  try {
+    // Calculer le diff (uniquement pour les modifications)
+    let details = {};
+    if (type === 'Modification' && _originalAction) {
+      const champsSuivis = ['titre','axe','resp','prio','statut','echeance','dateDebut','pct','desc','budget','commentaire'];
+      champsSuivis.forEach(k => {
+        const avant  = String(_originalAction[k] ?? '');
+        const apres  = String(newValues[k]       ?? '');
+        if (avant !== apres) {
+          details[CHAMP_LABELS[k] || k] = { avant, apres };
+        }
+      });
+    }
+    if (type !== 'Suppression' && Object.keys(details).length === 0 && type === 'Modification') return; // rien changé
+
+    const utilisateur = currentAccount
+      ? (currentAccount.name || currentAccount.username)
+      : 'Mode démo';
+
+    await graphFetch(
+      `/sites/${spSiteId}/lists/${SP_CONFIG.lists.historique}/items`,
+      'POST',
+      { fields: {
+        Title:             actionTitre,
+        ActionId:          String(actionId),
+        Utilisateur:       utilisateur,
+        TypeModification:  type,
+        Details:           JSON.stringify(details)
+      }}
+    );
+  } catch(e) {
+    console.warn('Historique non enregistré :', e.message);
+  }
+}
+
+/** Charger et afficher l'historique d'une action */
+async function loadHistorique(actionId) {
+  const el = document.getElementById('historique-liste');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--c-text-3);font-size:12px;padding:.5rem 0;">Chargement…</div>';
+
+  if (!isLiveData || !graphToken || !spSiteId) {
+    el.innerHTML = '<div style="color:var(--c-text-3);font-size:12px;padding:.5rem 0;">Disponible uniquement en mode SharePoint connecté.</div>';
+    return;
+  }
+
+  try {
+    const data = await graphFetch(
+      `/sites/${spSiteId}/lists/${SP_CONFIG.lists.historique}/items?expand=fields($select=ActionId,Utilisateur,TypeModification,Details,Title,Created)&$filter=fields/ActionId eq '${actionId}'&$orderby=fields/Created desc&$top=50`
+    );
+    const items = (data.value || []).map(i => i.fields);
+    if (items.length === 0) {
+      el.innerHTML = '<div style="color:var(--c-text-3);font-size:12px;padding:.5rem 0;">Aucune modification enregistrée.</div>';
+      return;
+    }
+    el.innerHTML = items.map(item => {
+      const date = new Date(item.Created).toLocaleDateString('fr-CA', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      let details = {};
+      try { details = JSON.parse(item.Details || '{}'); } catch {}
+      const changesHtml = Object.entries(details).map(([champ, {avant, apres}]) =>
+        `<div style="font-size:11px;color:var(--c-text-2);margin-top:3px;">
+          <strong>${h(champ)}</strong> :
+          <span style="color:var(--c-danger);text-decoration:line-through;">${h(avant||'—')}</span>
+          → <span style="color:var(--c-ok);">${h(apres||'—')}</span>
+        </div>`
+      ).join('');
+      const typeCls = item.TypeModification === 'Suppression' ? 'color:#A32D2D' :
+                      item.TypeModification === 'Création'    ? 'color:#3B6D11' : 'color:var(--c-purple)';
+      return `<div style="padding:.6rem 0;border-bottom:1px solid var(--c-border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;font-weight:500;${typeCls}">● ${h(item.TypeModification)}</span>
+          <span style="font-size:11px;color:var(--c-text-3);">${date}</span>
+        </div>
+        <div style="font-size:12px;color:var(--c-text-2);margin-top:2px;">👤 ${h(item.Utilisateur)}</div>
+        ${changesHtml}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--c-danger);font-size:12px;">Erreur : ${h(e.message)}</div>`;
+  }
+}
+
 async function deleteAction(skipConfirm = false) {
   if (!formEditId) return;
   if (!skipConfirm && !confirm('Supprimer cette action ? Cette opération est irréversible.')) return;
@@ -329,11 +467,13 @@ async function deleteAction(skipConfirm = false) {
   document.querySelectorAll('.form-btn-save, .form-btn-cancel, .form-btn-delete').forEach(b => b.disabled = true);
 
   try {
+    const actionToDelete = APP.actions.find(x => String(x.id) === formEditId);
     if (isLiveData && graphToken && !formEditId.startsWith('local-')) {
       await graphFetch(
         `/sites/${spSiteId}/lists/${SP_CONFIG.lists.actions}/items/${formEditId}`,
         'DELETE'
       );
+      if (actionToDelete) await writeHistorique(formEditId, actionToDelete.titre, 'Suppression', {});
     }
     APP.actions = APP.actions.filter(x => String(x.id) !== formEditId);
     renderApercu();
