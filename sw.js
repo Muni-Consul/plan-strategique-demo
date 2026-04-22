@@ -6,6 +6,7 @@ const CACHE_NAME   = 'plan-strategique-v1';
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './logo.svg',
   './css/style.css',
   './js/auth.js',
   './js/alerts.js',
