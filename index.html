@@ -225,11 +225,12 @@
           <input id="f-echeance" class="form-input" type="date">
         </div>
         <div class="form-group full">
-          <label class="form-label">Avancement : <span id="f-avancement-val">0%</span></label>
+          <label class="form-label">Avancement</label>
           <div class="form-range-wrap">
-            <input id="f-avancement" class="form-input" type="range" min="0" max="100" value="0"
-              oninput="document.getElementById('f-avancement-val').textContent=this.value+'%';document.getElementById('f-avancement-bar').style.width=this.value+'%'">
-            <div class="progress-wrap" style="flex:1;height:6px;"><div id="f-avancement-bar" class="progress-fill" style="width:0%;background:var(--c-purple)"></div></div>
+            <input id="f-avancement" type="range" min="0" max="100" value="0"
+              style="flex:1;accent-color:var(--c-purple);"
+              oninput="document.getElementById('f-avancement-val').textContent=this.value+'%'">
+            <span id="f-avancement-val" class="form-range-val">0%</span>
           </div>
         </div>
         <div class="form-group full">

@@ -144,7 +144,6 @@ function openFormModal(actionId) {
     document.getElementById('f-statut').value      = a.statut || 'à faire';
     document.getElementById('f-echeance').value    = a.echeance || '';
     document.getElementById('f-avancement').value  = a.pct || 0;
-    document.getElementById('f-avancement-bar').style.width = (a.pct || 0) + '%';
     document.getElementById('f-avancement-val').textContent = (a.pct || 0) + '%';
     document.getElementById('f-description').value = a.desc || '';
     document.getElementById('f-budget').value      = a.budget || '';
@@ -161,7 +160,7 @@ function openFormModal(actionId) {
     document.getElementById('f-echeance').value    = '';
     document.getElementById('f-avancement').value  = 0;
     document.getElementById('f-avancement-val').textContent = '0%';
-    document.getElementById('f-description').value = '';
+    document.getElementById('f-description').value  = '';
     document.getElementById('f-budget').value      = '';
     document.getElementById('f-commentaire').value = '';
 

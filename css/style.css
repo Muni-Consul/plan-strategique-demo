@@ -386,7 +386,7 @@
        ====================================================== */
     .form-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
     .form-modal-bg.open { display: flex; }
-    .form-modal { background: var(--c-surface); border-radius: var(--radius-lg); padding: 1.75rem; max-width: 560px; width: 100%; border: 1px solid var(--c-border); box-shadow: 0 20px 60px rgba(0,0,0,0.2); margin: auto; }
+    .form-modal { background: var(--c-surface); border-radius: var(--radius-lg); padding: 1.5rem; max-width: 580px; width: 100%; border: 1px solid var(--c-border); box-shadow: 0 20px 60px rgba(0,0,0,0.25); margin: auto; max-height: 90vh; overflow-y: auto; }
     .form-title { font-size: 16px; font-weight: 500; color: var(--c-text); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
     .form-close { border: none; background: none; font-size: 20px; cursor: pointer; color: var(--c-text-2); line-height: 1; }
     .form-close:hover { color: var(--c-text); }
