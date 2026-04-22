@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Setup SharePoint — Muni-Consul</title>
+  <script src="./msal.js"></script>
+  <script src="js/config.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f7f6f3; min-height: 100vh; padding: 2rem 1rem; color: #1a1917; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e5e4e0; max-width: 700px; margin: 0 auto; overflow: hidden; }
+    .card-head { padding: 1.5rem 2rem; border-bottom: 1px solid #e5e4e0; display: flex; align-items: center; gap: 1rem; }
+    .card-head h1 { font-size: 1.1rem; font-weight: 600; }
+    .card-head p  { font-size: .8rem; color: #888; margin-top: 2px; }
+    .card-body { padding: 1.5rem 2rem; }
+    .lists-preview { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
+    .list-item { background: #f7f6f3; border-radius: 8px; padding: .6rem 1rem; display: flex; justify-content: space-between; align-items: center; font-size: .85rem; }
+    .list-name  { font-weight: 500; }
+    .list-cols  { font-size: .75rem; color: #888; }
+    .list-badge { font-size: .7rem; padding: 2px 8px; border-radius: 99px; background: #EEEDFE; color: #534AB7; font-weight: 500; }
+    .log-wrap { background: #1a1917; border-radius: 8px; padding: 1rem; max-height: 320px; overflow-y: auto; margin-bottom: 1rem; }
+    .log-line { font-family: monospace; font-size: .78rem; line-height: 1.7; }
+    .log-ok   { color: #86efac; }
+    .log-warn { color: #fcd34d; }
+    .log-err  { color: #fca5a5; }
+    .log-info { color: #93c5fd; }
+    .log-dim  { color: #6b7280; }
+    .btn { width: 100%; padding: .75rem; background: #534AB7; color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 500; cursor: pointer; transition: background .15s; }
+    .btn:hover:not(:disabled) { background: #4540A0; }
+    .btn:disabled { opacity: .5; cursor: default; }
+    .btn-done { background: #3B6D11; }
+    .progress { height: 4px; background: #e5e4e0; border-radius: 2px; margin-bottom: 1rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: #534AB7; border-radius: 2px; transition: width .3s; width: 0%; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="card-head">
+    <div style="font-size:2rem;">⚙️</div>
+    <div>
+      <h1>Configuration SharePoint — Plan stratégique</h1>
+      <p>Crée les 4 listes SharePoint avec toutes leurs colonnes</p>
+    </div>
+  </div>
+  <div class="card-body">
+
+    <!-- Aperçu des listes -->
+    <div class="lists-preview">
+      <div class="list-item">
+        <div><span class="list-name">Axes_Strategiques</span><div class="list-cols">Identifiant · Nom · Avancement · Couleur · CouleurClaire</div></div>
+        <span class="list-badge">5 colonnes</span>
+      </div>
+      <div class="list-item">
+        <div><span class="list-name">Actions_Plan</span><div class="list-cols">Axe_Strategique · Responsable · Priorite · Statut · Dates · Avancement · Budget…</div></div>
+        <span class="list-badge">11 colonnes</span>
+      </div>
+      <div class="list-item">
+        <div><span class="list-name">Jalons</span><div class="list-cols">DateJalon · Axe · Statut</div></div>
+        <span class="list-badge">3 colonnes</span>
+      </div>
+      <div class="list-item">
+        <div><span class="list-name">Historique_Actions</span><div class="list-cols">ActionId · Utilisateur · TypeModification · Details</div></div>
+        <span class="list-badge">4 colonnes</span>
+      </div>
+    </div>
+
+    <div class="progress"><div class="progress-fill" id="progress"></div></div>
+    <div class="log-wrap" id="log"><div class="log-line log-dim">Cliquez sur le bouton pour commencer…</div></div>
+    <button class="btn" id="btn" onclick="run()">🔐 Se connecter et configurer SharePoint</button>
+  </div>
+</div>
+
+<script>
+let graphToken = null;
+let siteId     = null;
+let totalSteps = 0;
+let doneSteps  = 0;
+
+// ── Définition des listes ──────────────────────────────────────
+const LISTS = [
+  {
+    name: 'Axes_Strategiques',
+    colonnes: [
+      { name: 'Identifiant',   displayName: 'Identifiant (code)', type: 'text' },
+      { name: 'Nom',           displayName: 'Nom de l\'axe',      type: 'text' },
+      { name: 'Avancement',    displayName: 'Avancement (%)',      type: 'number' },
+      { name: 'Couleur',       displayName: 'Couleur (hex)',       type: 'text' },
+      { name: 'CouleurClaire', displayName: 'Couleur claire (hex)',type: 'text' },
+    ]
+  },
+  {
+    name: 'Actions_Plan',
+    colonnes: [
+      { name: 'Axe_Strategique',    displayName: 'Axe stratégique',      type: 'text' },
+      { name: 'Responsable_Nom',    displayName: 'Responsable (nom)',     type: 'text' },
+      { name: 'Responsable_Courriel', displayName: 'Responsable (courriel)', type: 'text' },
+      { name: 'Priorite',           displayName: 'Priorité',             type: 'text' },
+      { name: 'Statut',             displayName: 'Statut',               type: 'text' },
+      { name: 'Date_Echeance',      displayName: 'Date d\'échéance',     type: 'dateTime' },
+      { name: 'Date_Debut',         displayName: 'Date de début',        type: 'dateTime' },
+      { name: 'Avancement',         displayName: 'Avancement (%)',       type: 'number' },
+      { name: 'Description',        displayName: 'Réalisation / Notes',  type: 'note' },
+      { name: 'Budget_Prevu',       displayName: 'Budget prévu ($)',     type: 'number' },
+      { name: 'Commentaire_Suivi',  displayName: 'Commentaire de suivi', type: 'text' },
+    ]
+  },
+  {
+    name: 'Jalons',
+    colonnes: [
+      { name: 'DateJalon', displayName: 'Date du jalon', type: 'dateTime' },
+      { name: 'Axe',       displayName: 'Axe',           type: 'text' },
+      { name: 'Statut',    displayName: 'Statut',        type: 'text' },
+    ]
+  },
+  {
+    name: 'Historique_Actions',
+    colonnes: [
+      { name: 'ActionId',         displayName: 'ID de l\'action',      type: 'text' },
+      { name: 'Utilisateur',      displayName: 'Utilisateur',          type: 'text' },
+      { name: 'TypeModification', displayName: 'Type de modification', type: 'text' },
+      { name: 'Details',          displayName: 'Détails (JSON)',        type: 'note' },
+    ]
+  }
+];
+
+// ── Journalisation ─────────────────────────────────────────────
+function log(msg, cls = 'log-dim') {
+  const el = document.getElementById('log');
+  const d  = document.createElement('div');
+  d.className = 'log-line ' + cls;
+  d.textContent = new Date().toLocaleTimeString('fr-CA') + '  ' + msg;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(pct) {
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+// ── Appel Graph API ────────────────────────────────────────────
+async function gfetch(path, method = 'GET', body = null) {
+  const url  = path.startsWith('https://') ? path : 'https://graph.microsoft.com/v1.0' + path;
+  const opts = { method, headers: { Authorization: 'Bearer ' + graphToken, 'Content-Type': 'application/json' } };
+  if (body && method !== 'GET') opts.body = JSON.stringify(body);
+  const resp = await fetch(url, opts);
+  const text = await resp.text();
+  if (!resp.ok) throw new Error(resp.status + ' — ' + text.slice(0, 200));
+  return text ? JSON.parse(text) : {};
+}
+
+// ── Créer ou ignorer une liste ─────────────────────────────────
+async function ensureList(name) {
+  try {
+    const existing = await gfetch(`/sites/${siteId}/lists/${name}`);
+    log(`  ⚠ "${name}" existe déjà`, 'log-warn');
+    return existing.id;
+  } catch {
+    const created = await gfetch(`/sites/${siteId}/lists`, 'POST', {
+      displayName: name,
+      list: { template: 'genericList' }
+    });
+    log(`  ✓ Liste "${name}" créée`, 'log-ok');
+    return created.id;
+  }
+}
+
+// ── Créer ou ignorer une colonne ───────────────────────────────
+async function ensureColumn(listId, col) {
+  // Construire le body selon le type
+  const body = { name: col.name, displayName: col.displayName };
+  if (col.type === 'text')     body.text     = {};
+  if (col.type === 'note')     body.text     = { allowMultipleLines: true };
+  if (col.type === 'number')   body.number   = { decimalPlaces: 'none' };
+  if (col.type === 'dateTime') body.dateTime = { displayAs: 'default' };
+
+  try {
+    await gfetch(`/sites/${siteId}/lists/${listId}/columns`, 'POST', body);
+    log(`      + ${col.displayName}`, 'log-ok');
+  } catch(e) {
+    if (e.message.includes('400') || e.message.includes('nameAlreadyExists')) {
+      log(`      ~ ${col.displayName} (déjà présente)`, 'log-warn');
+    } else {
+      log(`      ✗ ${col.displayName} : ${e.message}`, 'log-err');
+    }
+  }
+  doneSteps++;
+  setProgress(Math.round(doneSteps / totalSteps * 100));
+}
+
+// ── Point d'entrée ─────────────────────────────────────────────
+async function run() {
+  document.getElementById('btn').disabled = true;
+  document.getElementById('log').innerHTML = '';
+
+  // Compter les étapes totales
+  totalSteps = LISTS.reduce((s, l) => s + l.colonnes.length + 1, 0) + 2;
+  doneSteps  = 0;
+
+  // 1. Authentification
+  log('Connexion Microsoft en cours…', 'log-info');
+  try {
+    const MsalLib = window.msal;
+    const msalApp = new MsalLib.PublicClientApplication({
+      auth: {
+        clientId:    SP_CONFIG.msalClientId,
+        authority:   SP_CONFIG.msalAuthority,
+        redirectUri: window.location.href.split('?')[0]
+      },
+      cache: { cacheLocation: 'sessionStorage' }
+    });
+    await msalApp.initialize();
+    const result = await msalApp.loginPopup({ scopes: ['https://graph.microsoft.com/.default'] });
+    const tok    = await msalApp.acquireTokenSilent({
+      scopes: ['https://graph.microsoft.com/.default'],
+      account: result.account
+    });
+    graphToken = tok.accessToken;
+    log('✓ Connecté : ' + result.account.name, 'log-ok');
+    doneSteps++; setProgress(Math.round(doneSteps / totalSteps * 100));
+  } catch(e) {
+    log('✗ Échec authentification : ' + e.message, 'log-err');
+    document.getElementById('btn').disabled = false;
+    return;
+  }
+
+  // 2. Obtenir l'ID du site
+  log('Recherche du site SharePoint…', 'log-info');
+  try {
+    const site = await gfetch(`/sites/${SP_CONFIG.tenantDomain}:${SP_CONFIG.siteRelativeUrl}`);
+    siteId = site.id;
+    log('✓ Site : ' + site.displayName + ' (' + siteId + ')', 'log-ok');
+    doneSteps++; setProgress(Math.round(doneSteps / totalSteps * 100));
+  } catch(e) {
+    log('✗ Site introuvable : ' + e.message, 'log-err');
+    document.getElementById('btn').disabled = false;
+    return;
+  }
+
+  // 3. Créer les listes et colonnes
+  for (const liste of LISTS) {
+    log('');
+    log('📋 ' + liste.name, 'log-info');
+    const listId = await ensureList(liste.name);
+    doneSteps++; setProgress(Math.round(doneSteps / totalSteps * 100));
+
+    for (const col of liste.colonnes) {
+      await ensureColumn(listId, col);
+    }
+  }
+
+  log('');
+  log('✅ Configuration terminée ! Toutes les listes sont prêtes.', 'log-ok');
+  log('Vous pouvez fermer cette page et utiliser le tableau de bord.', 'log-dim');
+  setProgress(100);
+
+  const btn = document.getElementById('btn');
+  btn.textContent = '✅ Configuration terminée';
+  btn.className   = 'btn btn-done';
+  btn.disabled    = false;
+  btn.onclick     = () => window.close();
+}
+</script>
+</body>
+</html>
