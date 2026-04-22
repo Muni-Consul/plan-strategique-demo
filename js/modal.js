@@ -425,7 +425,8 @@ async function loadHistorique(actionId) {
 
   try {
     const data = await graphFetch(
-      `/sites/${spSiteId}/lists/${SP_CONFIG.lists.historique}/items?expand=fields($select=ActionId,Utilisateur,TypeModification,Details,Title,Created)&$filter=fields/ActionId eq '${actionId}'&$orderby=fields/Created desc&$top=50`
+      `/sites/${spSiteId}/lists/${SP_CONFIG.lists.historique}/items?expand=fields($select=ActionId,Utilisateur,TypeModification,Details,Title,Created)&$filter=fields/ActionId eq '${actionId}'&$orderby=fields/Created desc&$top=50`,
+      'GET', null, { 'Prefer': 'HonorNonIndexedQueriesWarningMayFailRandomly' }
     );
     const items = (data.value || []).map(i => i.fields);
     if (items.length === 0) {

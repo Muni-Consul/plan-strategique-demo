@@ -1,11 +1,15 @@
 /* ================================================================
    2. API MICROSOFT GRAPH — FONCTIONS D'ACCÈS SHAREPOINT
    ================================================================ */
-async function graphFetch(path, method = 'GET', body = null) {
+async function graphFetch(path, method = 'GET', body = null, extraHeaders = {}) {
   const url = path.startsWith("https://") ? path : `https://graph.microsoft.com/v1.0${path}`;
   const opts = {
     method,
-    headers: { Authorization: `Bearer ${graphToken}`, "Content-Type": "application/json" }
+    headers: {
+      Authorization: `Bearer ${graphToken}`,
+      "Content-Type": "application/json",
+      ...extraHeaders
+    }
   };
   if (body && method !== 'GET' && method !== 'DELETE') {
     opts.body = JSON.stringify(body);
