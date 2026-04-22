@@ -44,18 +44,19 @@ async function run() {
   // ── 1. Authentification MSAL ──────────────────────────────────
   log('Connexion Microsoft en cours…');
   try {
-    const msal = new msal.PublicClientApplication({
+    const MsalLib = window.msal;
+    const msalApp = new MsalLib.PublicClientApplication({
       auth: {
         clientId:  SP_CONFIG.msalClientId,
         authority: SP_CONFIG.msalAuthority,
         redirectUri: window.location.href
       }
     });
-    await msal.initialize();
-    const result = await msal.loginPopup({
+    await msalApp.initialize();
+    const result = await msalApp.loginPopup({
       scopes: ['Sites.FullControl.All', 'Sites.ReadWrite.All']
     });
-    const tokenResult = await msal.acquireTokenSilent({
+    const tokenResult = await msalApp.acquireTokenSilent({
       scopes: ['https://graph.microsoft.com/.default'],
       account: result.account
     });
