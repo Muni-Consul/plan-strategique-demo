@@ -367,6 +367,7 @@
       table { font-size: 11px; }
       table td, table th { padding: 6px 6px; }
       .modal-box, .settings-modal, .form-modal { padding: 1rem; margin: .5rem; }
+      .form-grid { grid-template-columns: 1fr; }
       .filter-bar { flex-wrap: wrap; gap: 4px; }
       .filter-chip { font-size: 11px; padding: 4px 10px; }
       .axe-cards { grid-template-columns: 1fr; }
@@ -384,13 +385,13 @@
     /* ======================================================
        FORMULAIRE DE SAISIE
        ====================================================== */
-    .form-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+    .form-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-start; justify-content: center; padding: 1.5rem 1rem; overflow-y: auto; }
     .form-modal-bg.open { display: flex; }
-    .form-modal { background: var(--c-surface); border-radius: var(--radius-lg); padding: 1.5rem; max-width: 580px; width: 100%; border: 1px solid var(--c-border); box-shadow: 0 20px 60px rgba(0,0,0,0.25); margin: auto; max-height: 90vh; overflow-y: auto; }
+    .form-modal { background: var(--c-surface); border-radius: var(--radius-lg); padding: 1.75rem 2rem; max-width: 820px; width: 100%; border: 1px solid var(--c-border); box-shadow: 0 20px 60px rgba(0,0,0,0.25); margin: auto; max-height: 95vh; overflow-y: auto; }
     .form-title { font-size: 16px; font-weight: 500; color: var(--c-text); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
     .form-close { border: none; background: none; font-size: 20px; cursor: pointer; color: var(--c-text-2); line-height: 1; }
     .form-close:hover { color: var(--c-text); }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group.full { grid-column: 1 / -1; }
     .form-label { font-size: 11px; font-weight: 600; color: var(--c-text-2); text-transform: uppercase; letter-spacing: 0.05em; }
