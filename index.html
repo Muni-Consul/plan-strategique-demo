@@ -184,38 +184,79 @@
   <!-- Modale formulaire -->
   <div id="form-modal-bg" class="modal-bg" onclick="if(event.target===this)closeFormModal()">
     <div class="form-modal">
-      <div class="modal-header">
-        <span id="form-modal-title" style="font-weight:600;">Nouvelle action</span>
-        <button onclick="closeFormModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--text-muted);">×</button>
+      <div class="form-title">
+        <span id="form-modal-title">Nouvelle action</span>
+        <button class="form-close" onclick="closeFormModal()">×</button>
       </div>
-      <div class="modal-body">
-        <div id="form-error" class="form-error" style="display:none;"></div>
-        <div id="form-success" class="form-success" style="display:none;"></div>
-        <div class="form-group"><label>Titre *</label><input id="f-titre" class="form-select" type="text" placeholder="Titre de l'action"></div>
-        <div class="form-group"><label>Axe stratégique *</label><select id="f-axe" class="form-select"></select></div>
-        <div class="form-group"><label>Responsable</label><select id="f-resp" class="form-select"></select></div>
-        <div class="form-group"><label>Priorité</label><select id="f-prio" class="form-select"><option value="haute">Haute</option><option value="moyenne" selected>Moyenne</option><option value="basse">Basse</option></select></div>
-        <div class="form-group"><label>Statut</label><select id="f-statut" class="form-select"></select></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="form-group"><label>Date début</label><input id="f-debut" class="form-select" type="date"></div>
-          <div class="form-group"><label>Date échéance</label><input id="f-echeance" class="form-select" type="date"></div>
-        </div>
-        <div class="form-group"><label>Avancement (%)</label><input id="f-pct" class="form-select" type="number" min="0" max="100" value="0"></div>
-        <div class="form-group"><label>Réalisation / Notes</label><textarea id="f-desc" class="form-select" rows="3" placeholder="Description, notes…" style="resize:vertical;"></textarea></div>
+      <div id="form-error"   class="form-error"></div>
+      <div id="form-success" class="form-success"></div>
+      <div id="form-saving"  class="form-saving">
+        <div class="form-spinner"></div> Enregistrement…
       </div>
-      <div style="padding:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:.5rem;">
-        <button id="f-delete-btn" onclick="deleteAction()" style="padding:.5rem 1rem;background:none;border:1px solid #ef4444;color:#ef4444;border-radius:6px;cursor:pointer;font-family:inherit;display:none;">Supprimer</button>
-        <div style="display:flex;gap:.5rem;margin-left:auto;">
-          <button onclick="closeFormModal()" style="padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-family:inherit;color:var(--text);">Annuler</button>
-          <button onclick="saveAction()" style="padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;">Enregistrer</button>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Titre *</label>
+          <input id="f-titre" class="form-input" type="text" placeholder="Titre de l'action">
         </div>
+        <div class="form-group">
+          <label class="form-label">Axe stratégique *</label>
+          <select id="f-axe" class="form-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsable</label>
+          <select id="f-responsable" class="form-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priorité</label>
+          <select id="f-priorite" class="form-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Statut</label>
+          <select id="f-statut" class="form-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date début</label>
+          <input id="f-date-debut" class="form-input" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date échéance *</label>
+          <input id="f-echeance" class="form-input" type="date">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Avancement : <span id="f-avancement-val">0%</span></label>
+          <div class="form-range-wrap">
+            <input id="f-avancement" class="form-input" type="range" min="0" max="100" value="0"
+              oninput="document.getElementById('f-avancement-val').textContent=this.value+'%';document.getElementById('f-avancement-bar').style.width=this.value+'%'">
+            <div class="progress-wrap" style="flex:1;height:6px;"><div id="f-avancement-bar" class="progress-fill" style="width:0%;background:var(--c-purple)"></div></div>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Réalisation / Notes</label>
+          <textarea id="f-description" class="form-textarea" rows="3" placeholder="Description, notes de suivi…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Budget prévu ($)</label>
+          <input id="f-budget" class="form-input" type="number" min="0" step="100" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commentaire de suivi</label>
+          <input id="f-commentaire" class="form-input" type="text" placeholder="Commentaire…">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button id="form-btn-delete" class="btn form-btn-delete" onclick="deleteAction()" style="display:none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Supprimer
+        </button>
+        <button class="btn form-btn-cancel" onclick="closeFormModal()">Annuler</button>
+        <button class="btn form-btn-save btn-add" onclick="saveAction()">Enregistrer</button>
       </div>
     </div>
   </div>
 
   <!-- Modale détail -->
-  <div id="modal-bg" class="modal-bg" style="display:none;" onclick="if(event.target===this)closeModal()">
-    <div class="modal" id="modal-content"></div>
+  <div id="modal-bg" class="modal-bg" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box" id="modal-box"></div>
   </div>
 
   <script src="js/utils.js"></script>
