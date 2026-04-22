@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Initialisation SharePoint — Muni-Consul</title>
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+  <script src="js/config.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 3rem auto; padding: 1rem; color: #1a1917; }
+    h1   { font-size: 1.25rem; font-weight: 600; margin-bottom: .5rem; }
+    .sub { color: #888; font-size: .875rem; margin-bottom: 2rem; }
+    .log { background: #f7f6f3; border-radius: 8px; padding: 1rem; font-size: .8rem; font-family: monospace;
+           min-height: 200px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+    .ok   { color: #3B6D11; }
+    .warn { color: #854F0B; }
+    .err  { color: #A32D2D; }
+    button { margin-top: 1rem; padding: .6rem 1.5rem; background: #2563eb; color: #fff; border: none;
+             border-radius: 6px; cursor: pointer; font-size: .9rem; }
+    button:disabled { opacity: .5; cursor: default; }
+  </style>
+</head>
+<body>
+  <h1>⚙️ Initialisation SharePoint</h1>
+  <p class="sub">Crée la liste <strong>Historique_Actions</strong> sur votre site SharePoint.</p>
+  <div class="log" id="log">En attente…</div>
+  <button id="btn" onclick="run()">Se connecter et créer la liste</button>
+
+<script>
+let token = null;
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = cls || '';
+  line.textContent = new Date().toLocaleTimeString('fr-CA') + '  ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function run() {
+  document.getElementById('btn').disabled = true;
+  document.getElementById('log').innerHTML = '';
+
+  // ── 1. Authentification MSAL ──────────────────────────────────
+  log('Connexion Microsoft en cours…');
+  try {
+    const msal = new msal.PublicClientApplication({
+      auth: {
+        clientId:  SP_CONFIG.msalClientId,
+        authority: SP_CONFIG.msalAuthority,
+        redirectUri: window.location.href
+      }
+    });
+    await msal.initialize();
+    const result = await msal.loginPopup({
+      scopes: ['Sites.FullControl.All', 'Sites.ReadWrite.All']
+    });
+    const tokenResult = await msal.acquireTokenSilent({
+      scopes: ['https://graph.microsoft.com/.default'],
+      account: result.account
+    });
+    token = tokenResult.accessToken;
+    log('✓ Connecté : ' + result.account.name, 'ok');
+  } catch(e) {
+    log('✗ Erreur auth : ' + e.message, 'err');
+    document.getElementById('btn').disabled = false;
+    return;
+  }
+
+  // ── 2. Obtenir l'ID du site ───────────────────────────────────
+  log('Recherche du site SharePoint…');
+  let siteId;
+  try {
+    const r = await gfetch(`/sites/${SP_CONFIG.tenantDomain}:${SP_CONFIG.siteRelativeUrl}`);
+    siteId = r.id;
+    log('✓ Site trouvé : ' + r.displayName, 'ok');
+  } catch(e) {
+    log('✗ Site introuvable : ' + e.message, 'err');
+    document.getElementById('btn').disabled = false;
+    return;
+  }
+
+  // ── 3. Créer la liste ─────────────────────────────────────────
+  log('Création de la liste Historique_Actions…');
+  let listId;
+  try {
+    // Vérifier si elle existe déjà
+    try {
+      const existing = await gfetch(`/sites/${siteId}/lists/Historique_Actions`);
+      listId = existing.id;
+      log('⚠ Liste déjà existante (ID: ' + listId + ')', 'warn');
+    } catch {
+      // Créer
+      const created = await gfetch(`/sites/${siteId}/lists`, 'POST', {
+        displayName: 'Historique_Actions',
+        list: { template: 'genericList' },
+        columns: []
+      });
+      listId = created.id;
+      log('✓ Liste créée (ID: ' + listId + ')', 'ok');
+    }
+  } catch(e) {
+    log('✗ Erreur création liste : ' + e.message, 'err');
+    document.getElementById('btn').disabled = false;
+    return;
+  }
+
+  // ── 4. Ajouter les colonnes ───────────────────────────────────
+  const colonnes = [
+    { name: 'ActionId',         text: {} },
+    { name: 'Utilisateur',      text: {} },
+    { name: 'TypeModification', text: {} },
+    { name: 'Details',          text: { allowMultipleLines: true } }
+  ];
+
+  for (const col of colonnes) {
+    log(`Colonne "${col.name}"…`);
+    try {
+      await gfetch(`/sites/${siteId}/lists/${listId}/columns`, 'POST', {
+        name:        col.name,
+        displayName: col.name,
+        ...col
+      });
+      log('✓ ' + col.name + ' créée', 'ok');
+    } catch(e) {
+      if (e.message.includes('nameAlreadyExists') || e.message.includes('400')) {
+        log('⚠ ' + col.name + ' existe déjà', 'warn');
+      } else {
+        log('✗ ' + col.name + ' : ' + e.message, 'err');
+      }
+    }
+  }
+
+  log('');
+  log('✓ Initialisation terminée ! Vous pouvez fermer cette page.', 'ok');
+  log('Ajoutez ceci dans config.js :', 'warn');
+  log('  historique: "Historique_Actions"', 'warn');
+  document.getElementById('btn').textContent = 'Terminé ✓';
+}
+
+async function gfetch(path, method = 'GET', body = null) {
+  const url = path.startsWith('https://') ? path : 'https://graph.microsoft.com/v1.0' + path;
+  const opts = {
+    method,
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }
+  };
+  if (body && method !== 'GET') opts.body = JSON.stringify(body);
+  const resp = await fetch(url, opts);
+  const text = await resp.text();
+  if (!resp.ok) throw new Error(resp.status + ': ' + text);
+  return text ? JSON.parse(text) : {};
+}
+</script>
+</body>
+</html>
