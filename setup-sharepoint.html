@@ -204,7 +204,7 @@ async function run() {
       auth: {
         clientId:    SP_CONFIG.msalClientId,
         authority:   SP_CONFIG.msalAuthority,
-        redirectUri: window.location.href.split('?')[0]
+        redirectUri: 'https://muni-consul.github.io/plan-strategique-demo/'
       },
       cache: { cacheLocation: 'sessionStorage' }
     });

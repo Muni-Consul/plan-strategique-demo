@@ -49,7 +49,7 @@ async function run() {
       auth: {
         clientId:  SP_CONFIG.msalClientId,
         authority: SP_CONFIG.msalAuthority,
-        redirectUri: window.location.href
+        redirectUri: 'https://muni-consul.github.io/plan-strategique-demo/'
       }
     });
     await msalApp.initialize();
