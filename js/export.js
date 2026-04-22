@@ -74,3 +74,33 @@ function exportPDF() {
   win.document.close();
   setTimeout(() => win.print(), 500);
 }
+
+/* ================================================================
+   EXPORT CSV
+   ================================================================ */
+function exportCSV() {
+  const BOM = '\uFEFF'; // UTF-8 BOM pour Excel
+  const sep = ';';
+  const headers = ['Titre','Axe','Responsable','Priorité','Échéance','Avancement (%)','Statut','Description'];
+  const rows = APP.actions.map(a => [
+    a.titre      || '',
+    a.axe        || '',
+    a.resp       || '',
+    a.prio       || '',
+    a.echeance   || '',
+    a.pct        != null ? a.pct : '',
+    a.statut     || '',
+    (a.desc      || '').replace(/[\r\n]+/g, ' ')
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(sep));
+
+  const csv = BOM + [headers.map(h => `"${h}"`).join(sep), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `plan-strategique-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

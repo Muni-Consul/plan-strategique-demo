@@ -357,10 +357,29 @@
        ====================================================== */
     @media (max-width: 700px) {
       .sidebar { display: none; }
-      .content { padding: 1rem; }
-      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .content { padding: .75rem; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; gap: .5rem; }
       .charts-row { flex-direction: column; }
+      .topbar { padding: 0 .75rem; gap: .5rem; }
+      .topbar-actions { gap: .25rem; }
+      .topbar-actions button { font-size: .75rem; padding: .4rem .6rem; }
+      .section-title { font-size: 14px; }
+      table { font-size: 11px; }
+      table td, table th { padding: 6px 6px; }
+      .modal-box, .settings-modal, .form-modal { padding: 1rem; margin: .5rem; }
+      .filter-bar { flex-wrap: wrap; gap: 4px; }
+      .filter-chip { font-size: 11px; padding: 4px 10px; }
+      .axe-cards { grid-template-columns: 1fr; }
+      .kpi-val { font-size: 1.6rem; }
+      .alert-banner { margin: 0 .75rem .75rem; }
     }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: .75rem 0; }
+    .pg-btn { padding: 5px 14px; border: 1px solid var(--c-border-med); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-text); cursor: pointer; font-family: var(--font); font-size: 13px; transition: background .15s; }
+    .pg-btn:hover:not(:disabled) { background: var(--c-surface-2); }
+    .pg-btn:disabled { opacity: .4; cursor: default; }
+    .pg-info { font-size: 12px; color: var(--c-text-2); }
 
     /* ======================================================
        FORMULAIRE DE SAISIE

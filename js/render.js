@@ -101,20 +101,27 @@ function renderApercu() {
 /* ================================================================
    7. RENDU — ACTIONS
    ================================================================ */
-function renderActions(filter) {
+const ACTIONS_PER_PAGE = 15;
+
+function renderActions(filter, page) {
   if (filter !== undefined) APP.activeFilter = filter;
+  if (page   !== undefined) APP.actionsPage  = page;
+  if (!APP.actionsPage) APP.actionsPage = 1;
   const f = APP.activeFilter;
 
   // Filtres
   const statuts = ['tous', ...new Set(APP.actions.map(a => a.statut))];
   document.getElementById('filter-bar').innerHTML = statuts.map(s =>
-    `<button class="filter-chip ${s===f?'on':''}" onclick="renderActions('${h(s)}')">${s==='tous'?'Tous':h(s)}</button>`
+    `<button class="filter-chip ${s===f?'on':''}" onclick="renderActions('${h(s)}',1)">${s==='tous'?'Tous':h(s)}</button>`
   ).join('');
 
   const list = f === 'tous' ? APP.actions : APP.actions.filter(a => a.statut === f);
+  const totalPages = Math.max(1, Math.ceil(list.length / ACTIONS_PER_PAGE));
+  if (APP.actionsPage > totalPages) APP.actionsPage = totalPages;
+  const pageList = list.slice((APP.actionsPage - 1) * ACTIONS_PER_PAGE, APP.actionsPage * ACTIONS_PER_PAGE);
   const axeMap = getAxeMap();
 
-  document.getElementById('actions-tbody').innerHTML = list.map(a => {
+  document.getElementById('actions-tbody').innerHTML = pageList.map(a => {
     const axe = axeMap[a.axe] || { color:'#888', light:'#eee', nom:a.axe };
     const sm  = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
     return `
@@ -141,6 +148,22 @@ function renderActions(filter) {
         </td>
       </tr>`;
   }).join('');
+
+  // Pagination
+  const pgEl = document.getElementById('actions-pagination');
+  if (pgEl) {
+    if (totalPages <= 1) {
+      pgEl.innerHTML = '';
+    } else {
+      const p = APP.actionsPage;
+      pgEl.innerHTML = `
+        <div class="pagination">
+          <button class="pg-btn" onclick="renderActions(undefined,${p-1})" ${p<=1?'disabled':''}>‹ Préc.</button>
+          <span class="pg-info">Page ${p} / ${totalPages} &nbsp;(${list.length} actions)</span>
+          <button class="pg-btn" onclick="renderActions(undefined,${p+1})" ${p>=totalPages?'disabled':''}>Suiv. ›</button>
+        </div>`;
+    }
+  }
 }
 
 
