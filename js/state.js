@@ -43,3 +43,56 @@ const STATUS_MAP = {
   'à faire':    { pill:'p-todo', dot:'#9E9C96',  label:'À faire' },
 };
 const PRIO_MAP = { haute:'pr-h', moyenne:'pr-m', basse:'pr-l' };
+
+/* ================================================================
+   PERSISTANCE DES DONNÉES (mode hors ligne)
+   ================================================================ */
+const DATA_CACHE_KEY = 'plan_strategique_data';
+
+/** Sauvegarde les données SharePoint dans localStorage après chargement */
+function persistData() {
+  try {
+    localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({
+      axes:    APP.axes,
+      actions: APP.actions,
+      jalons:  APP.jalons,
+      savedAt: new Date().toISOString()
+    }));
+  } catch(e) { console.warn('Impossible de sauvegarder les données hors ligne', e); }
+}
+
+/** Restaure les données depuis localStorage si disponibles */
+function restoreData() {
+  try {
+    const raw = localStorage.getItem(DATA_CACHE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (d.axes    && d.axes.length)    APP.axes    = d.axes;
+    if (d.actions && d.actions.length) APP.actions = d.actions;
+    if (d.jalons  && d.jalons.length)  APP.jalons  = d.jalons;
+    invalidateAxeMap();
+    return d.savedAt || true;
+  } catch(e) { return false; }
+}
+
+/* ================================================================
+   INDICATEUR EN LIGNE / HORS LIGNE
+   ================================================================ */
+function updateOnlineStatus() {
+  const dot   = document.getElementById('sp-dot');
+  const label = document.getElementById('sp-label');
+  if (!dot || !label) return;
+  if (!navigator.onLine) {
+    dot.className   = 'sp-dot sp-offline';
+    label.textContent = 'Hors ligne';
+  } else if (isLiveData) {
+    dot.className   = 'sp-dot sp-live';
+    label.textContent = 'Données SharePoint';
+  } else {
+    dot.className   = 'sp-dot';
+    label.textContent = 'Mode démo';
+  }
+}
+
+window.addEventListener('online',  () => { updateOnlineStatus(); checkAlertes(); });
+window.addEventListener('offline', () => { updateOnlineStatus(); });

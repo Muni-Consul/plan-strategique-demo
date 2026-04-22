@@ -86,13 +86,33 @@ async function loadSharePointData() {
     APP.jalons  = rawJalons.map(mapJalon);
     isLiveData  = true;
 
+    // Sauvegarder pour usage hors ligne
+    persistData();
+
     setLoadingStep("Rendu du tableau de bord…");
     showApp();
   } catch (err) {
     console.error("SharePoint load error:", err);
-    // Fallback démo si les listes n'existent pas encore
-    console.warn("SharePoint non accessible, mode démonstration:", err.message);
-    loadDemoData();
+
+    // Tenter de restaurer les données du cache local (mode hors ligne)
+    const savedAt = restoreData();
+    if (savedAt) {
+      const date = new Date(savedAt).toLocaleDateString('fr-CA', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+      console.info(`Mode hors ligne — données du ${date}`);
+      isLiveData = false;
+      setLoadingStep("Chargement des données en cache…");
+      showApp();
+      // Afficher un avertissement discret
+      setTimeout(() => {
+        const dot = document.getElementById('sp-dot');
+        const lbl = document.getElementById('sp-label');
+        if (dot) dot.className = 'sp-dot sp-offline';
+        if (lbl) lbl.textContent = `Hors ligne · ${date}`;
+      }, 500);
+    } else {
+      console.warn("Aucun cache disponible, mode démonstration:", err.message);
+      loadDemoData();
+    }
   }
 }
 

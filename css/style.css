@@ -342,8 +342,10 @@
        STATUS INDICATOR (connexion SP)
        ====================================================== */
     .sp-status { display: flex; align-items: center; gap: 5px; font-size: 11px; }
-    .sp-dot { width: 7px; height: 7px; border-radius: 50%; }
-    .sp-live { background: #3B6D11; }
+    .sp-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-border-med); }
+    .sp-live    { background: #3B6D11; }
+    .sp-offline { background: #EF9F27; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
     .sp-demo { background: #EF9F27; }
 
     /* ======================================================

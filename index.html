@@ -272,6 +272,15 @@
   <script src="js/export.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/navigation.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(r => console.info('Service Worker enregistré', r.scope))
+          .catch(e => console.warn('Service Worker non enregistré', e));
+      });
+    }
+  </script>
 
 </body>
 </html>
