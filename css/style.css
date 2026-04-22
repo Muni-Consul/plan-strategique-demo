@@ -502,11 +502,15 @@
 
 
 
-    .alert-banner { display:none; background:#FCEBEB; border-left:4px solid #A32D2D; border-radius:var(--radius-md); padding:10px 16px; margin:0 2rem 1rem; align-items:center; gap:12px; }
+    .alert-banner { display:none; background:#FCEBEB; border-left:4px solid #A32D2D; border-radius:var(--radius-md); padding:10px 16px; margin:0 2rem 1rem; align-items:flex-start; gap:12px; flex-wrap:wrap; }
     .alert-banner.show { display:flex; }
-    .alert-banner svg { width:16px; height:16px; flex-shrink:0; color:#A32D2D; }
-    .alert-banner-text { font-size:13px; color:#791F1F; flex:1; }
-    .alert-banner-close { border:none; background:none; cursor:pointer; color:#A32D2D; font-size:18px; line-height:1; }
+    .alert-banner svg { width:16px; height:16px; flex-shrink:0; color:#A32D2D; margin-top:2px; }
+    .alert-banner-text { font-size:13px; color:#791F1F; flex:1; line-height:1.6; }
+    .alert-banner-close { border:none; background:none; cursor:pointer; color:#A32D2D; font-size:18px; line-height:1; flex-shrink:0; }
+    .alert-item { cursor:pointer; text-decoration:underline; text-decoration-style:dotted; font-weight:500; }
+    .alert-item:hover { color:#5c1111; }
+    .alert-link { border:none; background:none; cursor:pointer; color:#A32D2D; font-size:12px; font-weight:600; text-decoration:underline; font-family:var(--font); padding:0; }
+    .nav-badge { background:#ef4444; color:#fff; font-size:10px; font-weight:700; border-radius:99px; padding:1px 5px; margin-left:4px; min-width:16px; align-items:center; justify-content:center; vertical-align:middle; }
 
 
     .presentation-mode .sidebar { display:none !important; }

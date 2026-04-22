@@ -41,7 +41,7 @@
       </div>
       <div style="padding:0 .75rem;margin-bottom:.25rem;font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Navigation</div>
       <button class="nav-item active" onclick="switchPane('apercu',this)">📊 Aperçu</button>
-      <button class="nav-item" onclick="switchPane('actions',this)">✅ Actions</button>
+      <button class="nav-item" id="nav-actions" onclick="switchPane('actions',this)">✅ Actions <span id="nav-alert-badge" class="nav-badge" style="display:none;"></span></button>
       <button class="nav-item" onclick="switchPane('axes',this)">🎯 Axes</button>
       <button class="nav-item" onclick="switchPane('timeline',this)">🗓 Jalons</button>
       <div style="padding:0 .75rem;margin:.75rem 0 .25rem;font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Données</div>
