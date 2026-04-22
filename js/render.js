@@ -238,22 +238,30 @@ function renderMaVue() {
   initDefaultSettings();
   const select = document.getElementById('mavue-resp-select');
   // Populate select
-  if (select.options.length <= 1) {
-    const resps = [...new Set(APP.actions.map(a => a.resp).filter(Boolean))];
-    resps.forEach(r => {
+  // Reconstruire la liste à chaque appel pour rester à jour
+  const prevVal = select.value;
+  select.innerHTML = '<option value="">— Sélectionnez un responsable —</option>';
+  const seen = new Set();
+  // D'abord les responsables des actions existantes
+  APP.actions.map(a => a.resp).filter(Boolean).forEach(r => {
+    if (!seen.has(r)) {
+      seen.add(r);
       const opt = document.createElement('option');
       opt.value = r; opt.textContent = r;
       select.appendChild(opt);
-    });
-    // Also from settings
-    (APP.responsables||[]).forEach(r => {
-      if (!Array.from(select.options).find(o => o.value === r.nom)) {
-        const opt = document.createElement('option');
-        opt.value = r.nom; opt.textContent = r.nom;
-        select.appendChild(opt);
-      }
-    });
-  }
+    }
+  });
+  // Puis les responsables des paramètres (s'ils ne sont pas déjà là)
+  (APP.responsables||[]).forEach(r => {
+    if (!seen.has(r.nom)) {
+      seen.add(r.nom);
+      const opt = document.createElement('option');
+      opt.value = r.nom; opt.textContent = r.nom;
+      select.appendChild(opt);
+    }
+  });
+  // Rétablir la sélection précédente si elle existe encore
+  if (prevVal && seen.has(prevVal)) select.value = prevVal;
   const resp = select.value;
   const filtered = resp ? APP.actions.filter(a => a.resp === resp) : [];
   const axeMap = getAxeMap();

@@ -114,7 +114,9 @@
         </div>
         <div class="pane" id="pane-mavue">
           <div class="mavue-header">
-            <select id="mavue-resp-select" class="form-select"></select>
+            <select id="mavue-resp-select" class="form-select" onchange="renderMaVue()">
+              <option value="">— Sélectionnez un responsable —</option>
+            </select>
           </div>
           <div id="mavue-kpis" class="kpi-grid"></div>
           <table class="actions-table">
