@@ -292,14 +292,22 @@ function renderMaVue() {
   document.getElementById('mavue-tbody').innerHTML = filtered.map(a => {
     const axe = axeMap[a.axe] || { color:'#888', light:'#eee' };
     const sm = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
-    return `<tr onclick="openFormModal('${h(a.id)}')" style="cursor:pointer;">
+    return `<tr>
       <td style="font-weight:500;">${h(a.titre)}</td>
       <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${h(axe.light)};color:${h(axe.color)};font-weight:500;">${h(a.axe)}</span></td>
       <td style="white-space:nowrap;font-size:12px;">${fmtDate(a.echeance)} ${a.statut!=='terminée'?formatDelai(a.echeance):''}</td>
       <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div></div><span class="mini-pct">${h(a.pct)}%</span></div></td>
       <td><span class="pill ${sm.pill}">${h(a.statut)}</span></td>
+      <td style="white-space:nowrap;">
+        <button onclick="openFormModal('${h(a.id)}')" title="Modifier" style="border:none;background:none;cursor:pointer;padding:5px 6px;border-radius:6px;color:#185FA5;" onmouseover="this.style.background='#E6F1FB'" onmouseout="this.style.background='none'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button onclick="confirmDelete('${h(a.id)}', event)" title="Supprimer" style="border:none;background:none;cursor:pointer;padding:5px 6px;border-radius:6px;color:#A32D2D;" onmouseover="this.style.background='#FCEBEB'" onmouseout="this.style.background='none'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </td>
     </tr>`;
-  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--c-text-3);padding:2rem;">Sélectionnez un responsable</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--c-text-3);padding:2rem;">Sélectionnez un responsable</td></tr>';
 }
 
 

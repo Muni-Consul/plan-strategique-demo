@@ -308,6 +308,7 @@ async function saveAction() {
     renderApercu();
     renderActions();
     renderAxes();
+    renderMaVue();
 
     // Fermer après délai
     setTimeout(() => { closeFormModal(); }, 1500);
@@ -338,6 +339,7 @@ async function deleteAction(skipConfirm = false) {
     renderApercu();
     renderActions();
     renderAxes();
+    renderMaVue();
     closeFormModal();
   } catch (err) {
     showFormError('Erreur suppression : ' + err.message);
