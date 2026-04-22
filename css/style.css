@@ -385,21 +385,22 @@
     /* ======================================================
        FORMULAIRE DE SAISIE
        ====================================================== */
-    .form-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-start; justify-content: center; padding: 1.5rem 1rem; overflow-y: auto; }
+    .form-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-start; justify-content: center; padding: 1.5rem 1rem; overflow-y: auto; overflow-x: hidden; }
     .form-modal-bg.open { display: flex; }
-    .form-modal { background: var(--c-surface); border-radius: var(--radius-lg); padding: 1.75rem 2rem; max-width: 820px; width: 100%; border: 1px solid var(--c-border); box-shadow: 0 20px 60px rgba(0,0,0,0.25); margin: auto; max-height: 95vh; overflow-y: auto; }
+    .form-modal { background: var(--c-surface); border-radius: var(--radius-lg); padding: 1.5rem; max-width: min(760px, calc(100vw - 2rem)); width: 100%; border: 1px solid var(--c-border); box-shadow: 0 20px 60px rgba(0,0,0,0.25); margin: auto; max-height: 95vh; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
     .form-title { font-size: 16px; font-weight: 500; color: var(--c-text); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
     .form-close { border: none; background: none; font-size: 20px; cursor: pointer; color: var(--c-text-2); line-height: 1; }
     .form-close:hover { color: var(--c-text); }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .form-group.full { grid-column: 1 / -1; }
     .form-label { font-size: 11px; font-weight: 600; color: var(--c-text-2); text-transform: uppercase; letter-spacing: 0.05em; }
     .form-input, .form-select, .form-textarea {
         padding: 8px 10px; border-radius: var(--radius-sm);
         border: 1px solid var(--c-border-med); background: var(--c-surface);
         color: var(--c-text); font-family: var(--font); font-size: 13px;
-        transition: border-color 0.15s;
+        transition: border-color 0.15s; width: 100%; box-sizing: border-box;
+        min-width: 0; max-width: 100%;
     }
     .form-input:focus, .form-select:focus, .form-textarea:focus {
         outline: none; border-color: var(--c-purple);
