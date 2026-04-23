@@ -5,7 +5,10 @@ const APP = {
   axes: [], actions: [], jalons: [],
   activeFilter: 'tous',
   donutChart: null, lineChart: null,
-  _axeMap: null   // cache invalidé quand APP.axes change
+  _axeMap: null,   // cache invalidé quand APP.axes change
+  sortCol: null,
+  sortDir: 'asc',
+  actionsPage: 1
 };
 
 /** Convertit "YYYY-MM-DD" en Date locale (minuit) ; retourne null si invalide */

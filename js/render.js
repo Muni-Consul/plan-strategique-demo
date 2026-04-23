@@ -103,6 +103,26 @@ function renderApercu() {
    ================================================================ */
 const ACTIONS_PER_PAGE = 15;
 
+// Ordre de priorité pour le tri
+const PRIO_ORDER  = { haute: 0, moyenne: 1, basse: 2 };
+const STATUT_ORDER = { 'en retard': 0, 'en cours': 1, 'en attente': 2, 'à faire': 3, 'terminée': 4 };
+
+function sortActions(col) {
+  if (APP.sortCol === col) {
+    APP.sortDir = APP.sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    APP.sortCol = col;
+    APP.sortDir = col === 'echeance' || col === 'pct' ? 'asc' : 'asc';
+  }
+  renderActions(undefined, 1);
+}
+
+function applySortIcons(col, dir) {
+  document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
+  const el = document.getElementById('sort-' + col);
+  if (el) el.textContent = dir === 'asc' ? ' ↑' : ' ↓';
+}
+
 function clearSearch() {
   const el = document.getElementById('actions-search');
   if (el) { el.value = ''; el.focus(); }
@@ -137,6 +157,44 @@ function renderActions(filter, page) {
       (a.prio       || '').toLowerCase().includes(q) ||
       (a.desc       || '').toLowerCase().includes(q)
     );
+  }
+
+  // Tri des colonnes
+  if (APP.sortCol) {
+    const dir = APP.sortDir === 'asc' ? 1 : -1;
+    list = [...list].sort((a, b) => {
+      switch (APP.sortCol) {
+        case 'titre':
+          return dir * (a.titre || '').localeCompare(b.titre || '', 'fr');
+        case 'axe':
+          return dir * (a.axe || '').localeCompare(b.axe || '', 'fr');
+        case 'resp':
+          return dir * (a.resp || '').localeCompare(b.resp || '', 'fr');
+        case 'prio': {
+          const pa = PRIO_ORDER[a.prio] ?? 99;
+          const pb = PRIO_ORDER[b.prio] ?? 99;
+          return dir * (pa - pb);
+        }
+        case 'echeance': {
+          const da = a.echeance ? new Date(a.echeance) : new Date('9999-12-31');
+          const db = b.echeance ? new Date(b.echeance) : new Date('9999-12-31');
+          return dir * (da - db);
+        }
+        case 'pct':
+          return dir * ((parseInt(a.pct) || 0) - (parseInt(b.pct) || 0));
+        case 'statut': {
+          const sa = STATUT_ORDER[a.statut] ?? 99;
+          const sb = STATUT_ORDER[b.statut] ?? 99;
+          return dir * (sa - sb);
+        }
+        default:
+          return 0;
+      }
+    });
+    applySortIcons(APP.sortCol, APP.sortDir);
+  } else {
+    // Réinitialiser les icônes si aucun tri actif
+    document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
   }
 
   const totalPages = Math.max(1, Math.ceil(list.length / ACTIONS_PER_PAGE));
