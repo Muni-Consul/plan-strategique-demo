@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2">
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -103,7 +103,7 @@
         <div class="pane" id="pane-actions">
           <div class="actions-toolbar">
             <div class="search-wrap">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input id="actions-search" class="search-input" type="text" placeholder="Rechercher par titre, responsable, axe…"
                 oninput="renderActions(undefined, 1)">
               <button id="search-clear" class="search-clear" onclick="clearSearch()" style="display:none;" title="Effacer">×</button>
@@ -112,6 +112,18 @@
           </div>
           <div style="overflow-x:auto;">
             <table class="actions-table">
+              <thead>
+                <tr>
+                  <th class="th-sort" onclick="sortActions('titre')">   Titre       <span class="sort-icon" id="sort-titre"></span></th>
+                  <th class="th-sort" onclick="sortActions('axe')">     Axe         <span class="sort-icon" id="sort-axe"></span></th>
+                  <th class="th-sort" onclick="sortActions('resp')">    Responsable <span class="sort-icon" id="sort-resp"></span></th>
+                  <th class="th-sort" onclick="sortActions('prio')">    Priorité    <span class="sort-icon" id="sort-prio"></span></th>
+                  <th class="th-sort" onclick="sortActions('echeance')">Échéance    <span class="sort-icon" id="sort-echeance"></span></th>
+                  <th class="th-sort" onclick="sortActions('pct')">     Avancement  <span class="sort-icon" id="sort-pct"></span></th>
+                  <th class="th-sort" onclick="sortActions('statut')">  Statut      <span class="sort-icon" id="sort-statut"></span></th>
+                  <th></th>
+                </tr>
+              </thead>
               <tbody id="actions-tbody"></tbody>
             </table>
           </div>
