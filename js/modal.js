@@ -221,6 +221,31 @@ function switchFormTab(tab, btn) {
   if (actions) actions.style.display = tab === 'historique' ? 'none' : 'flex';
 }
 
+/** Ajuste automatiquement le statut selon la date d'échéance et l'avancement */
+function autoAdjustStatut() {
+  const echeanceEl = document.getElementById('f-echeance');
+  const statutEl   = document.getElementById('f-statut');
+  const pct        = parseInt(document.getElementById('f-avancement').value) || 0;
+  if (!echeanceEl || !statutEl) return;
+
+  const currentStatut = statutEl.value;
+  // Ne pas toucher si déjà terminée ou avancement 100%
+  if (currentStatut === 'terminée' || pct >= 100) return;
+
+  const echeance = echeanceEl.value ? new Date(echeanceEl.value + 'T23:59:59') : null;
+  const now      = new Date();
+
+  if (echeance) {
+    if (echeance < now && currentStatut !== 'en retard') {
+      // Date passée → en retard
+      statutEl.value = 'en retard';
+    } else if (echeance >= now && currentStatut === 'en retard') {
+      // Date future → retirer « en retard », passer à « en cours »
+      statutEl.value = 'en cours';
+    }
+  }
+}
+
 function showFormError(msg) {
   const el = document.getElementById('form-error');
   el.textContent = msg;
@@ -254,6 +279,20 @@ async function saveAction() {
   if (!axe)      { showFormError('Veuillez choisir un axe stratégique.'); return; }
   if (!echeance) { showFormError('La date d\'échéance est obligatoire.'); return; }
 
+  // Ajustement automatique du statut selon la date d'échéance
+  let statutFinal = statut;
+  if (statutFinal !== 'terminée' && pct < 100 && echeance) {
+    const echeanceDate = new Date(echeance + 'T23:59:59');
+    const now = new Date();
+    if (echeanceDate < now && statutFinal !== 'en retard') {
+      statutFinal = 'en retard';
+    } else if (echeanceDate >= now && statutFinal === 'en retard') {
+      statutFinal = 'en cours';
+    }
+    // Mettre à jour le select dans le formulaire pour refléter l'ajustement
+    document.getElementById('f-statut').value = statutFinal;
+  }
+
   // Show saving indicator
   document.getElementById('form-saving').classList.add('show');
   document.querySelectorAll('.form-btn-save, .form-btn-cancel, .form-btn-delete').forEach(b => b.disabled = true);
@@ -266,7 +305,7 @@ async function saveAction() {
     prio:        priorite,
     echeance:    echeance,
     pct:         pct,
-    statut:      statut,
+    statut:      statutFinal,
     desc:        desc,
     budget:      budget,
     commentaire: comment
@@ -285,7 +324,7 @@ async function saveAction() {
         Priorite:         priorite.charAt(0).toUpperCase() + priorite.slice(1),
         Date_Echeance:    echeance ? new Date(echeance).toISOString() : null,
         Avancement:       pct,
-        Statut:           statut.charAt(0).toUpperCase() + statut.slice(1),
+        Statut:           statutFinal.charAt(0).toUpperCase() + statutFinal.slice(1),
         Description:      desc,
         Commentaire_Suivi: comment
       };
