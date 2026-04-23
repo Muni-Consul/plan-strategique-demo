@@ -101,7 +101,15 @@
           </div>
         </div>
         <div class="pane" id="pane-actions">
-          <div id="filter-bar" class="filter-bar"></div>
+          <div class="actions-toolbar">
+            <div class="search-wrap">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input id="actions-search" class="search-input" type="text" placeholder="Rechercher par titre, responsable, axe…"
+                oninput="renderActions(undefined, 1)">
+              <button id="search-clear" class="search-clear" onclick="clearSearch()" style="display:none;" title="Effacer">×</button>
+            </div>
+            <div id="filter-bar" class="filter-bar"></div>
+          </div>
           <div style="overflow-x:auto;">
             <table class="actions-table">
               <tbody id="actions-tbody"></tbody>

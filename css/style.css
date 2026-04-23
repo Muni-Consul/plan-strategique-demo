@@ -377,6 +377,16 @@
       .alert-banner { margin: 0 .75rem .75rem; }
     }
 
+    /* Barre d'outils Actions */
+    .actions-toolbar { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
+    .search-wrap { position: relative; display: flex; align-items: center; max-width: 420px; }
+    .search-icon { position: absolute; left: 10px; width: 15px; height: 15px; color: var(--c-text-3); pointer-events: none; flex-shrink: 0; }
+    .search-input { width: 100%; padding: 7px 32px 7px 34px; border: 1px solid var(--c-border-med); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-text); font-family: var(--font); font-size: 13px; transition: border-color .15s; }
+    .search-input:focus { outline: none; border-color: var(--c-purple); }
+    .search-input::placeholder { color: var(--c-text-3); }
+    .search-clear { position: absolute; right: 8px; border: none; background: none; cursor: pointer; color: var(--c-text-3); font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px; align-items: center; justify-content: center; }
+    .search-clear:hover { color: var(--c-text); background: var(--c-surface-2); }
+
     /* Pagination */
     .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: .75rem 0; }
     .pg-btn { padding: 5px 14px; border: 1px solid var(--c-border-med); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-text); cursor: pointer; font-family: var(--font); font-size: 13px; transition: background .15s; }

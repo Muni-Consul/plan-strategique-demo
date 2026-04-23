@@ -103,6 +103,12 @@ function renderApercu() {
    ================================================================ */
 const ACTIONS_PER_PAGE = 15;
 
+function clearSearch() {
+  const el = document.getElementById('actions-search');
+  if (el) { el.value = ''; el.focus(); }
+  renderActions(undefined, 1);
+}
+
 function renderActions(filter, page) {
   if (filter !== undefined) APP.activeFilter = filter;
   if (page   !== undefined) APP.actionsPage  = page;
@@ -115,11 +121,39 @@ function renderActions(filter, page) {
     `<button class="filter-chip ${s===f?'on':''}" onclick="renderActions('${h(s)}',1)">${s==='tous'?'Tous':h(s)}</button>`
   ).join('');
 
-  const list = f === 'tous' ? APP.actions : APP.actions.filter(a => a.statut === f);
+  // Recherche texte
+  const searchEl = document.getElementById('actions-search');
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  const clearBtn = document.getElementById('search-clear');
+  if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+
+  let list = f === 'tous' ? APP.actions : APP.actions.filter(a => a.statut === f);
+  if (q) {
+    list = list.filter(a =>
+      (a.titre      || '').toLowerCase().includes(q) ||
+      (a.resp       || '').toLowerCase().includes(q) ||
+      (a.axe        || '').toLowerCase().includes(q) ||
+      (a.statut     || '').toLowerCase().includes(q) ||
+      (a.prio       || '').toLowerCase().includes(q) ||
+      (a.desc       || '').toLowerCase().includes(q)
+    );
+  }
+
   const totalPages = Math.max(1, Math.ceil(list.length / ACTIONS_PER_PAGE));
   if (APP.actionsPage > totalPages) APP.actionsPage = totalPages;
   const pageList = list.slice((APP.actionsPage - 1) * ACTIONS_PER_PAGE, APP.actionsPage * ACTIONS_PER_PAGE);
   const axeMap = getAxeMap();
+
+  // Message aucun résultat
+  if (list.length === 0) {
+    document.getElementById('actions-tbody').innerHTML =
+      `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--c-text-3);">
+        ${q ? `Aucune action trouvée pour « ${h(q)} »` : 'Aucune action dans cette catégorie.'}
+      </td></tr>`;
+    const pgEl2 = document.getElementById('actions-pagination');
+    if (pgEl2) pgEl2.innerHTML = '';
+    return;
+  }
 
   document.getElementById('actions-tbody').innerHTML = pageList.map(a => {
     const axe = axeMap[a.axe] || { color:'#888', light:'#eee', nom:a.axe };
