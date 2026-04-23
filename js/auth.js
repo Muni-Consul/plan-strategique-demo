@@ -33,8 +33,8 @@ const IS_LOCALHOST = ['localhost', '127.0.0.1', ''].includes(window.location.hos
 
 async function doMsalSignIn() {
   try {
-    document.getElementById('btn-login').disabled = true;
-    document.getElementById('btn-login').textContent = "Connexion en cours...";
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) { btnLogin.disabled = true; btnLogin.textContent = "Connexion en cours…"; }
     if (IS_ELECTRON) {
       const result = await msalInstance.loginPopup({ scopes: SCOPES });
       currentAccount = result.account;
@@ -49,8 +49,8 @@ async function doMsalSignIn() {
     }
   } catch (err) {
     showAuthError("Erreur : " + err.message);
-    document.getElementById('btn-login').disabled = false;
-    document.getElementById('btn-login').textContent = "Se connecter avec Microsoft";
+    const btnErr = document.getElementById('btn-login');
+    if (btnErr) { btnErr.disabled = false; btnErr.textContent = "Se connecter avec Microsoft"; }
   }
 }
 async function initMSAL() {
