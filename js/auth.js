@@ -107,6 +107,18 @@ async function initMSAL() {
   }
 }
 
+function signOut() {
+  if (msalInstance && currentAccount) {
+    msalInstance.logoutRedirect({
+      account: currentAccount,
+      postLogoutRedirectUri: window.location.href.split('?')[0].split('#')[0]
+    });
+  } else {
+    // Mode démo : recharger simplement la page
+    window.location.reload();
+  }
+}
+
 async function acquireToken() {
   try {
     const result = await msalInstance.acquireTokenSilent({
