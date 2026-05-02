@@ -142,7 +142,7 @@ function exportAxePDF(axeId) {
     }).join('') : '';
 
   const style = `<style>
-    @page { size: portrait; margin: 1.5cm 2cm; }
+    @page { size: landscape; margin: 1.5cm 2cm; }
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1A1917; margin:0; padding:0; font-size:11px; line-height:1.5; }
     .page-header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid ${h(axe.color)}; padding-bottom:10px; margin-bottom:18px; }
