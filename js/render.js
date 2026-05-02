@@ -323,17 +323,6 @@ function renderAxes() {
           <span class="axe-card-dot" style="background:${h(axe.color)}"></span>
           <span class="axe-card-name">${h(axe.nom)}</span>
           <span class="axe-card-pct" style="color:${h(axe.color)}">${h(axe.pct)}%</span>
-          <button onclick="exportAxePDF('${h(axe.id)}')" title="Exporter le rapport PDF de cet axe"
-            style="margin-left:8px;border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:6px;color:var(--c-text-3);flex-shrink:0;"
-            onmouseover="this.style.background='var(--c-surface-2)';this.style.color='var(--c-text)'"
-            onmouseout="this.style.background='none';this.style.color='var(--c-text-3)'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="12" y1="18" x2="12" y2="12"/>
-              <line x1="9" y1="15" x2="15" y2="15"/>
-            </svg>
-          </button>
         </div>
         <div class="progress-wrap" style="height:8px;">
           <div class="progress-fill" style="width:${axe.pct}%;background:${axe.color}"></div>
@@ -347,6 +336,20 @@ function renderAxes() {
         <div class="tag-list">
           ${actions.slice(0,5).map(ac=>`<span class="tag">${h(ac.titre.slice(0,28))}${ac.titre.length>28?'…':''}</span>`).join('')}
           ${actions.length>5?`<span class="tag">+${actions.length-5} autres</span>`:''}
+        </div>
+        <div style="margin-top:12px;border-top:1px solid var(--c-border);padding-top:10px;">
+          <button onclick="exportAxePDF('${h(axe.id)}')"
+            style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--font);padding:5px 12px;border-radius:6px;border:1px solid var(--c-border-med);background:none;color:var(--c-text-2);cursor:pointer;transition:all .15s;"
+            onmouseover="this.style.borderColor='${h(axe.color)}';this.style.color='${h(axe.color)}';this.style.background='${h(axe.light||axe.color+'18')}'"
+            onmouseout="this.style.borderColor='var(--c-border-med)';this.style.color='var(--c-text-2)';this.style.background='none'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            Rapport PDF
+          </button>
         </div>
       </div>`;
   }).join('');
