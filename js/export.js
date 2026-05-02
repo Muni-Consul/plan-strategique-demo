@@ -115,8 +115,8 @@ function exportAxePDF(axeId) {
 
   // ── Créer le document 14×11 pouces paysage ───────────────
   const { jsPDF } = window.jspdf;
-  const W = 14 * 72;   // 1008 pt
-  const H = 11 * 72;   // 792 pt
+  const W = 14 * 72;    // 1008 pt  (14 po)
+  const H = 8.5 * 72;  //  612 pt  (8½ po)
   const ML = 48, MR = 48, MT = 48;
   const CW = W - ML - MR;
 
