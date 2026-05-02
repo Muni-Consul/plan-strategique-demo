@@ -186,7 +186,25 @@
             <input type="checkbox" id="auto-calc-axes"> Calculer automatiquement l'avancement des axes
           </label>
           <div id="settings-axes-list"></div>
-          <button onclick="addAxe()" style="margin-top:.75rem;padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;">+ Ajouter un axe</button>
+          <div class="add-item-form" style="margin-top:.75rem;background:var(--c-surface-2);border-radius:8px;padding:10px 12px;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="add-item-field" style="flex:0 0 60px;">
+              <label>Code</label>
+              <input type="text" id="new-axe-id" maxlength="5" placeholder="A1" style="width:60px;" />
+            </div>
+            <div class="add-item-field" style="flex:1;min-width:160px;">
+              <label>Nom de l'axe</label>
+              <input type="text" id="new-axe-nom" placeholder="Ex : Gouvernance" />
+            </div>
+            <div class="add-item-field">
+              <label>Couleur</label>
+              <input type="color" id="new-axe-couleur" value="#534AB7" style="width:50px;height:32px;padding:2px;cursor:pointer;" />
+            </div>
+            <div class="add-item-field" style="flex:100%;width:100%;">
+              <label>Description</label>
+              <textarea id="new-axe-desc" rows="2" placeholder="Décrivez l'orientation stratégique de cet axe…" style="width:100%;resize:vertical;font-family:inherit;font-size:12px;padding:6px 8px;border:1px solid var(--c-border-med);border-radius:6px;background:var(--c-surface);color:var(--c-text);"></textarea>
+            </div>
+            <button onclick="addAxe()" style="height:32px;padding:0 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;align-self:flex-end;">+ Ajouter</button>
+          </div>
         </div>
         <div class="settings-pane" id="settings-pane-resps">
           <div id="settings-resps-list"></div>

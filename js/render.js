@@ -279,6 +279,7 @@ function renderAxes() {
         <div class="progress-wrap" style="height:8px;">
           <div class="progress-fill" style="width:${axe.pct}%;background:${axe.color}"></div>
         </div>
+        ${axe.desc ? `<div style="font-size:12px;color:var(--c-text-2);margin-top:8px;line-height:1.5;font-style:italic;border-left:3px solid ${h(axe.color)};padding-left:8px;">${h(axe.desc)}</div>` : ''}
         <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--c-text-3);">
           <span>${actions.length} actions</span>
           <span style="color:var(--c-ok);">${done} terminées</span>
