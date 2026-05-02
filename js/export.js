@@ -142,7 +142,6 @@ function exportAxePDF(axeId) {
     }).join('') : '';
 
   const style = `<style>
-    @page { size: landscape; margin: 1.5cm 2cm; }
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1A1917; margin:0; padding:0; font-size:11px; line-height:1.5; }
     .page-header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid ${h(axe.color)}; padding-bottom:10px; margin-bottom:18px; }
@@ -168,7 +167,10 @@ function exportAxePDF(axeId) {
     td { padding:6px 7px; border-bottom:.5px solid #eeece8; vertical-align:top; }
     tr:last-child td { border-bottom:none; }
     .footer { margin-top:24px; font-size:9px; color:#bbb; text-align:center; border-top:.5px solid #eee; padding-top:8px; }
-    @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+    @media print {
+      @page { size: letter landscape; margin: 1.5cm 2cm; }
+      body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
   </style>`;
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
