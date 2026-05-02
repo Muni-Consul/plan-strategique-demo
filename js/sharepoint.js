@@ -29,5 +29,6 @@ async function getListItems(listName) {
   const data = await graphFetch(
     `/sites/${spSiteId}/lists/${listName}/items?expand=fields($select=*)&$top=500`
   );
-  return data.value.map(item => item.fields);
+  // Conserver l'ID SharePoint de l'item (_spId) pour permettre les mises à jour ultérieures
+  return data.value.map(item => ({ ...item.fields, _spId: item.id }));
 }

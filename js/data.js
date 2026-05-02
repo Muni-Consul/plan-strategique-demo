@@ -9,6 +9,8 @@ function mapAxe(fields) {
     pct:    parseInt(fields.Avancement || fields.Pourcentage || 0),
     color:  fields.Couleur           || "#534AB7",
     light:  fields.CouleurClaire     || "#EEEDFE",
+    desc:   fields.Description_Axe   || fields.Description || "",
+    spId:   fields._spId             || null,   // ID SharePoint pour les mises à jour
   };
 }
 

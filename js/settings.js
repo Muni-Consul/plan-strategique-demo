@@ -128,6 +128,10 @@ function renderSettingsAxes() {
         <label>Avancement</label>
         <input type="number" id="edit-axe-pct-${i}" value="${a.pct || 0}" min="0" max="100" style="width:70px;" />
       </div>
+      <div class="add-item-field" style="flex:100%;width:100%;">
+        <label>Description</label>
+        <textarea id="edit-axe-desc-${i}" rows="2" style="width:100%;resize:vertical;font-family:inherit;font-size:12px;padding:6px 8px;border:1px solid var(--c-border-med);border-radius:6px;background:var(--c-surface);color:var(--c-text);" placeholder="Décrivez l'orientation stratégique de cet axe…">${h(a.desc || '')}</textarea>
+      </div>
       <button class="btn btn-add" onclick="saveAxe(${i})" style="height:32px;align-self:flex-end;">✓ Sauvegarder</button>
       <button class="btn" onclick="cancelEditAxe(${i})" style="height:32px;align-self:flex-end;">Annuler</button>
     </div>`).join('');
@@ -137,14 +141,16 @@ function addAxe() {
   const id     = document.getElementById('new-axe-id').value.trim().toUpperCase();
   const nom    = document.getElementById('new-axe-nom').value.trim();
   const color  = document.getElementById('new-axe-couleur').value;
+  const desc   = document.getElementById('new-axe-desc').value.trim();
   if (!id || !nom) { alert('Code et nom obligatoires.'); return; }
   if (APP.axes.find(a => a.id === id)) { alert('Ce code existe déjà.'); return; }
   const light = hexLight(color);
-  APP.axes.push({ id, nom, color, light, pct: 0 });
+  APP.axes.push({ id, nom, color, light, pct: 0, desc });
   invalidateAxeMap();
   persistSettings();
   document.getElementById('new-axe-id').value = '';
   document.getElementById('new-axe-nom').value = '';
+  document.getElementById('new-axe-desc').value = '';
   renderSettingsAxes();
 }
 
@@ -178,16 +184,32 @@ function cancelEditAxe(i) {
   if (editDiv) editDiv.style.display = 'none';
 }
 
-function saveAxe(i) {
+async function saveAxe(i) {
   const id      = document.getElementById('edit-axe-id-' + i)?.value.trim().toUpperCase();
   const nom     = document.getElementById('edit-axe-nom-' + i)?.value.trim();
   const color   = document.getElementById('edit-axe-couleur-' + i)?.value;
   const pct     = parseInt(document.getElementById('edit-axe-pct-' + i)?.value || 0);
+  const desc    = document.getElementById('edit-axe-desc-' + i)?.value.trim();
   if (!id || !nom) { alert('Le code et le nom sont obligatoires.'); return; }
   const light = hexLight(color);
-  APP.axes[i] = { ...APP.axes[i], id, nom, color, light, pct };
+  const axeOld = APP.axes[i];
+  APP.axes[i] = { ...axeOld, id, nom, color, light, pct, desc };
   invalidateAxeMap();
   persistSettings();
+
+  // Sauvegarder dans SharePoint si connecté et si l'axe a un ID SharePoint
+  if (isLiveData && graphToken && spSiteId && axeOld.spId) {
+    try {
+      await graphFetch(
+        `/sites/${spSiteId}/lists/${SP_CONFIG.lists.axes}/items/${axeOld.spId}/fields`,
+        'PATCH',
+        { Avancement: pct, Description_Axe: desc }
+      );
+    } catch(e) {
+      console.warn('Mise à jour SharePoint axe échouée :', e.message);
+    }
+  }
+
   renderSettingsAxes();
 }
 
