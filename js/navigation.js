@@ -4,9 +4,9 @@
 
 /* ----------------------------------------------------------------
    RACCOURCIS CLAVIER
-   N → Nouvelle action
+   N → Nouvel objectif
    P → Mode présentation
-   A → Aller à Actions
+   A → Aller à Objectifs
    H → Aller à Aperçu (Home)
    ? → Afficher l'aide des raccourcis
    Échap → déjà géré dans modal.js
@@ -21,7 +21,7 @@ document.addEventListener('keydown', function(e) {
   if (document.getElementById('modal-bg')?.classList.contains('open'))          return;
 
   switch (e.key.toLowerCase()) {
-    case 'n':  // Nouvelle action
+    case 'n':  // Nouvel objectif
       e.preventDefault();
       openFormModal(null);
       break;
@@ -29,7 +29,7 @@ document.addEventListener('keydown', function(e) {
       e.preventDefault();
       togglePresentationMode();
       break;
-    case 'a':  // Aller à Actions
+    case 'a':  // Aller à Objectifs
       e.preventDefault();
       switchPane('actions', document.getElementById('nav-actions'));
       break;
@@ -54,8 +54,8 @@ function showShortcutsHelp() {
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       ${[
-        ['N',   'Nouvelle action'],
-        ['A',   'Aller à Actions'],
+        ['N',   'Nouvel objectif'],
+        ['A',   'Aller à Objectifs'],
         ['H',   'Aller à Aperçu'],
         ['P',   'Mode présentation'],
         ['?',   'Afficher cette aide'],

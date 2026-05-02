@@ -53,16 +53,16 @@ function exportPDF() {
   }).join('');
 
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Plan stratégique — Rapport</title>${style}</head><body>
-    <h1>Plan d'action stratégique</h1>
+    <h1>Plan stratégique</h1>
     <div class="subtitle">Rapport généré le ${new Date().toLocaleDateString('fr-CA', {year:'numeric',month:'long',day:'numeric'})} — Muni-Consul</div>
     <div class="kpis">
       <div class="kpi"><div class="kpi-label">Avancement global</div><div class="kpi-val">${global}%</div></div>
-      <div class="kpi"><div class="kpi-label">Actions totales</div><div class="kpi-val">${total}</div></div>
+      <div class="kpi"><div class="kpi-label">Objectifs totaux</div><div class="kpi-val">${total}</div></div>
       <div class="kpi"><div class="kpi-label">Terminées</div><div class="kpi-val">${done}</div></div>
       <div class="kpi"><div class="kpi-label">En retard</div><div class="kpi-val">${late}</div></div>
     </div>
     <table>
-      <thead><tr><th>Action</th><th>Axe</th><th>Responsable</th><th>Priorité</th><th>Échéance</th><th>%</th><th>Statut</th><th>Réalisation</th></tr></thead>
+      <thead><tr><th>Objectif</th><th>Axe</th><th>Responsable</th><th>Priorité</th><th>Échéance</th><th>%</th><th>Statut</th><th>Réalisation</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
     <div class="footer">© ${new Date().getFullYear()} Muni-Consul™ — Solutions municipales intelligentes — Tous droits réservés</div>
@@ -138,7 +138,7 @@ function exportAxePDF(axeId) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(150, 150, 150);
-  doc.text('Plan d\'action stratégique — Rapport par axe', ML, y + 24);
+  doc.text('Plan stratégique — Rapport par axe', ML, y + 24);
 
   const dateStr = new Date().toLocaleDateString('fr-CA', {year:'numeric',month:'long',day:'numeric'});
   doc.text(`Rapport du ${dateStr}`, W - MR, y + 12, { align: 'right' });
@@ -184,7 +184,7 @@ function exportAxePDF(axeId) {
 
   // ── KPIs ──────────────────────────────────────────────────
   const kpis = [
-    { label:'Actions totales', val: String(actions.length), color:[26,25,23] },
+    { label:'Objectifs totaux', val: String(actions.length), color:[26,25,23] },
     { label:'Terminées',       val: String(done),   color:[99,153,34] },
     { label:'En cours',        val: String(inprog), color:[55,138,221] },
     ...(waiting ? [{ label:'En attente', val: String(waiting), color:[239,159,39] }] : []),
@@ -212,7 +212,7 @@ function exportAxePDF(axeId) {
   doc.autoTable({
     startY: y,
     margin: { left: ML, right: MR },
-    head: [['Action', 'Responsable', 'Priorité', 'Échéance', '%', 'Statut', 'Notes']],
+    head: [['Objectif', 'Responsable', 'Priorité', 'Échéance', '%', 'Statut', 'Notes']],
     body: sorted.map(a => {
       const diff = a.echeance && a.statut !== 'terminée'
         ? Math.round((new Date(a.echeance) - new Date()) / 86400000) : null;

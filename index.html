@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Démo — Plan d'action stratégique | Muni-Consul</title>
+  <title>Démo — Plan stratégique | Muni-Consul</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -45,7 +45,7 @@
       </div>
       <div style="padding:0 .75rem;margin-bottom:.25rem;font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Navigation</div>
       <button class="nav-item active" onclick="switchPane('apercu',this)">📊 Aperçu</button>
-      <button class="nav-item" id="nav-actions" onclick="switchPane('actions',this)">✅ Actions <span id="nav-alert-badge" class="nav-badge" style="display:none;"></span></button>
+      <button class="nav-item" id="nav-actions" onclick="switchPane('actions',this)">✅ Objectifs <span id="nav-alert-badge" class="nav-badge" style="display:none;"></span></button>
       <button class="nav-item" onclick="switchPane('axes',this)">🎯 Axes</button>
       <button class="nav-item" onclick="switchPane('timeline',this)">🗓 Jalons</button>
       <div style="padding:0 .75rem;margin:.75rem 0 .25rem;font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Données</div>
@@ -77,7 +77,7 @@
           <div style="font-size:.8rem;color:var(--text-muted);" id="topbar-meta"></div>
         </div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-          <button onclick="openFormModal(null)" style="padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;">+ Nouvelle action</button>
+          <button onclick="openFormModal(null)" style="padding:.5rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;">+ Nouvel objectif</button>
           <button onclick="exportCSV()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Exporter CSV</button>
           <button onclick="exportPDF()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Exporter PDF</button>
           <button id="btn-presentation" onclick="togglePresentationMode()" style="padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);">Présentation</button>
@@ -235,7 +235,7 @@
   <div id="form-modal-bg" class="modal-bg" onclick="if(event.target===this)closeFormModal()">
     <div class="form-modal">
       <div class="form-title">
-        <span id="form-modal-title">Nouvelle action</span>
+        <span id="form-modal-title">Nouvel objectif</span>
         <button class="form-close" onclick="closeFormModal()">×</button>
       </div>
       <!-- Onglets Détails / Historique -->
@@ -253,7 +253,7 @@
       <div class="form-grid">
         <div class="form-group full">
           <label class="form-label">Titre *</label>
-          <input id="f-titre" class="form-input" type="text" placeholder="Titre de l'action">
+          <input id="f-titre" class="form-input" type="text" placeholder="Titre de l'objectif">
         </div>
         <div class="form-group">
           <label class="form-label">Axe stratégique *</label>

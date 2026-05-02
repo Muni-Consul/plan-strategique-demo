@@ -24,7 +24,7 @@ function renderApercu() {
 
   document.getElementById('kpi-grid').innerHTML = [
     { label:'Avancement global', value:`${global}<sup>%</sup>`, delta:'↑ +8% ce trimestre', cls:'kpi-up' },
-    { label:'Actions totales',   value:total,  delta:`Sur ${APP.axes.length} axes`, cls:'kpi-neutral' },
+    { label:'Objectifs totaux',  value:total,  delta:`Sur ${APP.axes.length} axes`, cls:'kpi-neutral' },
     { label:'Terminées',         value:done,   delta:`${Math.round(done/total*100)}% du total`, cls:'kpi-up' },
     { label:'En retard',         value:late,   delta:`${Math.round(late/total*100)}% du total`, cls:'kpi-down' },
     { label:'En cours',          value:inprog, delta:`${Math.round(inprog/total*100)}% du total`, cls:'kpi-neutral' },
@@ -253,7 +253,7 @@ function renderActions(filter, page) {
     const filterDesc = activeFilters.length ? ` pour ${activeFilters.join(', ')}` : '';
     document.getElementById('actions-tbody').innerHTML =
       `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--c-text-3);">
-        Aucune action trouvée${filterDesc}.
+        Aucun objectif trouvé${filterDesc}.
         ${activeFilters.length > 0 ? `<br><button class="filter-reset" onclick="resetFilters()" style="margin-top:10px;">✕ Réinitialiser les filtres</button>` : ''}
       </td></tr>`;
     const pgEl2 = document.getElementById('actions-pagination');
@@ -299,7 +299,7 @@ function renderActions(filter, page) {
       pgEl.innerHTML = `
         <div class="pagination">
           <button class="pg-btn" onclick="renderActions(undefined,${p-1})" ${p<=1?'disabled':''}>‹ Préc.</button>
-          <span class="pg-info">Page ${p} / ${totalPages} &nbsp;(${list.length} actions)</span>
+          <span class="pg-info">Page ${p} / ${totalPages} &nbsp;(${list.length} objectif${list.length > 1 ? 's' : ''})</span>
           <button class="pg-btn" onclick="renderActions(undefined,${p+1})" ${p>=totalPages?'disabled':''}>Suiv. ›</button>
         </div>`;
     }
@@ -329,7 +329,7 @@ function renderAxes() {
         </div>
         ${axe.desc ? `<div style="font-size:12px;color:var(--c-text-2);margin-top:8px;line-height:1.5;font-style:italic;border-left:3px solid ${h(axe.color)};padding-left:8px;">${h(axe.desc)}</div>` : ''}
         <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--c-text-3);">
-          <span>${actions.length} actions</span>
+          <span>${actions.length} objectif${actions.length > 1 ? 's' : ''}</span>
           <span style="color:var(--c-ok);">${done} terminées</span>
           ${late>0?`<span style="color:var(--c-danger);">${late} en retard</span>`:''}
         </div>
@@ -527,11 +527,11 @@ function renderGantt() {
   });
 
   if (actions.length === 0) {
-    html += `<div style="text-align:center;color:var(--c-text-3);padding:2rem;font-size:13px;">Aucune action avec échéance en ${year}</div>`;
+    html += `<div style="text-align:center;color:var(--c-text-3);padding:2rem;font-size:13px;">Aucun objectif avec échéance en ${year}</div>`;
   }
   if (ganttTruncated) {
     html += `<div style="margin-top:8px;padding:6px 12px;background:var(--c-surface-2);border-radius:var(--radius-sm);font-size:11px;color:var(--c-text-3);text-align:center;">
-      ${allGanttActions.length - 20} action${allGanttActions.length - 20 > 1 ? 's' : ''} supplémentaire${allGanttActions.length - 20 > 1 ? 's' : ''} non affichée${allGanttActions.length - 20 > 1 ? 's' : ''} — affinez le filtre pour les voir
+      ${allGanttActions.length - 20} objectif${allGanttActions.length - 20 > 1 ? 's' : ''} supplémentaire${allGanttActions.length - 20 > 1 ? 's' : ''} non affiché${allGanttActions.length - 20 > 1 ? 's' : ''} — affinez le filtre pour les voir
     </div>`;
   }
 

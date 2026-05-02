@@ -130,7 +130,7 @@ function openFormModal(actionId) {
 
   if (actionId) {
     // Mode édition
-    title.textContent = 'Modifier l\'action';
+    title.textContent = 'Modifier l\'objectif';
     btnDelete.style.display = 'inline-flex';
     const a = APP.actions.find(x => String(x.id) === String(actionId));
     if (!a) {
@@ -158,7 +158,7 @@ function openFormModal(actionId) {
     loadHistorique(String(actionId));
   } else {
     // Mode création
-    title.textContent = 'Nouvelle action';
+    title.textContent = 'Nouvel objectif';
     btnDelete.style.display = 'none';
     _originalAction = null;
     const tabHistNew = document.getElementById('tab-historique-btn');
@@ -275,7 +275,7 @@ async function saveAction() {
   document.getElementById('form-error').classList.remove('show');
   document.getElementById('form-success').classList.remove('show');
 
-  if (!titre)    { showFormError('Le nom de l\'action est obligatoire.'); return; }
+  if (!titre)    { showFormError('Le titre de l\'objectif est obligatoire.'); return; }
   if (!axe)      { showFormError('Veuillez choisir un axe stratégique.'); return; }
   if (!echeance) { showFormError('La date d\'échéance est obligatoire.'); return; }
 

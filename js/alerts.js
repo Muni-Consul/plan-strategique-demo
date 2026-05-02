@@ -43,7 +43,7 @@ function checkAlertes() {
   let html = '';
 
   if (late.length > 0) {
-    html += `<strong style="color:#7F1D1D;">${late.length} action${late.length > 1 ? 's' : ''} en retard :</strong> `;
+    html += `<strong style="color:#7F1D1D;">${late.length} objectif${late.length > 1 ? 's' : ''} en retard :</strong> `;
     html += late.slice(0, 3).map(a => {
       const jours = Math.round((today - parseLocalDate(a.echeance)) / 86400000);
       return `<span class="alert-item" onclick="goToAction('${h(a.id)}')" title="Ouvrir">${h(a.titre)} <em>(${jours}j)</em></span>`;
