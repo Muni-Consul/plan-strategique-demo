@@ -168,7 +168,7 @@ function exportAxePDF(axeId) {
     tr:last-child td { border-bottom:none; }
     .footer { margin-top:24px; font-size:9px; color:#bbb; text-align:center; border-top:.5px solid #eee; padding-top:8px; }
     @media print {
-      @page { size: 11in 8.5in; margin: 1cm 1.5cm; }
+      @page { size: 14in 11in; margin: 1cm 1.5cm; }
       body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     }
   </style>`;
