@@ -3,7 +3,9 @@
    ================================================================ */
 const APP = {
   axes: [], actions: [], jalons: [],
-  activeFilter: 'tous',
+  activeFilter: 'tous',   // filtre statut
+  filterAxe:    '',        // filtre axe stratégique
+  filterResp:   '',        // filtre responsable
   donutChart: null, lineChart: null,
   _axeMap: null,   // cache invalidé quand APP.axes change
   sortCol: null,

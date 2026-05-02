@@ -129,33 +129,73 @@ function clearSearch() {
   renderActions(undefined, 1);
 }
 
+/** Mettre à jour un filtre individuel et relancer le rendu */
+function setFilter(type, value) {
+  if (type === 'axe')    APP.filterAxe    = value;
+  else if (type === 'statut') APP.activeFilter = value || 'tous';
+  else if (type === 'resp')   APP.filterResp   = value;
+  APP.actionsPage = 1;
+  renderActions(undefined, undefined);
+}
+
+/** Effacer tous les filtres (axe, statut, responsable, texte) */
+function resetFilters() {
+  APP.activeFilter = 'tous';
+  APP.filterAxe    = '';
+  APP.filterResp   = '';
+  const searchEl = document.getElementById('actions-search');
+  if (searchEl) { searchEl.value = ''; }
+  renderActions(undefined, 1);
+}
+
 function renderActions(filter, page) {
   if (filter !== undefined) APP.activeFilter = filter;
   if (page   !== undefined) APP.actionsPage  = page;
   if (!APP.actionsPage) APP.actionsPage = 1;
-  const f = APP.activeFilter;
 
-  // Filtres
-  const statuts = ['tous', ...new Set(APP.actions.map(a => a.statut))];
-  document.getElementById('filter-bar').innerHTML = statuts.map(s =>
-    `<button class="filter-chip ${s===f?'on':''}" onclick="renderActions('${h(s)}',1)">${s==='tous'?'Tous':h(s)}</button>`
-  ).join('');
+  // ── Barre de filtres combinés ─────────────────────────────
+  const allAxes    = [...new Set(APP.actions.map(a => a.axe).filter(Boolean))].sort();
+  const allStatuts = ['tous', ...new Set(APP.actions.map(a => a.statut).filter(Boolean))];
+  const allResps   = [...new Set(APP.actions.map(a => a.resp).filter(Boolean))].sort((a,b) => a.localeCompare(b,'fr'));
+  const axeMapFB   = getAxeMap();
+  const anyFilter  = APP.activeFilter !== 'tous' || APP.filterAxe || APP.filterResp;
 
-  // Recherche texte
+  document.getElementById('filter-bar').innerHTML =
+    `<select id="filter-axe" class="filter-select${APP.filterAxe?' active':''}" onchange="setFilter('axe',this.value)" title="Filtrer par axe">
+       <option value="">Tous les axes</option>
+       ${allAxes.map(id => {
+         const ax = axeMapFB[id];
+         return `<option value="${h(id)}"${APP.filterAxe===id?' selected':''}>${h(ax ? ax.nom : id)}</option>`;
+       }).join('')}
+     </select>
+     <select id="filter-statut" class="filter-select${APP.activeFilter!=='tous'?' active':''}" onchange="setFilter('statut',this.value)" title="Filtrer par statut">
+       ${allStatuts.map(s => `<option value="${h(s)}"${APP.activeFilter===s?' selected':''}>${s==='tous'?'Tous les statuts':h(s)}</option>`).join('')}
+     </select>
+     <select id="filter-resp" class="filter-select${APP.filterResp?' active':''}" onchange="setFilter('resp',this.value)" title="Filtrer par responsable">
+       <option value="">Tous les responsables</option>
+       ${allResps.map(r => `<option value="${h(r)}"${APP.filterResp===r?' selected':''}>${h(r)}</option>`).join('')}
+     </select>
+     ${anyFilter ? `<button class="filter-reset" onclick="resetFilters()" title="Effacer tous les filtres">✕ Réinitialiser</button>` : ''}`;
+
+  // ── Recherche texte ───────────────────────────────────────
   const searchEl = document.getElementById('actions-search');
   const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
   const clearBtn = document.getElementById('search-clear');
   if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
 
-  let list = f === 'tous' ? APP.actions : APP.actions.filter(a => a.statut === f);
+  // ── Appliquer tous les filtres simultanément ──────────────
+  let list = APP.actions;
+  if (APP.activeFilter !== 'tous') list = list.filter(a => a.statut === APP.activeFilter);
+  if (APP.filterAxe)   list = list.filter(a => a.axe  === APP.filterAxe);
+  if (APP.filterResp)  list = list.filter(a => a.resp === APP.filterResp);
   if (q) {
     list = list.filter(a =>
-      (a.titre      || '').toLowerCase().includes(q) ||
-      (a.resp       || '').toLowerCase().includes(q) ||
-      (a.axe        || '').toLowerCase().includes(q) ||
-      (a.statut     || '').toLowerCase().includes(q) ||
-      (a.prio       || '').toLowerCase().includes(q) ||
-      (a.desc       || '').toLowerCase().includes(q)
+      (a.titre  || '').toLowerCase().includes(q) ||
+      (a.resp   || '').toLowerCase().includes(q) ||
+      (a.axe    || '').toLowerCase().includes(q) ||
+      (a.statut || '').toLowerCase().includes(q) ||
+      (a.prio   || '').toLowerCase().includes(q) ||
+      (a.desc   || '').toLowerCase().includes(q)
     );
   }
 
@@ -204,9 +244,17 @@ function renderActions(filter, page) {
 
   // Message aucun résultat
   if (list.length === 0) {
+    const axeMapZero = getAxeMap();
+    const activeFilters = [];
+    if (APP.filterAxe) { const ax = axeMapZero[APP.filterAxe]; activeFilters.push(`axe « ${ax ? ax.nom : APP.filterAxe} »`); }
+    if (APP.activeFilter !== 'tous') activeFilters.push(`statut « ${APP.activeFilter} »`);
+    if (APP.filterResp) activeFilters.push(`responsable « ${APP.filterResp} »`);
+    if (q) activeFilters.push(`recherche « ${h(q)} »`);
+    const filterDesc = activeFilters.length ? ` pour ${activeFilters.join(', ')}` : '';
     document.getElementById('actions-tbody').innerHTML =
       `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--c-text-3);">
-        ${q ? `Aucune action trouvée pour « ${h(q)} »` : 'Aucune action dans cette catégorie.'}
+        Aucune action trouvée${filterDesc}.
+        ${activeFilters.length > 0 ? `<br><button class="filter-reset" onclick="resetFilters()" style="margin-top:10px;">✕ Réinitialiser les filtres</button>` : ''}
       </td></tr>`;
     const pgEl2 = document.getElementById('actions-pagination');
     if (pgEl2) pgEl2.innerHTML = '';
