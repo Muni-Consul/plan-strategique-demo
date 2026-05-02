@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter colonne Description — SharePoint</title>
+  <script src="./msal.js"></script>
+  <script src="./js/config.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f3f2f1; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: #fff; border-radius: 12px; padding: 2rem; max-width: 560px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    h2 { margin: 0 0 .5rem; font-size: 1.2rem; color: #323130; }
+    p  { margin: 0 0 1.5rem; font-size: .9rem; color: #605e5c; }
+    button { padding: .65rem 1.5rem; background: #0078d4; color: #fff; border: none; border-radius: 6px; font-size: .95rem; cursor: pointer; font-family: inherit; }
+    button:hover { background: #106ebe; }
+    button:disabled { background: #a19f9d; cursor: not-allowed; }
+    #log { margin-top: 1.5rem; font-size: .85rem; line-height: 1.8; }
+    .ok   { color: #107c10; }
+    .err  { color: #a4262c; }
+    .info { color: #605e5c; }
+    .warn { color: #ca5010; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>➕ Ajouter la colonne <code>Description_Axe</code></h2>
+  <p>Ce script ajoute la colonne <strong>Description_Axe</strong> (plusieurs lignes de texte) à la liste <strong>Axes_Strategiques</strong> sur SharePoint.</p>
+  <button id="btn-run" onclick="run()">Se connecter et ajouter la colonne</button>
+  <div id="log"></div>
+</div>
+
+<script>
+let msalInstance = null;
+let token = null;
+
+function log(msg, cls = 'info') {
+  document.getElementById('log').innerHTML +=
+    `<div class="${cls}">${msg}</div>`;
+}
+
+async function run() {
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('log').innerHTML = '';
+
+  try {
+    // ── 1. MSAL init ──────────────────────────────────────────────
+    const MsalLib = window.msal;
+    msalInstance = new MsalLib.PublicClientApplication({
+      auth: {
+        clientId:    SP_CONFIG.msalClientId,
+        authority:   SP_CONFIG.msalAuthority,
+        redirectUri: SP_CONFIG.redirectUri,
+      },
+      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: true }
+    });
+    await msalInstance.initialize();
+
+    // Gérer un éventuel retour de redirect
+    await msalInstance.handleRedirectPromise();
+
+    // ── 2. Acquérir un token ──────────────────────────────────────
+    log('🔐 Connexion à Microsoft…');
+    const scopes = ['Sites.ReadWrite.All'];
+    let accounts = msalInstance.getAllAccounts();
+    let result;
+
+    if (accounts.length > 0) {
+      try {
+        result = await msalInstance.acquireTokenSilent({ scopes, account: accounts[0] });
+      } catch {
+        result = await msalInstance.acquireTokenPopup({ scopes });
+      }
+    } else {
+      result = await msalInstance.acquireTokenPopup({ scopes });
+    }
+    token = result.accessToken;
+    log('✅ Connecté : ' + (result.account.name || result.account.username), 'ok');
+
+    // ── 3. Obtenir l'ID du site ───────────────────────────────────
+    log('🌐 Récupération de l\'ID du site SharePoint…');
+    const siteResp = await gFetch(`/sites/${SP_CONFIG.tenantDomain}:${SP_CONFIG.siteRelativeUrl}`);
+    const siteId = siteResp.id;
+    log('✅ Site : ' + siteResp.displayName, 'ok');
+
+    // ── 4. Vérifier si la colonne existe déjà ────────────────────
+    log('🔍 Vérification de la liste Axes_Strategiques…');
+    const listName = SP_CONFIG.lists.axes;
+    const colsResp = await gFetch(`/sites/${siteId}/lists/${listName}/columns`);
+    const existing = colsResp.value.map(c => c.name);
+
+    if (existing.includes('Description_Axe')) {
+      log('⚠️ La colonne <strong>Description_Axe</strong> existe déjà — rien à faire.', 'warn');
+      log('✅ Terminé !', 'ok');
+      document.getElementById('btn-run').disabled = false;
+      return;
+    }
+
+    // ── 5. Créer la colonne ───────────────────────────────────────
+    log('➕ Création de la colonne Description_Axe…');
+    await gFetch(`/sites/${siteId}/lists/${listName}/columns`, 'POST', {
+      name:         'Description_Axe',
+      displayName:  'Description de l\'axe',
+      description:  'Description ou orientation stratégique de l\'axe',
+      text: {
+        allowMultipleLines: true,
+        linesForEditing:    4,
+        textType:           'plain'
+      }
+    });
+    log('✅ Colonne <strong>Description_Axe</strong> créée avec succès !', 'ok');
+    log('');
+    log('🎉 <strong>Terminé !</strong> Retournez dans le tableau de bord et éditez vos axes pour y ajouter une description.', 'ok');
+
+  } catch (err) {
+    log('❌ Erreur : ' + err.message, 'err');
+    console.error(err);
+  }
+
+  document.getElementById('btn-run').disabled = false;
+}
+
+async function gFetch(path, method = 'GET', body = null) {
+  const url = path.startsWith('https://') ? path : `https://graph.microsoft.com/v1.0${path}`;
+  const opts = {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body && method !== 'GET') opts.body = JSON.stringify(body);
+  const resp = await fetch(url, opts);
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`Graph ${resp.status}: ${txt}`);
+  }
+  return method === 'DELETE' ? {} : resp.json();
+}
+</script>
+</body>
+</html>
