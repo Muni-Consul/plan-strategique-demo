@@ -120,7 +120,7 @@ function exportAxePDF(axeId) {
   const ML = 48, MR = 48, MT = 48;
   const CW = W - ML - MR;
 
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: [W, H] });
+  const doc = new jsPDF({ unit: 'pt', format: [W, H] });
   doc.setProperties({ title: `${axe.nom} — Rapport stratégique — Muni-Consul` });
 
   let y = MT;
