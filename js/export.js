@@ -366,14 +366,14 @@ function exportDashboardPDF() {
   const global  = APP.axes.length ? Math.round(APP.axes.reduce((s,a) => s + a.pct, 0) / APP.axes.length) : 0;
 
   const kpis = [
-    { label:'Avancement global',  val:`${global}%`,  color: PURPLE },
-    { label:'Objectifs totaux',   val:total,          color:[26,25,23] },
-    { label:'Terminés',           val:done,           color:[99,153,34] },
-    { label:'En cours',           val:inprog,         color:[55,138,221] },
-    { label:'En attente',         val:waiting,        color:[239,159,39] },
-    { label:'En retard',          val:late,           color:[226,75,74] },
+    { label:'Avancement global', val:`${global}%`, color: PURPLE },
+    { label:'Objectifs totaux',  val:total,         color:[26,25,23] },
+    { label:'Terminés',          val:done,          color:[99,153,34] },
+    { label:'En retard',         val:late,          color:[226,75,74] },
+    { label:'En cours',          val:inprog,        color:[55,138,221] },
+    { label:'En attente',        val:waiting,       color:[239,159,39] },
   ];
-  const kW = (CW - 5 * 8) / 6;
+  const kW = (CW - (kpis.length - 1) * 8) / kpis.length;
   const kH = 52;
   kpis.forEach((k, i) => {
     const kx = ML + i * (kW + 8);
