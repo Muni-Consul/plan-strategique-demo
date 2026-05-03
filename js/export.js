@@ -320,12 +320,12 @@ function exportDashboardPDF() {
   const { jsPDF } = window.jspdf;
 
   // ── Dimensions : légal paysage 14×8.5 po ─────────────────
-  const W  = 14 * 72;   // 1008 pt
-  const H  = 8.5 * 72;  //  612 pt
+  // 'legal' = 8.5×14 po, orientation 'landscape' → 14×8.5 po
+  const doc = new jsPDF({ unit: 'pt', format: 'legal', orientation: 'landscape' });
+  const W  = doc.internal.pageSize.getWidth();   // ~1008 pt
+  const H  = doc.internal.pageSize.getHeight();  //  ~612 pt
   const ML = 40, MR = 40, MT = 36;
   const CW = W - ML - MR;
-
-  const doc = new jsPDF({ unit: 'pt', format: [W, H] });
   doc.setProperties({ title: 'Tableau de bord stratégique — Séance du conseil' });
 
   function hr(hex) {
