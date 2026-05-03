@@ -448,16 +448,22 @@ function exportDashboardPDF() {
       doc.roundedRect(colLeft + 14, barY, barW * (axe.pct / 100), 5, 2, 2, 'F');
     }
 
-    // Sous-stats
+    // Sous-stats (partie grise puis partie rouge séparées)
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(160, 160, 160);
     let statStr = `${nbObj} objectif${nbObj > 1 ? 's' : ''}`;
     if (nbDone > 0) statStr += `  ·  ${nbDone} terminé${nbDone > 1 ? 's' : ''}`;
-    if (nbLate > 0) { doc.setTextColor(226, 75, 74); }
-    if (nbLate > 0) statStr += `  ·  ${nbLate} en retard`;
     doc.text(statStr, colLeft + 14, barY + 14);
-    doc.setTextColor(160, 160, 160);
+    if (nbLate > 0) {
+      const greyW = doc.getTextWidth(statStr);
+      const lateStr = `  ·  ${nbLate} en retard`;
+      doc.setTextColor(226, 75, 74);
+      doc.setFont('helvetica', 'bold');
+      doc.text(lateStr, colLeft + 14 + greyW, barY + 14);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(160, 160, 160);
+    }
 
     yAxe += 42;
   });
