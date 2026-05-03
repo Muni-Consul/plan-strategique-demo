@@ -312,6 +312,232 @@ function exportAxePDF(axeId) {
 }
 
 /* ================================================================
+   TABLEAU DE BORD IMPRIMABLE — Séance du conseil
+   Format : lettre paysage 11×8.5 po — une page épurée
+   ================================================================ */
+function exportDashboardPDF() {
+  if (!window.jspdf) { alert('La librairie jsPDF n\'est pas chargée.'); return; }
+  const { jsPDF } = window.jspdf;
+
+  // ── Dimensions : lettre paysage 11×8.5 po ────────────────
+  const W  = 11 * 72;  // 792 pt
+  const H  = 8.5 * 72; // 612 pt
+  const ML = 40, MR = 40, MT = 36;
+  const CW = W - ML - MR;
+
+  const doc = new jsPDF({ unit: 'pt', format: [W, H] });
+  doc.setProperties({ title: 'Tableau de bord stratégique — Séance du conseil' });
+
+  function hr(hex) {
+    const c = (hex||'#888888').replace('#','');
+    return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)];
+  }
+
+  const PURPLE = [83, 74, 183];
+  const now    = new Date();
+  const dateStr = now.toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  let y = 0;
+
+  // ── Bandeau supérieur ─────────────────────────────────────
+  doc.setFillColor(...PURPLE);
+  doc.rect(0, 0, W, 38, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(255, 255, 255);
+  doc.text('Tableau de bord stratégique', ML, 24);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(200, 197, 240);
+  doc.text(`Séance du conseil  ·  ${dateStr}`, ML, 34);
+
+  // Données live ou démo
+  const mode = window.isLiveData ? 'Données en direct' : 'Mode démonstration';
+  doc.text(mode, W - MR, 24, { align: 'right' });
+
+  y = 52;
+
+  // ── KPIs ──────────────────────────────────────────────────
+  const total   = APP.actions.length;
+  const done    = APP.actions.filter(a => a.statut === 'terminée').length;
+  const late    = APP.actions.filter(a => a.statut === 'en retard').length;
+  const inprog  = APP.actions.filter(a => a.statut === 'en cours').length;
+  const waiting = APP.actions.filter(a => a.statut === 'en attente').length;
+  const global  = APP.axes.length ? Math.round(APP.axes.reduce((s,a) => s + a.pct, 0) / APP.axes.length) : 0;
+
+  const kpis = [
+    { label:'Avancement global',  val:`${global}%`,  color: PURPLE },
+    { label:'Objectifs totaux',   val:total,          color:[26,25,23] },
+    { label:'Terminés',           val:done,           color:[99,153,34] },
+    { label:'En cours',           val:inprog,         color:[55,138,221] },
+    { label:'En attente',         val:waiting,        color:[239,159,39] },
+    { label:'En retard',          val:late,           color:[226,75,74] },
+  ];
+  const kW = (CW - 5 * 8) / 6;
+  const kH = 52;
+  kpis.forEach((k, i) => {
+    const kx = ML + i * (kW + 8);
+    doc.setFillColor(247, 246, 243);
+    doc.roundedRect(kx, y, kW, kH, 4, 4, 'F');
+    // Barre couleur en haut de la carte KPI
+    doc.setFillColor(...k.color);
+    doc.roundedRect(kx, y, kW, 4, 2, 2, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140, 140, 140);
+    doc.text(k.label, kx + kW / 2, y + 16, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(i === 0 ? 20 : 18);
+    doc.setTextColor(...k.color);
+    doc.text(String(k.val), kx + kW / 2, y + 38, { align: 'center' });
+  });
+
+  y += kH + 14;
+
+  // ── Séparateur + titre sections ───────────────────────────
+  doc.setDrawColor(220, 218, 214);
+  doc.setLineWidth(0.4);
+  doc.line(ML, y, W - MR, y);
+  y += 10;
+
+  // ── Deux colonnes : axes (gauche) | jalons (droite) ───────
+  const colLeft  = ML;
+  const colRight = ML + Math.round(CW * 0.62) + 12;
+  const colLeftW = Math.round(CW * 0.62);
+  const colRightW = CW - colLeftW - 12;
+
+  // Titre colonne gauche
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(140, 140, 140);
+  doc.text('AXES STRATÉGIQUES', colLeft, y);
+  doc.text('PROCHAINS JALONS', colRight, y);
+  y += 10;
+
+  // ── Axes (colonne gauche) ─────────────────────────────────
+  const axeMap = getAxeMap();
+  let yAxe = y;
+  APP.axes.forEach(axe => {
+    const rgb    = hr(axe.color);
+    const nbObj  = APP.actions.filter(a => a.axe === axe.id).length;
+    const nbDone = APP.actions.filter(a => a.axe === axe.id && a.statut === 'terminée').length;
+    const nbLate = APP.actions.filter(a => a.axe === axe.id && a.statut === 'en retard').length;
+
+    // Point couleur + nom
+    doc.setFillColor(...rgb);
+    doc.circle(colLeft + 5, yAxe + 5, 4, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(26, 25, 23);
+    const nomTrunc = doc.splitTextToSize(axe.nom, colLeftW - 90)[0];
+    doc.text(nomTrunc, colLeft + 14, yAxe + 8);
+
+    // Pourcentage
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...rgb);
+    doc.text(`${axe.pct}%`, colLeft + colLeftW, yAxe + 8, { align: 'right' });
+
+    // Barre de progression
+    const barY = yAxe + 12;
+    const barW = colLeftW - 36;
+    doc.setFillColor(225, 224, 220);
+    doc.roundedRect(colLeft + 14, barY, barW, 5, 2, 2, 'F');
+    if (axe.pct > 0) {
+      doc.setFillColor(...rgb);
+      doc.roundedRect(colLeft + 14, barY, barW * (axe.pct / 100), 5, 2, 2, 'F');
+    }
+
+    // Sous-stats
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(160, 160, 160);
+    let statStr = `${nbObj} objectif${nbObj > 1 ? 's' : ''}`;
+    if (nbDone > 0) statStr += `  ·  ${nbDone} terminé${nbDone > 1 ? 's' : ''}`;
+    if (nbLate > 0) { doc.setTextColor(226, 75, 74); }
+    if (nbLate > 0) statStr += `  ·  ${nbLate} en retard`;
+    doc.text(statStr, colLeft + 14, barY + 14);
+    doc.setTextColor(160, 160, 160);
+
+    yAxe += 42;
+  });
+
+  // ── Jalons (colonne droite) ───────────────────────────────
+  const upcomingJalons = [...APP.jalons]
+    .filter(j => j.date && j.statut !== 'terminée')
+    .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+    .slice(0, 8);
+
+  const pastJalons = [...APP.jalons]
+    .filter(j => j.statut === 'terminée')
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .slice(0, 3);
+
+  const STATUT_RGB = {
+    'terminée':[99,153,34],'en cours':[55,138,221],'en retard':[226,75,74],
+    'en attente':[239,159,39],'à faire':[158,156,150]
+  };
+
+  let yJal = y;
+
+  const drawJalon = (j, isRecent) => {
+    const axe  = axeMap[j.axe];
+    const rgb  = axe ? hr(axe.color) : [150,150,150];
+    const sRgb = STATUT_RGB[j.statut] || [158,156,150];
+    const dStr = fmtDate(j.date) || '';
+
+    // Puce ronde
+    doc.setFillColor(...sRgb);
+    doc.circle(colRight + 5, yJal + 5, 3.5, 'F');
+
+    // Titre jalon
+    doc.setFont('helvetica', isRecent ? 'normal' : 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(isRecent ? 140 : 26, isRecent ? 140 : 25, isRecent ? 140 : 23);
+    const titTrunc = doc.splitTextToSize(j.titre, colRightW - 14)[0];
+    doc.text(titTrunc, colRight + 13, yJal + 7);
+
+    // Date + axe
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...rgb);
+    const sub = axe ? `${dStr}  ·  ${axe.nom.split(' ')[0]}` : dStr;
+    doc.text(sub, colRight + 13, yJal + 15);
+
+    yJal += 22;
+  };
+
+  upcomingJalons.forEach(j => drawJalon(j, false));
+
+  if (pastJalons.length > 0 && yJal + 30 < H - 30) {
+    doc.setDrawColor(220, 218, 214);
+    doc.setLineWidth(0.3);
+    doc.line(colRight, yJal + 2, colRight + colRightW, yJal + 2);
+    yJal += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(160, 160, 160);
+    doc.text('Récemment terminés', colRight, yJal);
+    yJal += 8;
+    pastJalons.forEach(j => drawJalon(j, true));
+  }
+
+  // ── Pied de page ──────────────────────────────────────────
+  doc.setDrawColor(220, 218, 214);
+  doc.setLineWidth(0.4);
+  doc.line(ML, H - 26, W - MR, H - 26);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(180, 180, 180);
+  doc.text(`© ${now.getFullYear()} Muni-Consul™ — Solutions municipales intelligentes — Document confidentiel`, ML, H - 16);
+  doc.text('1 / 1', W - MR, H - 16, { align: 'right' });
+  doc.setFillColor(...PURPLE);
+  doc.rect(0, H - 4, W, 4, 'F');
+
+  doc.save(`Tableau de bord — Conseil — ${now.toISOString().slice(0,10)}.pdf`);
+}
+
+/* ================================================================
    EXPORT CSV
    ================================================================ */
 function exportCSV() {
