@@ -183,6 +183,7 @@
         <button class="settings-tab" onclick="switchSettingsTab('statuts',this)">Statuts</button>
         <button class="settings-tab" onclick="switchSettingsTab('prios',this)">Priorités</button>
         <button class="settings-tab" onclick="switchSettingsTab('apparence',this)">Apparence</button>
+        <button class="settings-tab" onclick="switchSettingsTab('notifications',this);loadPaWebhookUrl()">📧 Notifications</button>
       </div>
       <div class="modal-body">
         <div class="settings-pane active" id="settings-pane-axes">
@@ -225,6 +226,52 @@
             <button onclick="setTheme('grey')" class="theme-btn" data-theme="grey">Gris foncé</button>
             <button onclick="setTheme('white')" class="theme-btn" data-theme="white">Blanc</button>
             <button onclick="setTheme('dark')" class="theme-btn" data-theme="dark">Sombre</button>
+          </div>
+        </div>
+
+        <div class="settings-pane" id="settings-pane-notifications">
+          <div class="pa-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <span style="font-size:22px;">⚡</span>
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--c-text);">Courriel hebdomadaire — Power Automate</div>
+                <div style="font-size:12px;color:var(--c-text-2);margin-top:2px;">Envoie automatiquement un rappel aux responsables dont des objectifs sont en retard.</div>
+              </div>
+            </div>
+            <div class="pa-label">URL du flux Power Automate (HTTP trigger)</div>
+            <input type="url" id="pa-webhook-url" class="pa-url-input"
+              placeholder="https://prod-xx.westus.logic.azure.com/workflows/…" />
+            <div class="pa-btn-row">
+              <button class="btn btn-add" onclick="savePaWebhook()" style="font-size:12px;padding:6px 14px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Sauvegarder l'URL
+              </button>
+              <button class="btn" onclick="triggerPaWebhook()" style="font-size:12px;padding:6px 14px;background:none;border:1px solid var(--c-border-med);color:var(--c-text);">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Tester maintenant
+              </button>
+            </div>
+            <div class="pa-result" id="pa-result"></div>
+          </div>
+
+          <div class="pa-setup">
+            <details>
+              <summary>Comment configurer le flux Power Automate ?</summary>
+              <ol>
+                <li>Dans Power Automate, créer un nouveau flux <strong>planifié</strong> (ex&nbsp;: chaque lundi à 8&nbsp;h)</li>
+                <li>Ajouter un déclencheur <strong>«&nbsp;Lors de la réception d'une demande HTTP&nbsp;»</strong></li>
+                <li>Copier l'URL HTTP générée et la coller dans le champ ci-dessus</li>
+                <li>Ajouter une action <strong>«&nbsp;Analyser le JSON&nbsp;»</strong> pour lire le payload reçu</li>
+                <li>Ajouter une boucle <strong>«&nbsp;Apply to each responsable&nbsp;»</strong></li>
+                <li>Envoyer un courriel personnalisé à <code>courriel</code> avec la liste <code>objectifs</code></li>
+              </ol>
+              <div style="margin-top:10px;padding:10px 12px;background:var(--c-surface-2);border-radius:var(--radius-sm);font-size:11px;font-family:var(--font-mono);color:var(--c-text-2);line-height:1.7;">
+                Payload envoyé&nbsp;:<br>
+                <code>{ dateEnvoi, totalRetards,<br>
+                &nbsp;&nbsp;responsables: [{ nom, courriel, nbRetards,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;objectifs: [{ titre, axe, echeance, retardJours, avancement }] }] }</code>
+              </div>
+            </details>
           </div>
         </div>
       </div>
@@ -339,6 +386,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="js/export.js?v=4"></script>
   <script src="js/settings.js"></script>
+  <script src="js/notifications.js"></script>
   <script src="js/navigation.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

@@ -42,6 +42,34 @@ function fmtDate(d) {
 }
 
 /**
+ * Affiche une notification flottante en haut à droite.
+ * @param {string} msg   Texte à afficher
+ * @param {'success'|'error'|'info'} type  Couleur du toast (défaut: success)
+ * @param {number} duration  Durée en ms avant disparition (défaut: 3500)
+ */
+function showToast(msg, type = 'success', duration = 3500) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || '✓'}</span><span>${h(msg)}</span>`;
+  toast.addEventListener('click', () => dismiss(toast));
+  container.appendChild(toast);
+
+  function dismiss(t) {
+    if (t.classList.contains('leaving')) return;
+    t.classList.add('leaving');
+    setTimeout(() => t.remove(), 300);
+  }
+  setTimeout(() => dismiss(toast), duration);
+}
+
+/**
  * Calcule l'avancement attendu (cible) à la date d'aujourd'hui selon une
  * progression linéaire entre dateDebut et écheance, et l'écart avec le réel.
  * @param {object} action

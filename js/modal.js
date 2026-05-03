@@ -256,9 +256,22 @@ function showFormError(msg) {
 }
 
 function showFormSuccess(msg) {
-  const el = document.getElementById('form-success');
-  el.textContent = msg;
-  el.classList.add('show');
+  // Toast flottant
+  showToast(msg, 'success');
+
+  // Animer le bouton Enregistrer → ✓ Enregistré !
+  const btn = document.querySelector('.form-btn-save');
+  if (btn) {
+    const origHTML = btn.innerHTML;
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>&nbsp;Enregistré !`;
+    btn.classList.add('btn-saved');
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = origHTML;
+      btn.classList.remove('btn-saved');
+      btn.disabled = false;
+    }, 1400);
+  }
 }
 
 async function saveAction() {
