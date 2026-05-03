@@ -9,6 +9,7 @@ function openModal(id) {
   const sm  = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
 
   const _modalEmail = (() => { const r = (APP.responsables||[]).find(x=>x.nom===a.resp); const e = safeEmail(r && r.courriel); return e ? `<br><a href="mailto:${e}" style="font-size:12px;color:var(--c-blue);">${h(e)}</a>` : ''; })();
+  const _ci = a.statut !== 'terminée' ? calcCible(a) : null;
   document.getElementById('modal-box').innerHTML = `
     <div class="modal-head">
       <div id="modal-action-title" style="font-size:15px;font-weight:600;color:var(--c-text);line-height:1.4;">${h(a.titre)}</div>
@@ -18,8 +19,10 @@ function openModal(id) {
     <div class="field-row"><span class="field-label">Responsable</span><span class="field-value">${h(a.resp)}${_modalEmail}</span></div>
     <div class="field-row"><span class="field-label">Priorité</span><span class="field-value"><span class="prio-badge ${PRIO_MAP[a.prio]||'pr-m'}" style="display:inline-block;margin-right:5px;"></span>${h(a.prio)}</span></div>
     <div class="field-row"><span class="field-label">Échéance</span><span class="field-value">${fmtDate(a.echeance)}</span></div>
+    ${a.dateDebut ? `<div class="field-row"><span class="field-label">Date de début</span><span class="field-value">${fmtDate(a.dateDebut)}</span></div>` : ''}
     <div class="field-row"><span class="field-label">Statut</span><span class="field-value"><span class="pill ${sm.pill}">${h(a.statut)}</span></span></div>
-    <div class="field-row"><span class="field-label">Avancement</span><span class="field-value">${h(a.pct)}%</span></div>
+    <div class="field-row"><span class="field-label">Avancement réel</span><span class="field-value">${h(a.pct)}%</span></div>
+    ${_ci ? `<div class="field-row"><span class="field-label">Cible attendue</span><span class="field-value" style="display:flex;align-items:center;gap:8px;">${_ci.cible}%<span style="font-size:12px;font-weight:600;padding:1px 7px;border-radius:99px;background:${_ci.gap >= 0 ? '#DCFCE7' : '#FEE2E2'};color:${_ci.gap >= 0 ? '#166534' : '#991B1B'};">${_ci.gap > 0 ? '▲ +' : _ci.gap < 0 ? '▼ ' : ''}${_ci.gap} pt</span></span></div>` : ''}
     <div style="margin-bottom:12px;">
       <div class="progress-wrap" style="height:8px;">
         <div class="progress-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div>

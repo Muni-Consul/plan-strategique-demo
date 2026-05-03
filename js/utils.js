@@ -41,6 +41,24 @@ function fmtDate(d) {
   return dt.toLocaleDateString('fr-CA', { year:'numeric', month:'short', day:'numeric' });
 }
 
+/**
+ * Calcule l'avancement attendu (cible) à la date d'aujourd'hui selon une
+ * progression linéaire entre dateDebut et écheance, et l'écart avec le réel.
+ * @param {object} action
+ * @returns {{cible:number, gap:number}|null}  null si dates manquantes
+ */
+function calcCible(action) {
+  if (!action.dateDebut || !action.echeance) return null;
+  const debut = parseLocalDate(action.dateDebut);
+  const fin   = parseLocalDate(action.echeance);
+  if (!debut || !fin || fin <= debut) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const raw   = (today - debut) / (fin - debut) * 100;
+  const cible = Math.round(Math.min(100, Math.max(0, raw)));
+  const reel  = parseInt(action.pct) || 0;
+  return { cible, gap: reel - cible };
+}
+
 function exportCSV() {
   /** Échappe une valeur pour CSV : guillemets internes doublés, préfixe formule retiré */
   const csvCell = v => {

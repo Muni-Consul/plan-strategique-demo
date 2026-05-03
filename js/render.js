@@ -264,6 +264,7 @@ function renderActions(filter, page) {
   document.getElementById('actions-tbody').innerHTML = pageList.map(a => {
     const axe = axeMap[a.axe] || { color:'#888', light:'#eee', nom:a.axe };
     const sm  = STATUS_MAP[a.statut] || STATUS_MAP['à faire'];
+    const ci  = a.statut !== 'terminée' ? calcCible(a) : null;
     return `
       <tr>
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h(a.titre)}</td>
@@ -276,6 +277,10 @@ function renderActions(filter, page) {
             <div class="mini-bar"><div class="mini-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div></div>
             <span class="mini-pct">${h(a.pct)}%</span>
           </div>
+          ${ci ? `<div style="display:flex;align-items:center;gap:5px;margin-top:2px;font-size:9.5px;line-height:1;white-space:nowrap;">
+            <span style="color:var(--c-text-3);">Cible&nbsp;${ci.cible}%</span>
+            <span style="font-weight:600;color:${ci.gap >= 0 ? '#166534' : '#991B1B'};" title="${ci.gap >= 0 ? 'En avance' : 'En retard'} de ${Math.abs(ci.gap)} point${Math.abs(ci.gap) > 1 ? 's' : ''}">${ci.gap > 0 ? '▲&nbsp;+' : ci.gap < 0 ? '▼&nbsp;' : ''}${ci.gap}&nbsp;pt</span>
+          </div>` : ''}
         </td>
         <td><span class="pill ${sm.pill}">${h(a.statut)}</span></td>
         <td style="white-space:nowrap;">
