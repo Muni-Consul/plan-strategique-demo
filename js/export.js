@@ -319,9 +319,9 @@ function exportDashboardPDF() {
   if (!window.jspdf) { alert('La librairie jsPDF n\'est pas chargée.'); return; }
   const { jsPDF } = window.jspdf;
 
-  // ── Dimensions : lettre paysage 11×8.5 po ────────────────
-  const W  = 11 * 72;  // 792 pt
-  const H  = 8.5 * 72; // 612 pt
+  // ── Dimensions : légal paysage 14×8.5 po ─────────────────
+  const W  = 14 * 72;   // 1008 pt
+  const H  = 8.5 * 72;  //  612 pt
   const ML = 40, MR = 40, MT = 36;
   const CW = W - ML - MR;
 
