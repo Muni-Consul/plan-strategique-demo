@@ -22,7 +22,7 @@ function openModal(id) {
     ${a.dateDebut ? `<div class="field-row"><span class="field-label">Date de début</span><span class="field-value">${fmtDate(a.dateDebut)}</span></div>` : ''}
     <div class="field-row"><span class="field-label">Statut</span><span class="field-value"><span class="pill ${sm.pill}">${h(a.statut)}</span></span></div>
     <div class="field-row"><span class="field-label">Avancement réel</span><span class="field-value">${h(a.pct)}%</span></div>
-    ${_ci ? `<div class="field-row"><span class="field-label">Cible attendue</span><span class="field-value" style="display:flex;align-items:center;gap:8px;">${_ci.cible}%<span style="font-size:12px;font-weight:600;padding:1px 7px;border-radius:99px;background:${_ci.gap >= 0 ? '#DCFCE7' : '#FEE2E2'};color:${_ci.gap >= 0 ? '#166534' : '#991B1B'};">${_ci.gap > 0 ? '▲ +' : _ci.gap < 0 ? '▼ ' : ''}${_ci.gap} pt</span></span></div>` : ''}
+    ${_ci ? `<div class="field-row"><span class="field-label">Cible attendue</span><span class="field-value" style="display:flex;align-items:center;gap:8px;">${_ci.cible}%<span style="font-size:12px;font-weight:600;padding:1px 7px;border-radius:99px;background:${_ci.gap >= 0 ? '#DCFCE7' : '#FEE2E2'};color:${_ci.gap >= 0 ? '#166534' : '#991B1B'};">${_ci.gap > 0 ? '▲ +' : _ci.gap < 0 ? '▼ ' : ''}${_ci.gap}%</span></span></div>` : ''}
     <div style="margin-bottom:12px;">
       <div class="progress-wrap" style="height:8px;">
         <div class="progress-fill" style="width:${h(a.pct)}%;background:${h(sm.dot)}"></div>

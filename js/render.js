@@ -279,7 +279,7 @@ function renderActions(filter, page) {
           </div>
           ${ci ? `<div style="display:flex;align-items:center;gap:5px;margin-top:2px;font-size:9.5px;line-height:1;white-space:nowrap;">
             <span style="color:var(--c-text-3);">Cible&nbsp;${ci.cible}%</span>
-            <span style="font-weight:600;color:${ci.gap >= 0 ? '#166534' : '#991B1B'};" title="${ci.gap >= 0 ? 'En avance' : 'En retard'} de ${Math.abs(ci.gap)} point${Math.abs(ci.gap) > 1 ? 's' : ''}">${ci.gap > 0 ? '▲&nbsp;+' : ci.gap < 0 ? '▼&nbsp;' : ''}${ci.gap}&nbsp;pt</span>
+            <span style="font-weight:600;color:${ci.gap >= 0 ? '#166534' : '#991B1B'};" title="${ci.gap >= 0 ? 'En avance' : 'En retard'} de ${Math.abs(ci.gap)} point${Math.abs(ci.gap) > 1 ? 's' : ''}">${ci.gap > 0 ? '▲&nbsp;+' : ci.gap < 0 ? '▼&nbsp;' : ''}${ci.gap}%</span>
           </div>` : ''}
         </td>
         <td><span class="pill ${sm.pill}">${h(a.statut)}</span></td>
