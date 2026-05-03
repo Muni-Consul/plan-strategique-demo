@@ -448,18 +448,24 @@ function exportDashboardPDF() {
       doc.roundedRect(colLeft + 14, barY, barW * (axe.pct / 100), 5, 2, 2, 'F');
     }
 
-    // Sous-stats : gris à gauche, retards en rouge à droite
+    // Sous-stats : tout sur une ligne — gris puis rouge pour les retards
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
+    const statX = colLeft + 14;
+    const statY = barY + 14;
+
+    // Partie grise
+    const greyPart = `${nbObj} objectif${nbObj > 1 ? 's' : ''}` +
+                     (nbDone > 0 ? `  ·  ${nbDone} terminé${nbDone > 1 ? 's' : ''}` : '');
     doc.setTextColor(160, 160, 160);
-    let statStr = `${nbObj} objectif${nbObj > 1 ? 's' : ''}`;
-    if (nbDone > 0) statStr += `  ·  ${nbDone} terminé${nbDone > 1 ? 's' : ''}`;
-    doc.text(statStr, colLeft + 14, barY + 14);
+    doc.text(greyPart, statX, statY);
+
+    // Partie rouge (en retard) — décalée de la largeur approx. du texte gris
     if (nbLate > 0) {
+      const approxGW = greyPart.length * 3.85; // ~3.85 pt par caractère à 7.5pt
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
       doc.setTextColor(226, 75, 74);
-      doc.text(`⚠ ${nbLate} en retard`, colLeft + colLeftW, barY + 14, { align: 'right' });
+      doc.text(`  ·  ${nbLate} en retard`, statX + approxGW, statY);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(160, 160, 160);
     }
