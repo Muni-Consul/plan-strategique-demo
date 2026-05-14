@@ -87,10 +87,24 @@ async function persistSpConfig() {
     }
 
     if (_spConfigItemId) {
-      await graphFetch(
-        `/sites/${spSiteId}/lists/${SP_CONFIG.lists.config}/items/${_spConfigItemId}/fields`,
-        'PATCH', { Valeur: valeur }
-      );
+      try {
+        await graphFetch(
+          `/sites/${spSiteId}/lists/${SP_CONFIG.lists.config}/items/${_spConfigItemId}/fields`,
+          'PATCH', { Valeur: valeur }
+        );
+      } catch(e404) {
+        // L'item a été supprimé/recréé — réinitialiser l'ID et créer un nouvel item
+        if (e404.message && e404.message.includes('404')) {
+          _spConfigItemId = null;
+          const res = await graphFetch(
+            `/sites/${spSiteId}/lists/${SP_CONFIG.lists.config}/items`,
+            'POST', { fields: { Title: 'dashboard_config', Valeur: valeur } }
+          );
+          _spConfigItemId = res.id;
+        } else {
+          throw e404;
+        }
+      }
     } else {
       const res = await graphFetch(
         `/sites/${spSiteId}/lists/${SP_CONFIG.lists.config}/items`,
