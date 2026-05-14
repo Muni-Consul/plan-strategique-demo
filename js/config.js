@@ -1,0 +1,18 @@
+/* ================================================================
+   CONFIGURATION SHAREPOINT — DÉMO MUNI-CONSUL
+   Site : municonsul485.sharepoint.com/sites/Planstrategique-Demo
+   ================================================================ */
+const SP_CONFIG = {
+  tenantDomain:    "municonsul485.sharepoint.com",
+  siteRelativeUrl: "/sites/Planstrategique-Demo",
+  lists: {
+    axes:       "Axes_Strategiques",
+    actions:    "Actions_Plan",
+    jalons:     "Jalons",
+    historique: "Historique_Actions",
+    config:     "Configuration"
+  },
+  msalClientId:  "d77e2842-aa80-489c-a13c-120357e6fb07",
+  msalAuthority: "https://login.microsoftonline.com/municonsul485.onmicrosoft.com",
+  redirectUri:   "https://muni-consul.github.io/plan-strategique-demo/"
+};
