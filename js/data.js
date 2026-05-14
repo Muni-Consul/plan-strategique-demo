@@ -202,19 +202,18 @@ async function loadSharePointData() {
     setLoadingStep("Chargement des jalons…");
     const rawJalons  = await getListItems(SP_CONFIG.lists.jalons);
     setLoadingStep("Chargement de la configuration…");
-    await loadSpConfig();
 
-    // Charger les axes SharePoint
+    // SharePoint est la source de vérité
     const spAxes = rawAxes.map(mapAxe);
 
-    // Charger les paramètres sauvegardés (axes perso, responsables, etc.)
+    // loadSettings peut restaurer les axes depuis localStorage — on le laisse faire
+    // pour les responsables/statuts/priorités, puis on réimpose les axes SP
     loadSettings();
-    
-    // Fusionner : garder les axes du localStorage, compléter avec ceux de SharePoint
-    const savedAxeIds = (APP.axes || []).map(a => a.id);
-    const newSpAxes = spAxes.filter(a => !savedAxeIds.includes(a.id));
-    APP.axes = [...(APP.axes || []), ...newSpAxes];
+    APP.axes = spAxes;
+    invalidateAxeMap();
 
+    // Appliquer couleurs et config depuis la liste Configuration SP
+    await loadSpConfig();
     invalidateAxeMap();
 
     APP.actions = rawActions.map(mapAction);
