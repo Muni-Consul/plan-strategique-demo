@@ -109,7 +109,16 @@ async function initMSAL() {
       showLoadingScreen();
       await loadSharePointData();
     } else {
-      showAuthScreen();
+      // Accès public : afficher directement la démo (données fictives), sans
+      // connexion Microsoft. Pour voir les vraies données SharePoint, ouvrir
+      // l'application avec « ?login=1 » dans l'URL (ou être déjà connecté).
+      const params = new URLSearchParams(window.location.search);
+      const wantLogin = params.get('login') === '1' || /login/.test(window.location.hash);
+      if (wantLogin) {
+        showAuthScreen();
+      } else {
+        loadDemoData();
+      }
     }
   } catch (err) {
     console.warn("MSAL init error, falling back to demo mode:", err);

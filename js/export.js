@@ -363,7 +363,7 @@ function exportDashboardPDF() {
   const inprog  = APP.actions.filter(a => a.statut === 'en cours').length;
   const waiting = APP.actions.filter(a => a.statut === 'en attente').length;
   const global  = APP.axes.length ? Math.round(APP.axes.reduce((s,a) => s + a.pct, 0) / APP.axes.length) : 0;
-  const totalBudget = APP.actions.reduce((s, a) => s + (parseFloat(a.budget) || 0), 0);
+  const totalBudget = APP.actions.reduce((s, a) => s + (budgetNum(a.budget) || 0), 0);
   const budgetStr = totalBudget > 0
     ? totalBudget.toLocaleString('fr-CA', { minimumFractionDigits:0, maximumFractionDigits:0 }) + ' $'
     : '—';
@@ -427,7 +427,7 @@ function exportDashboardPDF() {
     const nbObj    = actsAxe.length;
     const nbDone   = actsAxe.filter(a => a.statut === 'terminée').length;
     const nbLate   = actsAxe.filter(a => a.statut === 'en retard').length;
-    const axeBudget = actsAxe.reduce((s, a) => s + (parseFloat(a.budget) || 0), 0);
+    const axeBudget = actsAxe.reduce((s, a) => s + (budgetNum(a.budget) || 0), 0);
     const axeBudgetStr = axeBudget > 0
       ? axeBudget.toLocaleString('fr-CA', { minimumFractionDigits:0, maximumFractionDigits:0 }) + ' $'
       : '';
