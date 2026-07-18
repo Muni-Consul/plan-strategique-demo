@@ -9,6 +9,14 @@ function formatBudget(n) {
   return num.toLocaleString('fr-CA', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' $';
 }
 
+/** Convertir un montant texte (« 8 000 $ », « 480 000 $ ») en nombre : 8000, 480000.
+    Corrige le parsing qui cassait sur l'espace des milliers. */
+function budgetNum(v) {
+  if (v == null) return 0;
+  const digits = String(v).replace(/[^0-9]/g, '');
+  return digits ? parseInt(digits, 10) : 0;
+}
+
 function calcAvancementAxes() {
   if (!APP.autoCalcAxes) return; // Calcul auto désactivé
   // Calculer automatiquement l'avancement de chaque axe
@@ -46,9 +54,9 @@ function renderApercu() {
   ) : 0;
 
   // Calcul du budget total
-  const totalBudget = APP.actions.reduce((s, a) => s + (parseFloat(a.budget) || 0), 0);
+  const totalBudget = APP.actions.reduce((s, a) => s + (budgetNum(a.budget) || 0), 0);
   const budgetFmt = formatBudget(totalBudget) || '—';
-  const nbAvecBudget = APP.actions.filter(a => parseFloat(a.budget) > 0).length;
+  const nbAvecBudget = APP.actions.filter(a => budgetNum(a.budget) > 0).length;
 
   document.getElementById('kpi-grid').innerHTML = [
     { label:'Avancement global', value:`${global}<sup>%</sup>`, delta:`${done} objectif${done!==1?'s':''} terminé${done!==1?'s':''}`, cls: global > 0 ? 'kpi-up' : 'kpi-neutral' },
@@ -70,8 +78,8 @@ function renderApercu() {
   if (budgetSection) {
     const axesBudget = APP.axes.map(axe => {
       const acts = APP.actions.filter(a => a.axe === axe.id);
-      const total = acts.reduce((s, a) => s + (parseFloat(a.budget) || 0), 0);
-      const nb = acts.filter(a => parseFloat(a.budget) > 0).length;
+      const total = acts.reduce((s, a) => s + (budgetNum(a.budget) || 0), 0);
+      const nb = acts.filter(a => budgetNum(a.budget) > 0).length;
       return { axe, total, nb };
     }).filter(ab => ab.total > 0);
 

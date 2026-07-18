@@ -114,8 +114,8 @@ function showApp() {
     const uiEl = document.getElementById('user-initials'); if (uiEl) uiEl.textContent = initials;
     const unEl = document.getElementById('user-name'); if (unEl) unEl.textContent = name.split(' ')[0];
   } else {
-    const diEl = document.getElementById('user-initials'); if (diEl) diEl.textContent = 'SS';
-    const dnEl = document.getElementById('user-name'); if (dnEl) dnEl.textContent = 'Stukely-Sud';
+    const diEl = document.getElementById('user-initials'); if (diEl) diEl.textContent = 'DÉ';
+    const dnEl = document.getElementById('user-name'); if (dnEl) dnEl.textContent = 'Démonstration';
   }
 
   // Indicateur live / démo
