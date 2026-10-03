@@ -78,7 +78,30 @@ function switchPane(id, btn) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('pane-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
+  const titleEl = document.getElementById('topbar-title');
+  if (titleEl) titleEl.textContent = PANE_TITLES[id] || 'Aperçu';
 }
+
+const PANE_TITLES = {
+  apercu: 'Aperçu', actions: 'Objectifs', axes: 'Axes stratégiques',
+  timeline: 'Jalons', mavue: 'Ma vue', gantt: 'Gantt'
+};
+
+/* Menus déroulants de la barre du haut (Exporter, Données) */
+function closeMenus() {
+  document.querySelectorAll('.menu.open').forEach(m => {
+    m.classList.remove('open');
+    m.previousElementSibling.setAttribute('aria-expanded', 'false');
+  });
+}
+function toggleMenu(btn) {
+  const menu = btn.nextElementSibling;
+  const wasOpen = menu.classList.contains('open');
+  closeMenus();
+  if (!wasOpen) { menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+}
+document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) closeMenus(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenus(); });
 
 
 /* ================================================================

@@ -191,6 +191,21 @@
     .btn-primary { background: var(--c-purple); color: #fff; border-color: var(--c-purple); }
     .btn-primary:hover { background: #4540A0; }
     .btn svg { width: 13px; height: 13px; }
+    .btn-icon { padding: 6px 9px; }
+    .topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+    .menu-wrap { position: relative; }
+    .menu {
+      display: none; position: absolute; right: 0; top: calc(100% + 4px); min-width: 190px;
+      background: var(--c-surface); border: 1px solid var(--c-border-med);
+      border-radius: var(--radius-sm); box-shadow: 0 6px 20px rgba(0,0,0,.12);
+      padding: 4px; z-index: 60;
+    }
+    .menu.open { display: block; }
+    .menu button {
+      display: block; width: 100%; text-align: left; padding: 8px 10px; border: none; background: none;
+      font-family: var(--font); font-size: 13px; color: var(--c-text); cursor: pointer; border-radius: 4px;
+    }
+    .menu button:hover { background: var(--c-surface-2); }
 
     .content { padding: 2rem; max-width: 1400px; }
 
@@ -402,7 +417,7 @@
       .charts-row { flex-direction: column; }
       .topbar { padding: 0 .75rem; gap: .5rem; }
       .topbar-actions { gap: .25rem; }
-      .topbar-actions button { font-size: .75rem; padding: .4rem .6rem; }
+      .topbar-actions .btn { font-size: .75rem; padding: .4rem .6rem; }
       .section-title { font-size: 14px; }
       table { font-size: 11px; }
       table td, table th { padding: 6px 6px; }
@@ -608,7 +623,7 @@
 
 
     .presentation-mode .sidebar { display:none !important; }
-    .presentation-mode .topbar-actions .btn:not(#btn-presentation) { display:none; }
+    .presentation-mode .topbar-actions > *:not(#btn-presentation) { display:none; }
     .presentation-mode .kpi-value { font-size:42px !important; }
     .presentation-mode .kpi-card { padding:1.5rem !important; }
     .presentation-mode .content { padding:1.5rem !important; }

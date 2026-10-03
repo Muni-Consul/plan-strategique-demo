@@ -31,6 +31,14 @@ const SCOPES = ["Sites.ReadWrite.All", "User.Read"];
 const IS_ELECTRON = window.__isElectronApp === true;
 const IS_LOCALHOST = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
 
+// URI de redirection : localhost = origine courante ; hôte déclaré dans
+// SP_CONFIG.redirectUrisParHote = son URI ; sinon GitHub Pages par défaut.
+function getRedirectUri() {
+  if (IS_LOCALHOST) return window.location.origin + '/';
+  const parHote = SP_CONFIG.redirectUrisParHote || {};
+  return parHote[window.location.hostname] || SP_CONFIG.redirectUri;
+}
+
 async function doMsalSignIn() {
   try {
     const btnLogin = document.getElementById('btn-login');
@@ -45,7 +53,7 @@ async function doMsalSignIn() {
     } else {
       await msalInstance.loginRedirect({
         scopes: SCOPES,
-        redirectUri: window.location.href.split('?')[0].split('#')[0]
+        redirectUri: getRedirectUri()
       });
     }
   } catch (err) {
@@ -57,9 +65,7 @@ async function doMsalSignIn() {
 async function initMSAL() {
   try {
     // Utiliser l'origine courante comme redirectUri (localhost ou GitHub Pages)
-    const redirectUri = IS_LOCALHOST
-      ? (window.location.origin + '/')
-      : SP_CONFIG.redirectUri;
+    const redirectUri = getRedirectUri();
 
     msalInstance = new msal.PublicClientApplication({
       auth: {
@@ -157,7 +163,7 @@ async function acquireToken() {
       await msalInstance.acquireTokenRedirect({
         scopes: SCOPES,
         account: currentAccount,
-        redirectUri: window.location.href.split('?')[0].split('#')[0]
+        redirectUri: getRedirectUri()
       });
     }
   }
