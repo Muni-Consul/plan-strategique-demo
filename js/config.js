@@ -14,5 +14,9 @@ const SP_CONFIG = {
   },
   msalClientId:  "d77e2842-aa80-489c-a13c-120357e6fb07",
   msalAuthority: "https://login.microsoftonline.com/municonsul485.onmicrosoft.com",
-  redirectUri:   "https://muni-consul.github.io/plan-strategique-demo/"
+  redirectUri:   "https://muni-consul.github.io/plan-strategique-demo/",
+  // Autres hôtes autorisés (l'URI doit aussi être enregistrée dans l'inscription Azure)
+  redirectUrisParHote: {
+    "192.168.0.23": "https://192.168.0.23/"
+  }
 };
