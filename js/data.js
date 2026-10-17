@@ -29,7 +29,7 @@ async function loadSpConfig() {
           if (cfgSp.statuts?.length)      APP.statuts      = cfgSp.statuts;
           if (cfgSp.priorites?.length)    APP.priorites    = cfgSp.priorites;
           if (cfgSp.autoCalcAxes !== undefined) APP.autoCalcAxes = cfgSp.autoCalcAxes;
-          if (cfgSp.theme)                APP.theme        = cfgSp.theme;
+          // Le thème reste une préférence LOCALE à chaque utilisateur — non synchronisé
 
           // Restaurer couleurs et descriptions des axes depuis SP
           const axesMeta = cfgSp.axesMeta || [];
@@ -47,8 +47,14 @@ async function loadSpConfig() {
             }
           });
 
-          // Mettre localStorage à jour (cache hors ligne)
-          localStorage.setItem('plan_strategique_config', JSON.stringify({ ...cfgSp, savedAt: new Date().toISOString() }));
+          // Mettre localStorage à jour (cache hors ligne) — conserver le thème local
+          const themeLocal = cfgLocal?.theme || APP.theme;
+          localStorage.setItem('plan_strategique_config', JSON.stringify({
+            ...cfgSp,
+            theme: themeLocal,
+            savedAt: new Date().toISOString()
+          }));
+          if (themeLocal) APP.theme = themeLocal;
         } catch(e) { console.warn('Config SP parse error', e); }
       }
     }
@@ -144,9 +150,9 @@ function mapAxe(fields) {
 }
 
 function mapAction(fields) {
-  // Extraire le code axe (ex: "A1 - Gouvernance" -> "A1")
+  // Extraire le code axe (ex: "A1 – Gouvernance" -> "A1", "4.1 – Titre" -> "4.1")
   const axeRaw = fields.Axe_Strategique || fields.Axe || fields.AxeId || "";
-  const axeCode = axeRaw.match(/^(A\d+)/)?.[1] || axeRaw;
+  const axeCode = axeRaw.match(/^([A-Za-z0-9]+(?:\.[0-9]+)*)\s*[–\-]/)?.[1] || axeRaw.split(/\s*[–\-]\s*/)[0].trim() || axeRaw;
 
   // Parser les dates correctement
   const parseDate = (d) => {
@@ -157,6 +163,7 @@ function mapAction(fields) {
 
   return {
     id:          fields._spId          || fields.ID || fields.id,
+    numero:      fields.Numero          || fields.numero || "",
     titre:       fields.Title           || fields.Titre || "",
     axe:         axeCode,
     resp:        fields.Responsable_Nom ||
@@ -183,12 +190,15 @@ function mapJalon(fields) {
   const _dateRaw = fields.Date_Jalon || fields.Date || fields.DateJalon || fields.Date_du_jalon || "";
   const date = _dateRaw ? (() => { try { return new Date(_dateRaw).toISOString().split('T')[0]; } catch { return _dateRaw; } })() : "";
   return {
-    id:       fields._spId           || fields.id || '',
-    date:     date,
-    titre:    fields.Title           || fields.Titre,
-    desc:     fields.Description     || fields.Description0 || "",
-    actionId: fields.ActionId        || "",
-    statut:   statut.toLowerCase(),
+    id:         fields._spId           || fields.id || '',
+    date:       date,
+    titre:      fields.Title           || fields.Titre,
+    desc:       fields.Description     || fields.Description0 || "",
+    actionId:   fields.ActionId        || "",
+    statut:     statut.toLowerCase(),
+    recurrence: fields.Recurrence      || "Aucune",
+    continu:    fields.En_Continu      === true || fields.En_Continu === 'true' || false,
+    actionsRealisees: fields.Actions_Realisees || "",
   };
 }
 
@@ -236,13 +246,15 @@ async function loadSharePointData() {
     });
     invalidateAxeMap();
 
+    // isLiveData doit être vrai AVANT loadSpConfig (elle en dépend)
+    isLiveData  = true;
+
     // Appliquer couleurs et config depuis la liste Configuration SP (priorité sur localStorage)
     await loadSpConfig();
     invalidateAxeMap();
 
     APP.actions = rawActions.map(mapAction);
     APP.jalons  = rawJalons.map(mapJalon);
-    isLiveData  = true;
 
     // Sauvegarder pour usage hors ligne
     persistData();

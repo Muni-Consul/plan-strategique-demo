@@ -206,6 +206,7 @@
       font-family: var(--font); font-size: 13px; color: var(--c-text); cursor: pointer; border-radius: 4px;
     }
     .menu button:hover { background: var(--c-surface-2); }
+    .menu-sep { height: 1px; background: var(--c-border); margin: 4px 2px; }
 
     .content { padding: 2rem; max-width: 1400px; }
 

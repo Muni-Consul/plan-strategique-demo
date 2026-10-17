@@ -214,6 +214,7 @@ function openFormModal(actionId) {
       if (addBtn) addBtn.onclick = () => { closeFormModal(); openJalonModal(null, String(actionId)); };
     }
 
+    document.getElementById('f-numero').value      = a.numero || '';
     document.getElementById('f-titre').value       = a.titre || '';
     document.getElementById('f-axe').value         = a.axe || '';
     document.getElementById('f-responsable').value = a.resp || '';
@@ -239,6 +240,7 @@ function openFormModal(actionId) {
     // Masquer l'onglet Jalons en mode création
     const tabJalonsNew = document.getElementById('tab-jalons-btn');
     if (tabJalonsNew) tabJalonsNew.style.display = 'none';
+    document.getElementById('f-numero').value      = '';
     document.getElementById('f-titre').value       = '';
     document.getElementById('f-axe').value         = '';
     document.getElementById('f-responsable').value = '';
@@ -259,7 +261,7 @@ function openFormModal(actionId) {
 
   _lastFocusedEl = document.activeElement;
   bg.classList.add('open');
-  requestAnimationFrame(() => document.getElementById('f-titre').focus());
+  requestAnimationFrame(() => document.getElementById('f-numero').focus());
 }
 
 
@@ -358,6 +360,7 @@ function showFormSuccess(msg) {
 
 async function saveAction(andNew = false) {
   // Validation
+  const numero    = document.getElementById('f-numero').value.trim();
   const titre     = document.getElementById('f-titre').value.trim();
   const axe       = document.getElementById('f-axe').value;
   const echeance  = document.getElementById('f-echeance').value;
@@ -401,6 +404,7 @@ async function saveAction(andNew = false) {
 
   const newAction = {
     id:          formEditId || ('local-' + Date.now()),
+    numero:      numero,
     titre:       titre,
     axe:         axe,
     resp:        resp,
@@ -424,6 +428,7 @@ async function saveAction(andNew = false) {
 
       const spFields = {
         Title:            titre,
+        Numero:           numero,
         Axe_Strategique:  axeLabel,
         Priorite:         cap(priorite),
         Date_Echeance:    echeance ? new Date(echeance).toISOString() : null,
@@ -790,7 +795,15 @@ function openJalonModal(id = null, preselectedActionId = null) {
     document.getElementById('jf-date').value      = j.date     || '';
     document.getElementById('jf-statut').value    = j.statut   || 'à faire';
     document.getElementById('jf-objectif').value  = j.actionId || '';
+    if (document.getElementById('jf-recurrence')) document.getElementById('jf-recurrence').value = j.recurrence || 'Aucune';
+    const continUEl = document.getElementById('jf-continu');
+    if (continUEl) {
+      continUEl.checked = j.continu || false;
+      const d = document.getElementById('jf-date');
+      if (d) { d.disabled = j.continu; d.style.opacity = j.continu ? '0.3' : '1'; }
+    }
     document.getElementById('jf-desc').value      = j.desc     || '';
+    if (document.getElementById('jf-actions')) document.getElementById('jf-actions').value = j.actionsRealisees || '';
   } else {
     // Mode création — pré-sélectionner l'objectif si passé en paramètre
     titleEl.textContent = 'Nouveau jalon';
@@ -799,7 +812,11 @@ function openJalonModal(id = null, preselectedActionId = null) {
     document.getElementById('jf-date').value      = '';
     document.getElementById('jf-statut').value    = 'à faire';
     document.getElementById('jf-objectif').value  = preselectedActionId ? String(preselectedActionId) : '';
+    if (document.getElementById('jf-recurrence')) document.getElementById('jf-recurrence').value = 'Aucune';
+    const continUElNew = document.getElementById('jf-continu');
+    if (continUElNew) { continUElNew.checked = false; const d = document.getElementById('jf-date'); if (d) { d.disabled = false; d.style.opacity = '1'; } }
     document.getElementById('jf-desc').value      = '';
+    if (document.getElementById('jf-actions')) document.getElementById('jf-actions').value = '';
   }
 
   modal.classList.add('open');
@@ -816,57 +833,46 @@ async function saveJalon(andNew = false) {
   const statut   = document.getElementById('jf-statut').value;
   const actionId = document.getElementById('jf-objectif').value;
   const desc     = document.getElementById('jf-desc').value.trim();
+  const actionsR = document.getElementById('jf-actions')?.value.trim() || '';
+  const continu  = document.getElementById('jf-continu')?.checked || false;
 
   const errEl = document.getElementById('jalon-form-error');
   errEl.classList.remove('show');
 
   if (!titre) { errEl.textContent = 'Le titre est obligatoire.'; errEl.classList.add('show'); return; }
-  if (!date)  { errEl.textContent = 'La date est obligatoire.';  errEl.classList.add('show'); return; }
+  if (!date && !continu)  { errEl.textContent = 'La date est obligatoire (ou cochez "En continu").'; errEl.classList.add('show'); return; }
 
   document.getElementById('jalon-form-saving').classList.add('show');
   document.querySelectorAll('#jalon-modal-bg .form-btn-save, #jalon-modal-bg .form-btn-cancel, #jalon-modal-bg .form-btn-delete').forEach(b => b.disabled = true);
 
   const newJalon = {
-    id:       jalonEditId || ('local-' + Date.now()),
-    titre:    titre,
-    date:     date,
-    statut:   statut,
-    actionId: actionId,
-    desc:     desc
+    id:         jalonEditId || ('local-' + Date.now()),
+    titre:      titre,
+    date:       continu ? '' : date,
+    statut:     statut,
+    actionId:   actionId,
+    desc:       desc,
+    actionsRealisees: actionsR,
+    recurrence: document.getElementById('jf-recurrence')?.value || 'Aucune',
+    continu:    continu
   };
 
   try {
     if (isLiveData && graphToken && spSiteId) {
-      // Découvrir les vrais noms de colonnes
-      const colMap  = await getJalonColMap();
-      const colDate  = jalonField(colMap, 'Date du jalon', 'Date', 'DateJalon', 'date');
-      const colStat  = jalonField(colMap, 'Statut', 'statut', 'Status');
-      const colActId = jalonField(colMap, 'ActionId', 'actionid');
-      const colDesc  = jalonField(colMap, 'Description', 'description');
-      const colAxe   = jalonField(colMap, 'Axe concerne', 'Axe_Concerne', 'Axe', 'axe');
-
-      // Champs à patcher (sans Title ni valeurs nulles)
       const patchFields = {};
-      if (date) {
-        patchFields[colDate] = date + 'T00:00:00Z';
-        // Écrire aussi dans l'autre colonne date si différente (doublon SP)
-        if (colDate !== 'Date')      patchFields['Date']      = date + 'T00:00:00Z';
-        if (colDate !== 'Date_Jalon') patchFields['Date_Jalon'] = date + 'T00:00:00Z';
-      }
-      if (statut)   patchFields[colStat]  = statut;
-      if (actionId) patchFields[colActId] = actionId;
-      if (desc)     patchFields[colDesc]  = desc;
-      // Remplir l'axe depuis l'objectif associé (colonne requise dans SP)
-      if (actionId && colAxe) {
-        const linkedAction = APP.actions.find(a => String(a.id) === String(actionId));
-        if (linkedAction && linkedAction.axe) patchFields[colAxe] = linkedAction.axe;
-      }
+      if (!continu && date) patchFields['Date_Jalon'] = date + 'T00:00:00Z';
+      if (statut)   patchFields['Statut_Jalon'] = statut;
+      if (actionId) patchFields['ActionId']     = actionId;
+      if (desc)     patchFields['Description']  = desc;
+      patchFields['Actions_Realisees'] = actionsR;
+      patchFields['Recurrence'] = document.getElementById('jf-recurrence')?.value || 'Aucune';
+      patchFields['En_Continu'] = continu;
 
       if (jalonEditId && !String(jalonEditId).startsWith('local-')) {
         // Édition : PATCH tous les champs dont Title
         await graphFetch(
           `/sites/${spSiteId}/lists/${SP_CONFIG.lists.jalons}/items/${jalonEditId}/fields`,
-          'PATCH', { Title: titre, ...patchFields }
+          'PATCH', { Title: titre.substring(0, 250), ...patchFields }
         );
         const idx = APP.jalons.findIndex(x => String(x.id) === String(jalonEditId));
         if (idx !== -1) APP.jalons[idx] = { ...APP.jalons[idx], ...newJalon };
@@ -874,7 +880,7 @@ async function saveJalon(andNew = false) {
         // Création : POST Title seulement, puis PATCH le reste
         const res = await graphFetch(
           `/sites/${spSiteId}/lists/${SP_CONFIG.lists.jalons}/items`,
-          'POST', { fields: { Title: titre } }
+          'POST', { fields: { Title: titre.substring(0, 250) } }
         );
         const newId = res.id;
         newJalon.id = newId;
@@ -930,11 +936,9 @@ async function toggleJalon(jalonId, checked) {
   // Sauvegarder dans SharePoint
   if (isLiveData && graphToken && spSiteId && !String(jalonId).startsWith('local-')) {
     try {
-      const colMap    = await getJalonColMap();
-      const colStatut = jalonField(colMap, 'Statut', 'statut', 'Status');
       await graphFetch(
         `/sites/${spSiteId}/lists/${SP_CONFIG.lists.jalons}/items/${jalonId}/fields`,
-        'PATCH', { [colStatut]: nouveauStatut }
+        'PATCH', { Statut_Jalon: nouveauStatut }
       );
     } catch(e) {
       console.error('❌ toggleJalon — erreur:', e.message);
@@ -948,7 +952,8 @@ async function toggleJalon(jalonId, checked) {
     const jp       = getJalonProgress(j.actionId);
     const aIdx     = APP.actions.findIndex(x => String(x.id) === String(j.actionId));
     if (jp !== null && aIdx !== -1) {
-      APP.actions[aIdx].pct = jp.pct;
+      APP.actions[aIdx].pct        = jp.pct;
+      APP.actions[aIdx]._pctJalons = jp.pct;
 
       // Auto-statut selon progression jalons
       const newStatut = jp.pct >= 100 ? 'terminée'
@@ -964,13 +969,16 @@ async function toggleJalon(jalonId, checked) {
         ).catch(e => console.warn('Sync avancement objectif:', e.message));
       }
 
-      // Recalculer le % de l'axe correspondant (indépendant de autoCalcAxes)
+      // Recalculer le % de l'axe correspondant (en utilisant _pctJalons)
       const axeId  = APP.actions[aIdx].axe;
       const axeObj = APP.axes.find(ax => ax.id === axeId);
       if (axeObj) {
         const axeActions = APP.actions.filter(a => a.axe === axeId);
         axeObj.pct = Math.round(
-          axeActions.reduce((s, a) => s + (parseInt(a.pct) || 0), 0) / axeActions.length
+          axeActions.reduce((s, a) => {
+            const pct = a._pctJalons !== undefined ? Math.max(a._pctJalons, parseInt(a.pct) || 0) : (parseInt(a.pct) || 0);
+            return s + pct;
+          }, 0) / axeActions.length
         );
       }
     }
@@ -987,6 +995,57 @@ async function toggleJalon(jalonId, checked) {
     const modalBg = document.getElementById('modal-bg');
     if (modalBg && modalBg.classList.contains('open')) {
       openModal(j.actionId);
+    }
+  }
+
+  // ── Créer automatiquement le prochain jalon si récurrent et terminé ──────
+  if (checked && j.recurrence && j.recurrence !== 'Aucune' && j.date) {
+    try {
+      const dateBase = new Date(j.date + 'T00:00:00');
+      if (j.recurrence === 'Annuelle')       dateBase.setFullYear(dateBase.getFullYear() + 1);
+      else if (j.recurrence === 'Trimestrielle') dateBase.setMonth(dateBase.getMonth() + 3);
+      else if (j.recurrence === 'Mensuelle') dateBase.setMonth(dateBase.getMonth() + 1);
+      const nextDate = dateBase.toISOString().split('T')[0];
+
+      // Vérifier qu'un jalon identique n'existe pas déjà pour cette date
+      const existe = APP.jalons.find(x =>
+        String(x.actionId) === String(j.actionId) &&
+        x.titre === j.titre &&
+        x.date === nextDate
+      );
+      if (!existe) {
+        const newJalon = {
+          id:         'local-' + Date.now(),
+          titre:      j.titre,
+          date:       nextDate,
+          statut:     'à faire',
+          actionId:   j.actionId,
+          desc:       j.desc,
+          recurrence: j.recurrence,
+        };
+        if (isLiveData && graphToken && spSiteId) {
+          const res = await graphFetch(
+            `/sites/${spSiteId}/lists/${SP_CONFIG.lists.jalons}/items`,
+            'POST', { fields: { Title: j.titre.substring(0, 255) } }
+          );
+          newJalon.id = res.id;
+          await graphFetch(
+            `/sites/${spSiteId}/lists/${SP_CONFIG.lists.jalons}/items/${res.id}/fields`,
+            'PATCH', {
+              Date_Jalon:   nextDate + 'T00:00:00Z',
+              Statut_Jalon: 'à faire',
+              ActionId:     String(j.actionId),
+              Description:  j.desc || '',
+              Recurrence:   j.recurrence,
+            }
+          );
+        }
+        APP.jalons.push(newJalon);
+        showToast(`🔄 Prochain jalon créé : ${nextDate}`, 'info', 5000);
+        renderTimeline();
+      }
+    } catch(e) {
+      console.warn('Création jalon récurrent:', e.message);
     }
   }
 }

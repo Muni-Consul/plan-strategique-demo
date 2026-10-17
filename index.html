@@ -84,6 +84,10 @@
               <button role="menuitem" onclick="closeMenus();exportDashboardPDF()" title="Tableau de bord en une page pour les séances du conseil">Tableau conseil (PDF)</button>
               <button role="menuitem" onclick="closeMenus();exportPDF()">Rapport PDF</button>
               <button role="menuitem" onclick="closeMenus();exportCSV()">Fichier CSV</button>
+              <div class="menu-sep" role="separator"></div>
+              <button role="menuitem" onclick="closeMenus();exportRapportDetaille()" title="Rapport détaillé : une page par axe">Rapport détaillé (par axe)</button>
+              <button role="menuitem" onclick="closeMenus();openRapportAxeModal()">Rapport d'un axe…</button>
+              <button role="menuitem" onclick="closeMenus();openRapportObjectifModal()">Rapport d'un objectif…</button>
             </div>
           </div>
           <div class="menu-wrap">
@@ -141,6 +145,7 @@
             <table class="actions-table">
               <thead>
                 <tr>
+                  <th class="th-sort" onclick="sortActions('numero')" style="width:60px;">N° <span class="sort-icon" id="sort-numero"></span></th>
                   <th class="th-sort" onclick="sortActions('titre')">   Titre       <span class="sort-icon" id="sort-titre"></span></th>
                   <th class="th-sort" onclick="sortActions('axe')">     Axe         <span class="sort-icon" id="sort-axe"></span></th>
                   <th class="th-sort" onclick="sortActions('resp')">    Responsable <span class="sort-icon" id="sort-resp"></span></th>
@@ -177,7 +182,7 @@
           <div id="gantt-container" class="gantt-container"></div>
         </div>
         <div class="pane" id="pane-timeline">
-          <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem;">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem;position:sticky;top:0;z-index:10;background:var(--c-bg);padding:.5rem 0;">
             <button class="btn btn-add" onclick="openJalonModal()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Nouveau jalon
@@ -419,6 +424,10 @@
         <div class="form-spinner"></div> Enregistrement…
       </div>
       <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Numéro</label>
+          <input id="f-numero" class="form-input" type="text" placeholder="Ex : 1.2.3" maxlength="20">
+        </div>
         <div class="form-group full">
           <label class="form-label">Titre *</label>
           <input id="f-titre" class="form-input" type="text" placeholder="Titre de l'objectif" maxlength="255" oninput="document.getElementById('f-titre-count').textContent=this.value.length+' / 255'">
@@ -520,6 +529,13 @@
         <div class="form-group">
           <label class="form-label">Date *</label>
           <input id="jf-date" class="form-input" type="date">
+          <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:var(--c-text-2);cursor:pointer;">
+            <input type="checkbox" id="jf-continu" onchange="
+              const d = document.getElementById('jf-date');
+              d.disabled = this.checked;
+              d.style.opacity = this.checked ? '0.3' : '1';
+            "> ∞ En continu (sans date fixe)
+          </label>
         </div>
         <div class="form-group">
           <label class="form-label">Statut</label>
@@ -531,6 +547,15 @@
             <option value="en attente">En attente</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">Récurrence 🔄</label>
+          <select id="jf-recurrence" class="form-select">
+            <option value="Aucune">Aucune</option>
+            <option value="Annuelle">Annuelle</option>
+            <option value="Trimestrielle">Trimestrielle</option>
+            <option value="Mensuelle">Mensuelle</option>
+          </select>
+        </div>
         <div class="form-group full">
           <label class="form-label">Objectif associé</label>
           <select id="jf-objectif" class="form-select">
@@ -540,6 +565,10 @@
         <div class="form-group full">
           <label class="form-label">Description</label>
           <textarea id="jf-desc" class="form-input" rows="3" placeholder="Détails, critères de succès…" style="resize:vertical;min-height:64px;"></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">✅ Actions réalisées</label>
+          <textarea id="jf-actions" class="form-input" rows="4" placeholder="Décrivez les actions concrètes réalisées pour ce jalon…" style="resize:vertical;min-height:80px;"></textarea>
         </div>
       </div>
       <div class="form-actions">
@@ -587,5 +616,68 @@
     }
   </script>
 
+  <!-- Modale : choisir un axe pour le rapport -->
+  <div id="rapport-axe-modal-bg" class="modal-bg" style="display:none;">
+    <div class="modal-box" style="max-width:560px;">
+      <div class="modal-head">
+        <span>📊 Rapport d'axe stratégique</span>
+        <button class="modal-close" onclick="closeRapportAxeModal()">×</button>
+      </div>
+      <div style="padding:1rem 0;">
+        <label class="form-label">Sélectionnez un axe</label>
+        <select id="rapport-axe-select" class="form-select" style="width:100%;margin-top:6px;"></select>
+        <p style="font-size:12px;color:var(--c-text-3);margin-top:12px;line-height:1.5;">
+          Le rapport inclura la description de l'axe, ses statistiques globales,
+          la liste complète de ses objectifs avec toutes leurs informations,
+          et tous les jalons rattachés avec leurs indicateurs et actions réalisées.
+        </p>
+      </div>
+      <div class="form-actions">
+        <button class="btn form-btn-cancel" onclick="closeRapportAxeModal()">Annuler</button>
+        <button class="btn form-btn-save btn-add" onclick="genererRapportAxe()">📊 Générer le PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : choisir un objectif pour le rapport -->
+  <div id="rapport-obj-modal-bg" class="modal-bg" style="display:none;">
+    <div class="modal-box" style="max-width:560px;">
+      <div class="modal-head">
+        <span>📄 Rapport d'objectif</span>
+        <button class="modal-close" onclick="closeRapportObjectifModal()">×</button>
+      </div>
+      <div style="padding:1rem 0;">
+        <label class="form-label">Sélectionnez un objectif</label>
+        <select id="rapport-obj-select" class="form-select" style="width:100%;margin-top:6px;"></select>
+        <p style="font-size:12px;color:var(--c-text-3);margin-top:12px;line-height:1.5;">
+          Le rapport inclura l'axe stratégique, les informations complètes de l'objectif
+          (responsable, dates, budget, avancement, description) ainsi que tous ses jalons
+          avec leurs indicateurs et actions réalisées.
+        </p>
+      </div>
+      <div class="form-actions">
+        <button class="btn form-btn-cancel" onclick="closeRapportObjectifModal()">Annuler</button>
+        <button class="btn form-btn-save btn-add" onclick="genererRapportObjectif()">📄 Générer le PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bouton flottant Nouveau jalon -->
+  <button id="fab-jalon" onclick="openJalonModal()" title="Nouveau jalon"
+    style="position:fixed;bottom:2rem;right:2rem;z-index:9999;width:52px;height:52px;border-radius:50%;background:#2563eb;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <script>
+    function updateFab() {
+      const fab = document.getElementById('fab-jalon');
+      if (!fab) return;
+      const pane = document.getElementById('pane-timeline');
+      fab.style.display = (pane && pane.classList.contains('active')) ? 'flex' : 'none';
+    }
+    document.addEventListener('click', updateFab);
+    document.addEventListener('DOMContentLoaded', updateFab);
+    setTimeout(updateFab, 1000);
+    setInterval(updateFab, 500);
+  </script>
 </body>
 </html>
