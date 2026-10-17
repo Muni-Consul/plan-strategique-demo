@@ -18,16 +18,21 @@ function budgetNum(v) {
 }
 
 function calcAvancementAxes() {
-  if (!APP.autoCalcAxes) return; // Calcul auto désactivé
+  // Mettre à jour le % de chaque objectif depuis ses jalons (si jalons existants)
+  APP.actions.forEach(a => {
+    const jp = (typeof getJalonProgress === 'function') ? getJalonProgress(a.id) : null;
+    if (jp !== null) {
+      a._pctJalons = jp.pct;  // % calculé depuis jalons
+    }
+  });
+
+  if (!APP.autoCalcAxes) return; // Calcul auto des axes désactivé
   // Calculer automatiquement l'avancement de chaque axe
-  // en tenant compte des jalons (si définis) pour chaque objectif
   APP.axes.forEach(axe => {
     const actionsAxe = APP.actions.filter(a => a.axe === axe.id);
     if (actionsAxe.length > 0) {
       const total = actionsAxe.reduce((sum, a) => {
-        const jp  = (typeof getJalonProgress === 'function') ? getJalonProgress(a.id) : null;
-        // Prendre le max entre jalons cochés et % manuel (cohérent avec l'affichage)
-        const pct = jp !== null ? Math.max(jp.pct, parseInt(a.pct) || 0) : (parseInt(a.pct) || 0);
+        const pct = a._pctJalons !== undefined ? Math.max(a._pctJalons, parseInt(a.pct) || 0) : (parseInt(a.pct) || 0);
         return sum + pct;
       }, 0);
       axe.pct = Math.round(total / actionsAxe.length);
@@ -38,19 +43,17 @@ function calcAvancementAxes() {
 function renderApercu() {
   // KPIs
   const total  = APP.actions.length;
-  const done   = APP.actions.filter(a => (parseInt(a.pct) || 0) >= 100 || a.statut === 'terminée').length;
-  const late   = APP.actions.filter(a => a.statut === 'en retard' && (parseInt(a.pct) || 0) < 100).length;
-  const inprog = APP.actions.filter(a => a.statut === 'en cours'  && (parseInt(a.pct) || 0) < 100).length;
+  const getPct = (a) => a._pctJalons !== undefined ? Math.max(a._pctJalons, parseInt(a.pct) || 0) : (parseInt(a.pct) || 0);
+  const done   = APP.actions.filter(a => getPct(a) >= 100 || a.statut === 'terminée').length;
+  const late   = APP.actions.filter(a => a.statut === 'en retard' && getPct(a) < 100).length;
+  const inprog = APP.actions.filter(a => a.statut === 'en cours'  && getPct(a) < 100).length;
   const pct100 = total > 0 ? Math.round(done / total * 100) : 0;
   const pctLate = total > 0 ? Math.round(late / total * 100) : 0;
   const pctProg = total > 0 ? Math.round(inprog / total * 100) : 0;
 
   // Avancement global = moyenne du % réel de chaque action (jalons prioritaires)
   const global = total > 0 ? Math.round(
-    APP.actions.reduce((s, a) => {
-      const jp = (typeof getJalonProgress === 'function') ? getJalonProgress(a.id) : null;
-      return s + (jp !== null ? Math.max(jp.pct, parseInt(a.pct) || 0) : (parseInt(a.pct) || 0));
-    }, 0) / total
+    APP.actions.reduce((s, a) => s + getPct(a), 0) / total
   ) : 0;
 
   // Calcul du budget total
@@ -231,6 +234,7 @@ function setFilter(type, value) {
   if (type === 'axe')    APP.filterAxe    = value;
   else if (type === 'statut') APP.activeFilter = value || 'tous';
   else if (type === 'resp')   APP.filterResp   = value;
+  else if (type === 'delai')  APP.filterDelai  = value;
   APP.actionsPage = 1;
   renderActions(undefined, undefined);
 }
@@ -240,6 +244,7 @@ function resetFilters() {
   APP.activeFilter = 'tous';
   APP.filterAxe    = '';
   APP.filterResp   = '';
+  APP.filterDelai  = '';
   const searchEl = document.getElementById('actions-search');
   if (searchEl) { searchEl.value = ''; }
   renderActions(undefined, 1);
@@ -255,7 +260,7 @@ function renderActions(filter, page) {
   const allStatuts = ['tous', ...new Set(APP.actions.map(a => a.statut).filter(Boolean))];
   const allResps   = [...new Set(APP.actions.map(a => a.resp).filter(Boolean))].sort((a,b) => a.localeCompare(b,'fr'));
   const axeMapFB   = getAxeMap();
-  const anyFilter  = APP.activeFilter !== 'tous' || APP.filterAxe || APP.filterResp;
+  const anyFilter  = APP.activeFilter !== 'tous' || APP.filterAxe || APP.filterResp || APP.filterDelai;
 
   document.getElementById('filter-bar').innerHTML =
     `<select id="filter-axe" class="filter-select${APP.filterAxe?' active':''}" onchange="setFilter('axe',this.value)" title="Filtrer par axe">
@@ -272,6 +277,13 @@ function renderActions(filter, page) {
        <option value="">Tous les responsables</option>
        ${allResps.map(r => `<option value="${h(r)}"${APP.filterResp===r?' selected':''}>${h(r)}</option>`).join('')}
      </select>
+     <select id="filter-delai" class="filter-select${APP.filterDelai?' active':''}" onchange="setFilter('delai',this.value)" title="Filtrer par échéance">
+       <option value="">Toutes les échéances</option>
+       <option value="30"${APP.filterDelai==='30'?' selected':''}>📅 Dans les 30 jours</option>
+       <option value="60"${APP.filterDelai==='60'?' selected':''}>📅 Dans les 60 jours</option>
+       <option value="90"${APP.filterDelai==='90'?' selected':''}>📅 Dans les 90 jours</option>
+       <option value="retard"${APP.filterDelai==='retard'?' selected':''}>⚠️ En retard</option>
+     </select>
      ${anyFilter ? `<button class="filter-reset" onclick="resetFilters()" title="Effacer tous les filtres">✕ Réinitialiser</button>` : ''}`;
 
   // ── Recherche texte ───────────────────────────────────────
@@ -285,6 +297,23 @@ function renderActions(filter, page) {
   if (APP.activeFilter !== 'tous') list = list.filter(a => a.statut === APP.activeFilter);
   if (APP.filterAxe)   list = list.filter(a => a.axe  === APP.filterAxe);
   if (APP.filterResp)  list = list.filter(a => a.resp === APP.filterResp);
+  if (APP.filterDelai) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (APP.filterDelai === 'retard') {
+      list = list.filter(a => {
+        if (!a.echeance) return false;
+        return new Date(a.echeance + 'T00:00:00') < today && a.statut !== 'terminée';
+      });
+    } else {
+      const jours = parseInt(APP.filterDelai);
+      const limite = new Date(today); limite.setDate(limite.getDate() + jours);
+      list = list.filter(a => {
+        if (!a.echeance) return false;
+        const d = new Date(a.echeance + 'T00:00:00');
+        return d >= today && d <= limite;
+      });
+    }
+  }
   if (q) {
     list = list.filter(a =>
       (a.titre  || '').toLowerCase().includes(q) ||
@@ -301,6 +330,8 @@ function renderActions(filter, page) {
     const dir = APP.sortDir === 'asc' ? 1 : -1;
     list = [...list].sort((a, b) => {
       switch (APP.sortCol) {
+        case 'numero':
+          return dir * (a.numero || '').localeCompare(b.numero || '', 'fr', { numeric: true });
         case 'titre':
           return dir * (a.titre || '').localeCompare(b.titre || '', 'fr');
         case 'axe':
@@ -365,10 +396,11 @@ function renderActions(filter, page) {
     const ci  = statutEff !== 'terminée' ? calcCible(a) : null;
     return `
       <tr>
+        <td style="white-space:nowrap;font-size:12px;color:var(--c-text-3);font-weight:600;">${h(a.numero || '')}</td>
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
           <span onclick="openModal('${h(String(a.id))}')" title="Voir les détails et les jalons" style="cursor:pointer;font-weight:500;color:var(--c-text);" onmouseover="this.style.color='var(--c-purple)'" onmouseout="this.style.color='var(--c-text)'">${h(a.titre)}</span>
         </td>
-        <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${h(axe.light)};color:${h(axe.color)};font-weight:500;">${h(a.axe)}</span></td>
+        <td><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${h(axe.color)};color:#fff;font-weight:600;">${h(a.axe)}</span></td>
         <td style="white-space:nowrap;">${h(a.resp)}</td>
         <td><span class="prio-badge" style="${getPrioBadgeStyle(a.prio)}"></span></td>
         <td style="white-space:nowrap;font-size:12px;">${fmtDate(a.echeance)} ${statutEff !== 'terminée' ? formatDelai(a.echeance) : ''}</td>
@@ -464,11 +496,94 @@ function renderAxes() {
 /* ================================================================
    9. RENDU — TIMELINE
    ================================================================ */
+// État du tri des jalons
+if (!window.JALON_SORT) window.JALON_SORT = { col: 'date', dir: 'asc' };
+
+function filterJalonsResp(resp) {
+  window.JALON_FILTER_RESP = resp || '';
+  renderTimeline();
+}
+
+function sortJalons(col) {
+  if (window.JALON_SORT.col === col) {
+    window.JALON_SORT.dir = window.JALON_SORT.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    window.JALON_SORT.col = col;
+    window.JALON_SORT.dir = 'asc';
+  }
+  renderTimeline();
+}
+
 function renderTimeline() {
-  const sorted = [...APP.jalons].sort((a,b) => new Date(a.date) - new Date(b.date));
+  const dir = window.JALON_SORT.dir === 'asc' ? 1 : -1;
+  const col = window.JALON_SORT.col;
+
+  const sorted = [...APP.jalons].sort((a, b) => {
+    const getAction = (j) => APP.actions.find(x => String(x.id) === String(j.actionId));
+    // Tri secondaire : toujours par date croissante à l'intérieur d'un groupe
+    const parDate = () => {
+      const da = a.date ? new Date(a.date).getTime() : Infinity;
+      const db = b.date ? new Date(b.date).getTime() : Infinity;
+      return da - db;
+    };
+    if (col === 'date')    return dir * parDate();
+    if (col === 'statut') {
+      const r = dir * (a.statut||'').localeCompare(b.statut||'', 'fr');
+      return r !== 0 ? r : parDate();
+    }
+    if (col === 'objectif') {
+      const ta = getAction(a)?.titre || ''; const tb = getAction(b)?.titre || '';
+      const r = dir * ta.localeCompare(tb, 'fr');
+      return r !== 0 ? r : parDate();
+    }
+    if (col === 'numero') {
+      const na = getAction(a)?.numero || ''; const nb = getAction(b)?.numero || '';
+      const r = dir * na.localeCompare(nb, 'fr', { numeric: true });
+      return r !== 0 ? r : parDate();
+    }
+    if (col === 'resp') {
+      const ra = getAction(a)?.resp || 'zzz'; const rb = getAction(b)?.resp || 'zzz';
+      const r = dir * ra.localeCompare(rb, 'fr');
+      return r !== 0 ? r : parDate();
+    }
+    return 0;
+  });
+
+  // Filtre par responsable
+  const jalonResps = [...new Set(APP.jalons.map(j => {
+    const act = APP.actions.find(x => String(x.id) === String(j.actionId));
+    return act?.resp || '';
+  }).filter(Boolean))].sort((a,b) => a.localeCompare(b,'fr'));
+
+  let filtered = sorted;
+  if (window.JALON_FILTER_RESP) {
+    filtered = sorted.filter(j => {
+      const act = APP.actions.find(x => String(x.id) === String(j.actionId));
+      return act?.resp === window.JALON_FILTER_RESP;
+    });
+  }
+
+  const arrow = (c) => col === c ? (dir === 'asc' ? ' ↑' : ' ↓') : ' ↕';
+  const btnStyle = (c) => `cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--c-border-med);background:${col===c?'var(--c-accent)':'var(--c-bg-2)'};color:${col===c?'#fff':'var(--c-text-2)'};font-size:12px;font-family:inherit;`;
+  const triBar = `<div style="display:flex;gap:6px;margin-bottom:.75rem;align-items:center;">
+    <span style="font-size:12px;color:var(--c-text-3);">Trier :</span>
+    <button style="${btnStyle('date')}" onclick="sortJalons('date')">Date${arrow('date')}</button>
+    <button style="${btnStyle('numero')}" onclick="sortJalons('numero')">N° objectif${arrow('numero')}</button>
+    <button style="${btnStyle('objectif')}" onclick="sortJalons('objectif')">Objectif${arrow('objectif')}</button>
+    <button style="${btnStyle('resp')}" onclick="sortJalons('resp')">Responsable${arrow('resp')}</button>
+    <button style="${btnStyle('statut')}" onclick="sortJalons('statut')">Statut${arrow('statut')}</button>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+      <span style="font-size:12px;color:var(--c-text-3);">👤</span>
+      <select onchange="filterJalonsResp(this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--c-border-med);background:${window.JALON_FILTER_RESP?'var(--c-accent)':'var(--c-bg-2)'};color:${window.JALON_FILTER_RESP?'#fff':'var(--c-text-2)'};font-size:12px;font-family:inherit;cursor:pointer;">
+        <option value="">Tous les responsables</option>
+        ${jalonResps.map(r => `<option value="${h(r)}"${window.JALON_FILTER_RESP===r?' selected':''}>${h(r)}</option>`).join('')}
+      </select>
+    </span>
+  </div>`;
+
   const listEl = document.getElementById('timeline-list');
-  if (!sorted.length) {
-    listEl.innerHTML = `<div style="text-align:center;color:var(--c-text-3);padding:2rem;font-size:.9rem;">Aucun jalon — cliquez <strong>+ Nouveau jalon</strong> pour en créer un.</div>`;
+  if (!filtered.length) {
+    listEl.innerHTML = triBar + `<div style="text-align:center;color:var(--c-text-3);padding:2rem;font-size:.9rem;">Aucun jalon — cliquez <strong>+ Nouveau jalon</strong> pour en créer un.</div>`;
     return;
   }
   // Précalculer le numéro de chaque jalon au sein de son objectif (triés par date)
@@ -485,13 +600,36 @@ function renderTimeline() {
   });
 
   const axeMap = getAxeMap();
-  listEl.innerHTML = sorted.map((item, i) => {
+  listEl.innerHTML = triBar + filtered.map((item, i) => {
     const action  = APP.actions.find(a => String(a.id) === String(item.actionId));
     const axe     = action ? (axeMap[action.axe] || {}) : {};
     const num     = action && jalonNumMap[String(item.id)] ? `J${jalonNumMap[String(item.id)]}` : null;
     const sm      = STATUS_MAP[item.statut] || STATUS_MAP['à faire'];
-    const isLast  = i === sorted.length - 1;
-    return `
+    const isLast  = i === filtered.length - 1;
+
+    // Séparateur entre groupes d'objectifs (tri par numéro ou objectif)
+    let separateur = '';
+    if (col === 'numero' || col === 'objectif') {
+      const prevAction = i > 0 ? APP.actions.find(a => String(a.id) === String(filtered[i-1].actionId)) : null;
+      const prevId = prevAction?.id;
+      const currId = action?.id;
+      if (prevId !== currId) {
+        const titre = action ? `${action.numero ? action.numero + ' — ' : ''}${action.titre}` : '';
+        separateur = `<div style="margin:1.25rem 0 .5rem;padding:.5rem .75rem;background:var(--c-surface-2);border-radius:6px;border-left:3px solid ${axe.color||'var(--c-accent)'};font-size:12px;font-weight:700;color:var(--c-text-2);">${h(titre)}</div>`;
+      }
+    } else if (col === 'resp') {
+      const prevAction = i > 0 ? APP.actions.find(a => String(a.id) === String(filtered[i-1].actionId)) : null;
+      const prevResp = prevAction?.resp || '';
+      const currResp = action?.resp || '';
+      if (prevResp !== currResp) {
+        const nbJalons = filtered.filter(x => {
+          const act = APP.actions.find(a => String(a.id) === String(x.actionId));
+          return (act?.resp || '') === currResp;
+        }).length;
+        separateur = `<div style="margin:1.25rem 0 .5rem;padding:.5rem .75rem;background:var(--c-surface-2);border-radius:6px;border-left:3px solid var(--c-accent);font-size:12px;font-weight:700;color:var(--c-text-2);display:flex;justify-content:space-between;"><span>👤 ${h(currResp || 'Sans responsable')}</span><span style="color:var(--c-text-3);font-weight:500;">${nbJalons} jalon${nbJalons>1?'s':''}</span></div>`;
+      }
+    }
+    return separateur + `
       <div class="tl-item">
         <div class="tl-left">
           <div class="tl-dot" style="background:${sm.dot}"></div>
@@ -504,7 +642,8 @@ function renderTimeline() {
                 onchange="toggleJalon('${h(String(item.id))}', this.checked)"
                 style="width:15px;height:15px;cursor:pointer;accent-color:#3B6D11;flex-shrink:0;"
                 title="${item.statut === 'terminée' ? 'Marquer non terminé' : 'Marquer terminé'}">
-              ${num ? `<span style="font-size:10px;font-weight:700;color:var(--c-text-3);background:var(--c-surface-2);padding:1px 5px;border-radius:4px;flex-shrink:0;">${num}</span>` : ''}
+              ${num ? `<span style="font-size:10px;font-weight:700;color:#fff;background:#6366f1;padding:1px 6px;border-radius:4px;flex-shrink:0;">${num}</span>` : ''}
+              ${item.recurrence && item.recurrence !== 'Aucune' ? `<span title="Récurrence : ${h(item.recurrence)}" style="font-size:12px;cursor:default;">🔄</span>` : ''}
               <div class="tl-title" style="${item.statut === 'terminée' ? 'text-decoration:line-through;color:var(--c-text-3);' : ''}">${h(item.titre)}</div>
             </div>
             <div style="display:flex;gap:2px;flex-shrink:0;">
@@ -521,11 +660,12 @@ function renderTimeline() {
             </div>
           </div>
           <div class="tl-meta">
-            <span>${fmtDate(item.date)}</span>
-            ${action ? `<span style="color:${h(axe.color||'#888')};cursor:pointer;" onclick="openModal('${h(String(action.id))}')" title="Voir l'objectif">${h(action.titre)}</span>` : ''}
-            <span class="pill ${sm.pill}">${h(item.statut)}</span>
+            <span style="color:#94a3b8;font-weight:600;">${fmtDate(item.date)}</span>
+            ${action?.numero ? `<span style="font-size:11px;font-weight:800;color:#e2e8f0;background:#334155;padding:1px 7px;border-radius:4px;">${h(action.numero)}</span>` : ''}
+            ${action ? `<span style="color:${h(axe.color||'#a78bfa')};font-weight:600;cursor:pointer;" onclick="openModal('${h(String(action.id))}')" title="Voir l'objectif">${h(action.titre)}</span>` : ''}
+            <span class="pill ${sm.pill}" style="font-weight:700;">${h(item.statut)}</span>
           </div>
-          ${item.desc ? `<div style="font-size:11.5px;color:var(--c-text-2);margin-top:3px;line-height:1.4;">${h(item.desc)}</div>` : ''}
+          ${item.desc ? `<div style="font-size:11.5px;color:var(--c-text-2);margin-top:3px;line-height:1.6;">${h(item.desc).split('•').filter(s=>s.trim()).map(s=>`<div style="display:flex;gap:4px;"><span>•</span><span>${s.trim()}</span></div>`).join('')}</div>` : ''}
         </div>
       </div>`;
   }).join('');
