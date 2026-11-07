@@ -119,6 +119,26 @@ function switchSettingsTab(id, btn) {
   btn.classList.add('active');
 }
 
+/* --- SYSTÈME : réinitialisation manuelle de la démo (mode API serveur) --- */
+async function reinitialiserDemo() {
+  if (!SP_CONFIG.serverApi) return;
+  if (!confirm('Réinitialiser la démo ?\n\nToutes les modifications seront effacées et les données de référence seront restaurées.')) return;
+  const btn = document.getElementById('btn-reset-demo');
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch(`${SP_CONFIG.serverApi}/reset`, { method: 'POST' });
+    if (res.status === 429) { showToast('Réinitialisation déjà faite à l\'instant, réessayez dans quelques secondes.', 'info'); return; }
+    if (!res.ok) throw new Error('code ' + res.status);
+    closeSettingsModal();
+    await loadSharePointData();
+    showToast('Démo réinitialisée : données de référence restaurées.', 'success');
+  } catch (e) {
+    showToast('Échec de la réinitialisation : ' + e.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 /* --- AXES --- */
 function renderSettingsAxes() {
   const el = document.getElementById('settings-axes-list');
@@ -613,6 +633,12 @@ function resetSettings() {
 document.getElementById('settings-modal-bg').addEventListener('click', function(e) {
   if (e.target === this) closeSettingsModal();
 });
+
+// Le bouton de réinitialisation n'existe que sur la démo modifiable (API serveur)
+if (SP_CONFIG.serverApi) {
+  const bloc = document.getElementById('settings-demo-reset');
+  if (bloc) bloc.style.display = 'block';
+}
 
 // Charger les settings au démarrage
 loadSettings();
