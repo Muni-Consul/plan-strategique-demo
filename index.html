@@ -51,6 +51,11 @@
       <div class="nav-section">Planification</div>
       <button class="nav-item" onclick="switchPane('timeline',this)">🗓 Jalons</button>
       <button class="nav-item" onclick="switchPane('gantt',this)">📅 Gantt</button>
+      <div class="nav-section">Rapports</div>
+      <button class="nav-item" onclick="openRapportObjectifModal()">📄 Rapport objectif</button>
+      <button class="nav-item" onclick="openRapportAxeModal()">📊 Rapport axe</button>
+      <div class="nav-section">Données</div>
+      <button class="nav-item" onclick="refreshData()">🔄 Actualiser</button>
       <div class="sidebar-footer">
         <div id="sp-status" class="sp-status"><span class="sp-dot"></span><span id="sp-label">Non connecté</span></div>
         <div style="display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;">
@@ -78,28 +83,14 @@
         </div>
         <div class="topbar-actions">
           <button class="btn btn-primary" onclick="openFormModal(null)">+ Nouvel objectif</button>
-          <div class="menu-wrap">
-            <button class="btn" onclick="toggleMenu(this)" aria-haspopup="true" aria-expanded="false">Exporter ▾</button>
-            <div class="menu" role="menu">
-              <button role="menuitem" onclick="closeMenus();exportDashboardPDF()" title="Tableau de bord en une page pour les séances du conseil">Tableau conseil (PDF)</button>
-              <button role="menuitem" onclick="closeMenus();exportPDF()">Rapport PDF</button>
-              <button role="menuitem" onclick="closeMenus();exportCSV()">Fichier CSV</button>
-              <div class="menu-sep" role="separator"></div>
-              <button role="menuitem" onclick="closeMenus();exportRapportDetaille()" title="Rapport détaillé : une page par axe">Rapport détaillé (par axe)</button>
-              <button role="menuitem" onclick="closeMenus();openRapportAxeModal()">Rapport d'un axe…</button>
-              <button role="menuitem" onclick="closeMenus();openRapportObjectifModal()">Rapport d'un objectif…</button>
-            </div>
-          </div>
-          <div class="menu-wrap">
-            <button class="btn" onclick="toggleMenu(this)" aria-haspopup="true" aria-expanded="false">Données ▾</button>
-            <div class="menu" role="menu">
-              <button role="menuitem" onclick="closeMenus();openImportModal()">Importer Excel</button>
-              <button role="menuitem" onclick="closeMenus();openSharePoint()">Ouvrir SharePoint</button>
-            </div>
-          </div>
+          <button class="btn" onclick="exportCSV()">Exporter CSV</button>
+          <button class="btn" onclick="exportPDF()">Exporter PDF</button>
+          <button class="btn" onclick="exportDashboardPDF()" title="Tableau de bord en une page pour les séances du conseil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Tableau conseil</button>
+          <button class="btn" onclick="exportRapportDetaille()" title="Rapport détaillé : une page par axe"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Rapport détaillé</button>
           <button id="btn-presentation" class="btn" onclick="togglePresentationMode()">Présentation</button>
-          <button class="btn btn-icon" onclick="refreshData()" title="Actualiser les données" aria-label="Actualiser les données">🔄</button>
-          <button class="btn btn-icon" onclick="openSettingsModal()" title="Paramètres" aria-label="Paramètres">⚙️</button>
+          <button class="btn" onclick="openSettingsModal()">⚙️ Paramètres</button>
+          <button class="btn" onclick="openImportModal()" title="Importer le gabarit Excel (axes, objectifs, jalons)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Importer Excel</button>
+          <button class="btn btn-inactive" aria-disabled="true" onclick="sharePointInactif()" title="Inactif dans cette démo : disponible dans la version connectée à SharePoint">Ouvrir SharePoint</button>
         </div>
       </div>
 
