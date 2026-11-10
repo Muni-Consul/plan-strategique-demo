@@ -120,20 +120,44 @@ function switchSettingsTab(id, btn) {
 }
 
 /* --- SYSTÈME : réinitialisation manuelle de la démo (mode API serveur) --- */
+/** Affiche la dernière réinitialisation et l'activité des visiteurs depuis. */
+async function chargerEtatDemo() {
+  const el = document.getElementById('demo-etat');
+  if (!el || !SP_CONFIG.serverApi) return;
+  const quand = iso => new Date(iso).toLocaleString('fr-CA', { dateStyle: 'long', timeStyle: 'short' });
+  try {
+    const res = await fetch(SP_CONFIG.serverApi + '/status', { cache: 'no-store' });
+    if (!res.ok) throw new Error('code ' + res.status);
+    const e = await res.json();
+    const depuis = e.derniereReinitialisation ? 'Dernière réinitialisation : ' + quand(e.derniereReinitialisation) : 'Aucune réinitialisation enregistrée';
+    const visiteurs = e.modifications === 0
+      ? '✓ Aucune modification depuis : aucun visiteur n’a touché aux données.'
+      : '⚠ ' + e.modifications + ' modification' + (e.modifications > 1 ? 's' : '') + ' depuis (dernière : ' + quand(e.derniereModification) + ').';
+    el.textContent = depuis + ' — ' + visiteurs;
+  } catch (err) {
+    el.textContent = "État de la démo indisponible (" + err.message + ").";
+  }
+}
+
 async function reinitialiserDemo() {
   if (!SP_CONFIG.serverApi) return;
-  if (!confirm('Réinitialiser la démo ?\n\nToutes les modifications seront effacées et les données de référence seront restaurées.')) return;
+  const champ = document.getElementById('reset-mdp');
+  const mdp = champ ? champ.value : '';
+  if (!mdp) { showToast("Entrez le mot de passe administrateur.", 'info'); if (champ) champ.focus(); return; }
+  if (!confirm("Réinitialiser la démo ? Toutes les modifications seront effacées.")) return;
   const btn = document.getElementById('btn-reset-demo');
   if (btn) btn.disabled = true;
   try {
-    const res = await fetch(`${SP_CONFIG.serverApi}/reset`, { method: 'POST' });
-    if (res.status === 429) { showToast('Réinitialisation déjà faite à l\'instant, réessayez dans quelques secondes.', 'info'); return; }
+    const res = await fetch(SP_CONFIG.serverApi + '/reset', { method: 'POST', headers: { 'X-Reset-Key': mdp } });
+    if (res.status === 403) { showToast("Mot de passe incorrect, ou réinitialisation non activée sur ce serveur.", 'error'); return; }
+    if (res.status === 429) { showToast("Trop d’essais ou réinitialisation trop rapprochée : réessayez dans un moment.", 'info'); return; }
     if (!res.ok) throw new Error('code ' + res.status);
+    if (champ) champ.value = '';
     closeSettingsModal();
     await loadSharePointData();
-    showToast('Démo réinitialisée : données de référence restaurées.', 'success');
+    showToast("Démo réinitialisée : données de référence restaurées.", 'success');
   } catch (e) {
-    showToast('Échec de la réinitialisation : ' + e.message, 'error');
+    showToast("Échec de la réinitialisation : " + e.message, 'error');
   } finally {
     if (btn) btn.disabled = false;
   }
