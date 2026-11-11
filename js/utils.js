@@ -111,13 +111,19 @@ function openSharePoint() {
   window.open(`https://${SP_CONFIG.tenantDomain}${SP_CONFIG.siteRelativeUrl}`, '_blank');
 }
 
+/** Bouton « Ouvrir SharePoint » volontairement inactif dans la démo. */
+function sharePointInactif() {
+  showToast("SharePoint est inactif dans cette démo. Dans la version de production, le tableau de bord se connecte à vos listes SharePoint (lecture, écriture, import Excel).", 'info', 6500);
+}
+
 async function refreshData() {
   if (!isLiveData) { alert("Connexion SharePoint requise pour actualiser les données."); return; }
-  document.querySelector('.nav-item[onclick*="refreshData"]').style.opacity = '0.5';
+  const navRefresh = document.querySelector('.nav-item[onclick*="refreshData"]');
+  if (navRefresh) navRefresh.style.opacity = '0.5';
   try {
     await loadSharePointData();
   } finally {
-    document.querySelector('.nav-item[onclick*="refreshData"]').style.opacity = '1';
+    if (navRefresh) navRefresh.style.opacity = '1';
   }
 }
 

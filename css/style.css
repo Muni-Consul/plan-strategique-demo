@@ -192,6 +192,8 @@
     .btn-primary:hover { background: #4540A0; }
     .btn svg { width: 13px; height: 13px; }
     .btn-icon { padding: 6px 9px; }
+    .btn-inactive { opacity: 0.5; cursor: not-allowed; }
+    .btn-inactive:hover { background: var(--c-surface); }
     .topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
     .menu-wrap { position: relative; }
     .menu {
